@@ -1,0 +1,349 @@
+/* global React, ReactDOM */
+const { useState, useEffect, useMemo, useCallback, useRef } = window.React;
+
+// ============================================================
+// State helpers — localStorage persistence
+// ============================================================
+const LS = {
+  lang: 'cinemap-lang',
+  watchlist: 'cinemap-watchlist',
+  notify: 'cinemap-notify',
+  trailer: 'cinemap-trailer-clicks',
+};
+
+const movieKey = (m) => m.en + '|' + m.date;
+
+function loadSet(key) {
+  try { return new Set(JSON.parse(localStorage.getItem(key) || '[]')); } catch { return new Set(); }
+}
+function saveSet(key, set) {
+  try { localStorage.setItem(key, JSON.stringify([...set])); } catch {}
+}
+
+// ============================================================
+// App
+// ============================================================
+function App() {
+  const movies = window.CINEMAP_MOVIES;
+
+  // ---------- Language ----------
+  const [lang, setLangState] = useState(() => {
+    try { return localStorage.getItem(LS.lang) || 'ar'; } catch { return 'ar'; }
+  });
+  const setLang = useCallback((l) => {
+    setLangState(l);
+    try { localStorage.setItem(LS.lang, l); } catch {}
+    document.documentElement.setAttribute('lang', l === 'en' ? 'en' : 'ar');
+    document.documentElement.setAttribute('dir', l === 'en' ? 'ltr' : 'rtl');
+  }, []);
+  useEffect(() => { setLang(lang); /* apply on mount */ /* eslint-disable-next-line */ }, []);
+
+  // ---------- Watchlist + Notify ----------
+  const [watchlist, setWatchlist] = useState(() => loadSet(LS.watchlist));
+  const [notified,  setNotified]  = useState(() => loadSet(LS.notify));
+  const [trailerClicks, setTrailerClicks] = useState(() => {
+    try { return parseInt(localStorage.getItem(LS.trailer) || '0', 10) || 0; } catch { return 0; }
+  });
+
+  // ---------- Filters ----------
+  const [filters, setFilters] = useState({ status: null, genre: null, language: null, mood: null });
+  const setFilter = (k, v) => setFilters(f => ({ ...f, [k]: v }));
+  const resetFilters = () => setFilters({ status: null, genre: null, language: null, mood: null });
+
+  // ---------- Modal ----------
+  const [modalMovie, setModalMovie] = useState(null);
+  window.openModal = setModalMovie;
+  window.openTrailer = setModalMovie;
+
+  // ---------- Active month (scroll spy) ----------
+  const [activeMonth, setActiveMonth] = useState(0);
+
+  // ---------- Toast system ----------
+  const [toasts, setToasts] = useState([]);
+  const toastIdRef = useRef(1);
+  const pushToast = useCallback((msg, kind = 'info', icon = null) => {
+    const id = toastIdRef.current++;
+    setToasts(prev => [...prev, { id, msg, kind, icon }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 2800);
+  }, []);
+  const dismissToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
+
+  // ---------- Filtered movies ----------
+  const filteredMovies = useMemo(() => {
+    return movies.filter(m => {
+      if (filters.status && m.status !== filters.status) return false;
+      if (filters.genre && m.genre !== filters.genre) return false;
+      if (filters.language && m.language !== filters.language) return false;
+      if (filters.mood && m.mood !== filters.mood) return false;
+      return true;
+    });
+  }, [movies, filters]);
+
+  const monthCounts = useMemo(() => {
+    const arr = Array(12).fill(0);
+    filteredMovies.forEach(m => { arr[m.month] = (arr[m.month] || 0) + 1; });
+    return arr;
+  }, [filteredMovies]);
+
+  const savedMovies = useMemo(
+    () => movies.filter(m => watchlist.has(movieKey(m))).sort((a, b) => new Date(a.date) - new Date(b.date)),
+    [movies, watchlist]
+  );
+
+  const featured = useMemo(() => movies.filter(m => m.pick).slice(0, 3), [movies]);
+
+  // ---------- Scroll spy ----------
+  useEffect(() => {
+    const handler = () => {
+      let best = 0, bestY = -Infinity;
+      for (let i = 0; i < 12; i++) {
+        const el = document.getElementById(`month-${i}`);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight * 0.5 && r.top > bestY) { bestY = r.top; best = i; }
+      }
+      setActiveMonth(best);
+    };
+    window.addEventListener('scroll', handler, { passive: true });
+    handler();
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
+
+  // ---------- Jump helpers ----------
+  const stickyOffset = () => {
+    let h = 0;
+    ['.cm-nav', '.cm-fbar', '.cm-monthbar'].forEach(sel => {
+      const el = document.querySelector(sel);
+      if (el) h += el.offsetHeight;
+    });
+    return h + 12;
+  };
+  const jumpTo = (sel, offset) => {
+    const el = typeof sel === 'string' ? document.querySelector(sel) : sel;
+    if (!el) return;
+    const off = offset != null ? offset : 80;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - off, behavior: 'smooth' });
+  };
+  const jumpToCalendar = () => jumpTo('#calendar', 70);
+  const jumpToWatchlist = () => jumpTo('#watchlist', 70);
+  const jumpToHow = () => jumpTo('#journey', 70);
+  const jumpToVision = () => jumpTo('#roadmap', 70);
+  const jumpToMonth = (i) => {
+    const el = document.getElementById(`month-${i}`);
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - stickyOffset(), behavior: 'smooth' });
+  };
+
+  // ---------- Actions ----------
+  const t = window.CINEMAP_I18N[lang];
+
+  const toggleSave = (m) => {
+    const k = movieKey(m);
+    setWatchlist(prev => {
+      const next = new Set(prev);
+      if (next.has(k)) {
+        next.delete(k);
+        pushToast(t.toast_removed, 'info', '🗑');
+      } else {
+        next.add(k);
+        pushToast(t.toast_saved, 'success', '💛');
+      }
+      saveSet(LS.watchlist, next);
+      return next;
+    });
+  };
+
+  const toggleNotify = (m) => {
+    const k = movieKey(m);
+    setNotified(prev => {
+      const next = new Set(prev);
+      if (next.has(k)) {
+        next.delete(k);
+        pushToast(t.toast_notify_off, 'info', '🔕');
+      } else {
+        next.add(k);
+        pushToast(t.toast_notify_on, 'success', '🔔');
+      }
+      saveSet(LS.notify, next);
+      return next;
+    });
+  };
+
+  const handleTrailer = (m) => {
+    setTrailerClicks(c => {
+      const next = c + 1;
+      try { localStorage.setItem(LS.trailer, String(next)); } catch {}
+      return next;
+    });
+    if (window.fetchTrailerKey && m.tmdbId) {
+      // Open the modal — modal already handles trailer playback
+      setModalMovie(m);
+    } else {
+      pushToast(t.toast_trailer, 'info', '▶');
+    }
+  };
+
+  const handleShare = async (m) => {
+    const title = window.movieTitle(m, lang);
+    const url = `${location.origin}${location.pathname}#movie=${encodeURIComponent(m.en)}`;
+    const shareText = lang === 'en'
+      ? `${title} — coming ${window.fmtDate(m.date, 'en')}. Saved on Cinemap.`
+      : `${title} — قريبًا ${window.fmtDate(m.date, 'ar')}. من Cinemap.`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Cinemap', text: shareText, url });
+        return;
+      } catch { /* user dismissed — fall through */ }
+    }
+    try {
+      await navigator.clipboard.writeText(`${shareText}\n${url}`);
+      pushToast(t.toast_copied, 'success', '📋');
+    } catch {
+      pushToast(t.toast_copied, 'info', '📋');
+    }
+  };
+
+  const handleShareList = async () => {
+    if (savedMovies.length === 0) {
+      pushToast(t.toast_wl_empty, 'info', '🎬');
+      return;
+    }
+    const lines = savedMovies.map(m =>
+      `• ${window.movieTitle(m, lang)} — ${window.fmtDate(m.date, lang)}`
+    );
+    const header = lang === 'en'
+      ? `My 2026 Cinemap watchlist (${savedMovies.length}):`
+      : `قائمة Cinemap الخاصة بي لـ 2026 (${savedMovies.length}):`;
+    const text = `${header}\n${lines.join('\n')}\n\n${location.origin}${location.pathname}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Cinemap Watchlist', text }); return; } catch {}
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      pushToast(t.toast_wl_copied, 'success', '📋');
+    } catch {
+      pushToast(t.toast_wl_copied, 'info', '📋');
+    }
+  };
+
+  const handleClearList = () => {
+    if (savedMovies.length === 0) return;
+    setWatchlist(new Set());
+    saveSet(LS.watchlist, new Set());
+    pushToast(t.toast_wl_clear, 'info', '🗑');
+  };
+
+  const handleWaitlist = () => {
+    pushToast(t.toast_waitlist, 'success', '✓');
+  };
+
+  // ---------- Render ----------
+  return (
+    <>
+      <window.Nav
+        lang={lang}
+        setLang={setLang}
+        onJumpCalendar={jumpToCalendar}
+        onJumpWatchlist={jumpToWatchlist}
+        onJumpHow={jumpToHow}
+        onJumpVision={jumpToVision}
+      />
+
+      <window.Hero
+        lang={lang}
+        onJumpCalendar={jumpToCalendar}
+        onJumpWatchlist={jumpToWatchlist}
+        watchlistCount={watchlist.size}
+        featured={featured}
+      />
+
+      <window.Journey0 lang={lang} onJumpCalendar={jumpToCalendar} />
+
+      {/* Calendar */}
+      <section id="calendar" className="cm-section cm-calendar">
+        <div className="cm-container">
+          <header className="cm-section-head">
+            <span className="cm-eyebrow">{t.cal_eyebrow}</span>
+            <h2 className="cm-h2">{t.cal_title}</h2>
+            <p className="cm-section-sub">{t.cal_sub}</p>
+          </header>
+        </div>
+
+        <window.FilterBar
+          lang={lang}
+          filters={filters}
+          setFilter={setFilter}
+          resetFilters={resetFilters}
+          totalCount={filteredMovies.length}
+        />
+        <window.MonthBar
+          activeMonth={activeMonth}
+          onJumpMonth={jumpToMonth}
+          lang={lang}
+          monthCounts={monthCounts}
+        />
+
+        <div className="cm-container cm-calendar-stack">
+          {filteredMovies.length === 0 ? (
+            <div className="cm-empty">
+              <p>{t.no_results}</p>
+              <button className="cm-btn cm-btn-ghost" onClick={resetFilters}>✕ {t.reset}</button>
+            </div>
+          ) : (
+            window.CINEMAP_MONTHS_AR.map((_, i) => (
+              <window.MonthPanel
+                key={i}
+                index={i}
+                movies={filteredMovies}
+                lang={lang}
+                onOpenMovie={setModalMovie}
+                watchlist={watchlist}
+                notified={notified}
+                onToggleSave={toggleSave}
+                onToggleNotify={toggleNotify}
+                onTrailer={handleTrailer}
+                onShare={handleShare}
+              />
+            ))
+          )}
+        </div>
+      </section>
+
+      <window.WatchlistSection
+        lang={lang}
+        watchlist={watchlist}
+        savedMovies={savedMovies}
+        onRemove={toggleSave}
+        onShareList={handleShareList}
+        onClear={handleClearList}
+        onJumpCalendar={jumpToCalendar}
+        onOpenMovie={setModalMovie}
+      />
+
+      <window.InvestorProof
+        lang={lang}
+        watchlist={watchlist}
+        savedMovies={savedMovies}
+        notifyCount={notified.size}
+        trailerClicks={trailerClicks}
+      />
+
+      <window.Roadmap lang={lang} />
+
+      <window.FinalCTA lang={lang} onJumpCalendar={jumpToCalendar} onWaitlist={handleWaitlist} />
+
+      <window.Footer lang={lang} />
+
+      <window.Toaster toasts={toasts} onDismiss={dismissToast} />
+
+      {modalMovie && (
+        <window.MovieModal
+          movie={modalMovie}
+          lang={lang}
+          onClose={() => setModalMovie(null)}
+        />
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
