@@ -46,9 +46,8 @@ function App() {
   });
 
   // ---------- Filters ----------
-  const [filters, setFilters] = useState({ status: null, genre: null, language: null, mood: null });
-  const setFilter = (k, v) => setFilters(f => ({ ...f, [k]: v }));
-  const resetFilters = () => setFilters({ status: null, genre: null, language: null, mood: null });
+  const [filters, setFilters] = useState({ status: null, genre: null, language: null, mood: null, month: null, picksOnly: false });
+  const resetFilters = () => setFilters({ status: null, genre: null, language: null, mood: null, month: null, picksOnly: false });
 
   // ---------- Modal ----------
   const [modalMovie, setModalMovie] = useState(null);
@@ -75,6 +74,8 @@ function App() {
       if (filters.genre && m.genre !== filters.genre) return false;
       if (filters.language && m.language !== filters.language) return false;
       if (filters.mood && m.mood !== filters.mood) return false;
+      if (filters.month != null && m.month !== Number(filters.month)) return false;
+      if (filters.picksOnly && !m.pick) return false;
       return true;
     });
   }, [movies, filters]);
@@ -256,7 +257,16 @@ function App() {
         featured={featured}
       />
 
-      <window.Journey0 lang={lang} onJumpCalendar={jumpToCalendar} />
+      <window.FeaturedCarousel
+        lang={lang}
+        watchlist={watchlist}
+        notified={notified}
+        onToggleSave={toggleSave}
+        onToggleNotify={toggleNotify}
+        onTrailer={handleTrailer}
+        onShare={handleShare}
+        onOpenMovie={setModalMovie}
+      />
 
       {/* Calendar */}
       <section id="calendar" className="cm-section cm-calendar">
@@ -271,8 +281,7 @@ function App() {
         <window.FilterBar
           lang={lang}
           filters={filters}
-          setFilter={setFilter}
-          resetFilters={resetFilters}
+          setFilters={setFilters}
           totalCount={filteredMovies.length}
         />
         <window.MonthBar
@@ -318,6 +327,8 @@ function App() {
         onJumpCalendar={jumpToCalendar}
         onOpenMovie={setModalMovie}
       />
+
+      <window.Journey0 lang={lang} onJumpCalendar={jumpToCalendar} />
 
       <window.InvestorProof
         lang={lang}

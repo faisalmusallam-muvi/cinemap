@@ -1184,6 +1184,490 @@
        19) Misc utilities
        ========================================================= */
     [dir="ltr"] .cm-footer-right { text-align: left; }
+
+    /* =========================================================
+       20) Featured Movies Carousel
+       ========================================================= */
+    .cm-featured {
+      padding-top: 64px;
+      padding-bottom: 64px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cm-featured::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 70% at 0% 30%, rgba(255,138,0,0.18), transparent 60%),
+        radial-gradient(ellipse 60% 70% at 100% 70%, rgba(34,193,166,0.12), transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .cm-featured > * { position: relative; z-index: 1; }
+    .cm-featured-head { margin-bottom: 32px; }
+
+    .cm-fc-track {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding: 12px 0 24px;
+      scrollbar-width: none;
+    }
+    .cm-fc-track::-webkit-scrollbar { display: none; }
+
+    .cm-fc-pad {
+      flex-shrink: 0;
+      width: max(24px, calc((100vw - 1280px) / 2 + 24px));
+    }
+    @media (max-width: 1280px) { .cm-fc-pad { width: 24px; } }
+    @media (max-width: 720px)  { .cm-fc-pad { width: 18px; } }
+
+    .cm-fc-card {
+      position: relative;
+      flex-shrink: 0;
+      width: 360px;
+      scroll-snap-align: center;
+      padding: 18px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, var(--slate), var(--charcoal) 75%);
+      border: 1px solid var(--line-strong);
+      transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 720px) {
+      .cm-fc-card {
+        width: 84vw;
+        max-width: 360px;
+        grid-template-columns: 110px 1fr;
+        gap: 14px;
+        padding: 14px;
+      }
+    }
+
+    .cm-fc-card.is-active {
+      border-color: rgba(255,138,0,0.5);
+      box-shadow: 0 0 0 1px rgba(255,138,0,0.18), 0 30px 60px -28px rgba(255,138,0,0.45);
+    }
+
+    .cm-fc-rank {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 3;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(10,19,32,0.85);
+      backdrop-filter: blur(8px);
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      border: 1px solid rgba(255,200,87,0.35);
+    }
+    [dir="rtl"] .cm-fc-rank { left: auto; right: 14px; }
+
+    .cm-fc-poster {
+      position: relative;
+      padding: 0; border: none; background: none;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 2/3;
+      cursor: pointer;
+    }
+    .cm-fc-poster .poster-wrap, .cm-fc-poster .poster-fallback {
+      width: 100% !important; height: 100% !important;
+      border-radius: 12px !important;
+    }
+    .cm-fc-poster .poster-img { width: 100%; height: 100%; object-fit: cover; }
+    .cm-fc-glow {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 50% at 50% 100%, rgba(255,138,0,0.35), transparent 70%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    .cm-fc-card.is-active .cm-fc-glow { opacity: 1; }
+
+    .cm-fc-body {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .cm-fc-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      align-self: flex-start;
+      border-radius: 999px;
+      background: rgba(255,200,87,0.15);
+      color: var(--gold);
+      border: 1px solid rgba(255,200,87,0.3);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .cm-fc-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--cream);
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin: 0;
+    }
+    @media (max-width: 720px) { .cm-fc-title { font-size: 16px; } }
+
+    .cm-fc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--ink-2);
+    }
+    .cm-fc-date { color: var(--ink-1); font-weight: 600; }
+    .cm-fc-dot {
+      width: 3px; height: 3px;
+      background: var(--ink-3);
+      border-radius: 50%;
+    }
+    .cm-fc-genre { font-weight: 600; }
+
+    .cm-fc-projected {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      align-self: flex-start;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255,138,0,0.12);
+      border: 1px solid rgba(255,138,0,0.3);
+      color: var(--cream);
+      font-size: 12.5px;
+      line-height: 1.3;
+    }
+    .cm-fc-projected strong { color: var(--amber); font-weight: 800; }
+    .cm-fc-flame { font-size: 14px; }
+
+    .cm-fc-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .cm-fc-act {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(245,242,235,0.05);
+      border: 1px solid var(--line);
+      color: var(--ink-1);
+      font-size: 12px;
+      font-weight: 600;
+      transition: all .15s;
+    }
+    .cm-fc-act:hover { background: rgba(245,242,235,0.1); color: var(--cream); }
+    .cm-fc-act.is-on {
+      background: rgba(255,138,0,0.18);
+      border-color: rgba(255,138,0,0.5);
+      color: var(--amber);
+    }
+    .cm-fc-act-icon { font-size: 12px; line-height: 1; }
+    @media (max-width: 480px) {
+      .cm-fc-act-lbl { display: none; }
+      .cm-fc-act { padding: 8px 10px; }
+    }
+
+    .cm-fc-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 0 24px;
+      flex-wrap: wrap;
+    }
+    .cm-fc-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(245,242,235,0.16);
+      padding: 0;
+      border: none;
+      cursor: pointer;
+      transition: background .2s, width .2s;
+    }
+    .cm-fc-dot.is-on {
+      background: var(--amber);
+      width: 22px;
+      border-radius: 999px;
+    }
+
+    /* =========================================================
+       21) Compact FilterBar (rebuilt)
+       ========================================================= */
+    .cm-fbar {
+      position: sticky;
+      top: 64px;
+      z-index: 50;
+      background: rgba(10,19,32,0.92);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0;
+    }
+    .cm-fbar-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px 0;
+    }
+    .cm-fbar-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 0 24px;
+    }
+    @media (max-width: 720px) { .cm-fbar-top { padding: 0 18px; } }
+    .cm-fbar-count {
+      font-size: 13px;
+      color: var(--ink-2);
+    }
+    .cm-fbar-count strong {
+      color: var(--cream);
+      font-weight: 800;
+      font-size: 17px;
+      margin-inline-end: 4px;
+    }
+    .cm-fbar-active {
+      color: var(--amber);
+      font-weight: 600;
+      margin-inline-start: 4px;
+    }
+    .cm-fbar-buttons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .cm-fbar-reset {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255,77,77,0.12);
+      color: var(--coral);
+      font-weight: 600;
+      font-size: 12.5px;
+      border: 1px solid rgba(255,77,77,0.3);
+    }
+    .cm-fbar-open {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--gold), var(--amber));
+      color: var(--midnight);
+      font-weight: 700;
+      font-size: 13px;
+      border: none;
+      box-shadow: 0 8px 18px -8px rgba(255,138,0,0.5);
+    }
+    .cm-fbar-open-icon { font-size: 14px; line-height: 1; }
+
+    .cm-fbar-quick {
+      display: flex;
+      gap: 6px;
+      padding: 0 24px 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .cm-fbar-quick::-webkit-scrollbar { display: none; }
+    .cm-fbar-quick .cm-chip { flex-shrink: 0; }
+    @media (max-width: 720px) { .cm-fbar-quick { padding: 0 18px 4px; } }
+
+    .cm-monthbar { top: 122px; }
+    @media (max-width: 720px) { .cm-monthbar { top: 118px; } }
+
+    /* =========================================================
+       22) Filter Bottom Sheet
+       ========================================================= */
+    .cm-sheet-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 250;
+      background: rgba(5, 10, 20, 0.7);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fade-in .2s ease;
+    }
+    @media (min-width: 720px) {
+      .cm-sheet-overlay { align-items: center; padding: 24px; }
+    }
+    .cm-sheet {
+      background: linear-gradient(180deg, var(--charcoal), var(--midnight));
+      border: 1px solid var(--line-strong);
+      border-radius: 22px 22px 0 0;
+      width: 100%;
+      max-width: 720px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      animation: sheet-up .3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
+    }
+    @media (min-width: 720px) {
+      .cm-sheet { border-radius: 22px; animation: fade-in .25s ease; }
+    }
+    @keyframes sheet-up {
+      from { transform: translateY(100%); opacity: 0.5; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+    .cm-sheet-head {
+      position: relative;
+      padding: 14px 20px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: center;
+    }
+    .cm-sheet-grip {
+      display: block;
+      width: 40px; height: 4px;
+      border-radius: 999px;
+      background: var(--line-strong);
+      margin: 0 auto 12px;
+    }
+    @media (min-width: 720px) { .cm-sheet-grip { display: none; } }
+    .cm-sheet-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--cream);
+      margin: 0;
+    }
+    .cm-sheet-x {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(245,242,235,0.06);
+      color: var(--cream);
+      font-size: 22px;
+      display: grid;
+      place-items: center;
+    }
+    [dir="rtl"] .cm-sheet-x { right: auto; left: 12px; }
+    .cm-sheet-x:hover { background: var(--coral); }
+
+    .cm-sheet-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      flex: 1;
+    }
+    .cm-sheet-body .cm-fbar-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .cm-sheet-body .cm-fbar-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin: 0;
+    }
+    .cm-sheet-body .cm-chips { gap: 8px; }
+
+    .cm-sheet-foot {
+      display: flex;
+      gap: 10px;
+      padding: 14px 20px;
+      border-top: 1px solid var(--line);
+      background: rgba(10,19,32,0.6);
+    }
+    .cm-sheet-foot .cm-btn { flex: 1; justify-content: center; }
+
+    /* =========================================================
+       23) Movie Row layout fixes (RTL + LTR)
+       ========================================================= */
+    .cm-movie {
+      grid-template-columns: 84px 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+    @media (max-width: 540px) {
+      .cm-movie {
+        grid-template-columns: 72px 1fr;
+        gap: 10px;
+        padding: 10px;
+      }
+    }
+    .cm-movie-thumb { aspect-ratio: 2/3; }
+    .cm-movie-body {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      min-width: 0;
+    }
+    .cm-movie-info { cursor: pointer; min-width: 0; }
+    .cm-movie-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--cream);
+      line-height: 1.25;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin: 0 0 6px 0;
+    }
+    .cm-movie-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      color: var(--ink-2);
+    }
+    .cm-movie-date { color: var(--ink-1); font-weight: 600; }
+    .cm-movie-days { color: var(--gold); font-weight: 600; }
+    .cm-movie-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    @media (max-width: 540px) {
+      .cm-movie-title { font-size: 14.5px; -webkit-line-clamp: 2; margin-bottom: 5px; }
+      .cm-movie-meta { gap: 5px; font-size: 11.5px; }
+      .cm-movie-meta .cm-pill { font-size: 11px; padding: 2px 8px; }
+      .cm-movie-actions { gap: 5px; }
+      .cm-action { padding: 6px 9px; font-size: 11.5px; }
+    }
+    @media (max-width: 380px) {
+      .cm-action-lbl { display: none; }
+      .cm-action { padding: 7px 9px; }
+    }
   </style>
 </head>
 <body>
@@ -1200,6 +1684,7 @@
   <script type="text/babel" src="assets/src/tmdb-client.js"></script>
   <script type="text/babel" src="assets/src/ui.js"></script>
   <script type="text/babel" src="assets/src/calendar.js"></script>
+  <script type="text/babel" src="assets/src/featured.js"></script>
   <script type="text/babel" src="assets/src/sections.js"></script>
   <script type="text/babel" src="assets/src/app.js"></script>
 </body>

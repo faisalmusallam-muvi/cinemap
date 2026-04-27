@@ -137,12 +137,14 @@ const RAW_MOVIES = [
     overview: "كارا زور-إل تنطلق في مغامرة عبر المجرات.",
     overviewEn: "Kara Zor-El blasts off on a galactic odyssey.",
     runtime: 128, rating: "PG-13" },
-  { month: 5, ar: "Disclosure Day", en: "Disclosure Day", genre: "thriller", date: "2026-06-12", language: 'en', mood: 'thrill',
-    overview: "إثارة سياسية — يوم يُكشف فيه كل شيء.",
-    overviewEn: "A political thriller — the day everything comes out.",
+  { month: 5, ar: "Disclosure Day", en: "Disclosure Day", genre: "scifi", date: "2026-06-11", pick: true, language: 'en', mood: 'thrill',
+    featuredRank: 9, projectedAdmissions: 350000, badge: "Mystery Pick", badgeAr: "اختيار غامض",
+    overview: "إثارة خيال علمي — يوم يُكشف فيه كل شيء.",
+    overviewEn: "A sci-fi thriller — the day everything comes out.",
     runtime: 115, rating: "R" },
-  { month: 5, ar: "Toy Story 5", en: "Toy Story 5", genre: "family", date: "2026-06-19", pick: true,
+  { month: 5, ar: "Toy Story 5", en: "Toy Story 5", genre: "family", date: "2026-06-18", pick: true,
     tmdbId: 1084244, exp: ['imax', 'dolby', '4dx'], language: 'en', mood: 'family',
+    featuredRank: 4, projectedAdmissions: 750000, badge: "Family Pick", badgeAr: "اختيار عائلي",
     overview: "ودي، باز، وكل اللعب عادوا — هذه المرة ضد تحدٍ تقني جديد.",
     overviewEn: "Woody, Buzz and the whole gang are back — this time taking on tech.",
     runtime: 102, rating: "G" },
@@ -153,22 +155,26 @@ const RAW_MOVIES = [
     runtime: 125, rating: "PG-13" },
 
   // JULY
-  { month: 6, ar: "Minions 3", en: "Minions 3", genre: "family", date: "2026-07-01", language: 'en', mood: 'family',
-    overview: "الجزء الثالث من مغامرات المنيونز الصفراء.",
-    overviewEn: "The yellow gang are back for a third round.",
-    runtime: 92, rating: "PG" },
-  { month: 6, ar: "Moana", en: "Moana (Live Action)", genre: "family", date: "2026-07-10",
+  { month: 6, ar: "Minions & Monsters", en: "Minions & Monsters", genre: "family", date: "2026-07-02", pick: true, language: 'en', mood: 'family',
+    featuredRank: 7, projectedAdmissions: 550000, badge: "Crowd Favorite", badgeAr: "مفضل جماهيري",
+    overview: "المنيونز يخوضون مغامرة جديدة هذه المرة بمواجهة وحوش غريبة.",
+    overviewEn: "The yellow gang faces a new wave of monsters in their wildest adventure yet.",
+    runtime: 95, rating: "PG" },
+  { month: 6, ar: "Moana", en: "Moana (Live Action)", genre: "family", date: "2026-07-09", pick: true,
     tmdbId: 1108427, exp: ['imax'], language: 'en', mood: 'family',
+    featuredRank: 6, projectedAdmissions: 600000, badge: "Family Event", badgeAr: "حدث عائلي",
     overview: "النسخة الحية من فيلم ديزني الكلاسيكي — موانا تعود إلى المحيط.",
     overviewEn: "The live-action take on Disney's classic — Moana returns to the ocean.",
     runtime: 118, rating: "PG" },
-  { month: 6, ar: "The Odyssey", en: "The Odyssey", genre: "drama", date: "2026-07-17", pick: true,
+  { month: 6, ar: "The Odyssey", en: "The Odyssey", genre: "drama", date: "2026-07-16", pick: true,
     tmdbId: 1368337, exp: ['imax', 'dolby', 'screenx'], language: 'en', mood: 'deep',
+    featuredRank: 2, projectedAdmissions: 1000000, badge: "Big Screen Event", badgeAr: "يستاهل الشاشة الكبيرة",
     overview: "ملحمة كريستوفر نولان — رحلة أوديسيوس من طروادة إلى الوطن.",
     overviewEn: "Christopher Nolan's epic — Odysseus's voyage from Troy to home.",
     runtime: 165, rating: "PG-13" },
-  { month: 6, ar: "Spider-Man: Brand New Day", en: "Spider-Man: Brand New Day", genre: "action", date: "2026-07-24",
+  { month: 6, ar: "Spider-Man: Brand New Day", en: "Spider-Man: Brand New Day", genre: "action", date: "2026-07-30", pick: true,
     tmdbId: 969681, exp: ['imax', 'screenx', '4dx', 'dolby'], language: 'en', mood: 'thrill',
+    featuredRank: 1, projectedAdmissions: 1000000, badge: "Top Pick", badgeAr: "الأكثر ترقبًا",
     overview: "الرجل العنكبوت في فصل جديد تماماً.",
     overviewEn: "Spider-Man begins a brand-new chapter.",
     runtime: 135, rating: "PG-13" },
@@ -214,8 +220,9 @@ const RAW_MOVIES = [
     overview: "إثارة على جزيرة مهجورة تخفي أسرار كثيرة.",
     overviewEn: "A thriller on a deserted island hiding too many secrets.",
     runtime: 112, rating: "PG-13" },
-  { month: 8, ar: "Resident Evil", en: "Resident Evil", genre: "horror", date: "2026-09-18", pick: true,
+  { month: 8, ar: "Resident Evil", en: "Resident Evil", genre: "horror", date: "2026-09-17", pick: true,
     exp: ['screenx', '4dx'], language: 'en', mood: 'thrill',
+    featuredRank: 10, projectedAdmissions: 300000, badge: "Horror Night", badgeAr: "ليلة رعب",
     overview: "إعادة تشغيل سلسلة Resident Evil — شركة أمبريلا تعود.",
     overviewEn: "Resident Evil reboots — Umbrella is back.",
     runtime: 130, rating: "R" },
@@ -290,17 +297,20 @@ const RAW_MOVIES = [
     overview: "بابا نويل العنيف يعود — أكشن كوميدي ملحمي لعيد الميلاد.",
     overviewEn: "Violent Santa is back — an action-comedy holiday romp.",
     runtime: 105, rating: "R" },
-  { month: 11, ar: "Dune 3", en: "Dune: Part Three", genre: "scifi", date: "2026-12-18",
+  { month: 11, ar: "Dune 3", en: "Dune: Part Three", genre: "scifi", date: "2026-12-17", pick: true,
     tmdbId: 1935783, exp: ['imax', 'dolby', 'screenx'], language: 'en', mood: 'deep',
+    featuredRank: 8, projectedAdmissions: 350000, badge: "Premium Format Pick", badgeAr: "اختيار للشاشات المميزة",
     overview: "الجزء الثالث من ملحمة ديون — بول أتريديس إمبراطور الكون.",
     overviewEn: "The third chapter of Dune — Paul Atreides, emperor of the universe.",
     runtime: 170, rating: "PG-13" },
-  { month: 11, ar: "Jumanji 3", en: "Jumanji 3", genre: "comedy", date: "2026-12-11", language: 'en', mood: 'fun',
+  { month: 11, ar: "Jumanji: Open World", en: "Jumanji: Open World", genre: "comedy", date: "2026-12-25", pick: true, language: 'en', mood: 'fun',
+    featuredRank: 3, projectedAdmissions: 750000, badge: "Group Night", badgeAr: "اختيار للجماعة",
     overview: "عودة الأبطال إلى العالم الأكثر خطورة في ألعاب الفيديو.",
     overviewEn: "The crew returns to gaming's most dangerous world.",
     runtime: 118, rating: "PG-13" },
-  { month: 11, ar: "Avengers: Doomsday", en: "Avengers: Doomsday", genre: "action", date: "2026-12-18", pick: true,
+  { month: 11, ar: "Avengers: Doomsday", en: "Avengers: Doomsday", genre: "action", date: "2026-12-17", pick: true,
     tmdbId: 1003596, exp: ['imax', 'screenx', '4dx', 'dolby'], language: 'en', mood: 'thrill',
+    featuredRank: 5, projectedAdmissions: 700000, badge: "Marvel Event", badgeAr: "حدث مارفل",
     overview: "المنتقمون يواجهون أخطر تهديد في تاريخ MCU — دكتور دووم.",
     overviewEn: "The Avengers face the MCU's biggest threat yet — Doctor Doom.",
     runtime: 160, rating: "PG-13" },
@@ -420,6 +430,15 @@ window.CINEMAP_I18N = {
     j0_card3_title:   "تذكّر أول بأول",
     j0_card3_body:    "نخبرك أول ما تفتح التذاكر — بدون ما تفوتك أي أمسية.",
 
+    // featured carousel
+    feat_eyebrow:     "الأكثر ترقبًا · 2026",
+    feat_title:       "أكبر أفلام 2026",
+    feat_sub:         "أفلام متوقع لها أعلى حضور في السوق، احفظ اللي يحمسك وخلك أول من يعرف متى تفتح التذاكر.",
+    feat_projected:   "متوقع له",
+    feat_admissions:  "حضور",
+    feat_rank:        "الترتيب",
+    feat_swipe:       "اسحب لاكتشاف الأفلام",
+
     // calendar
     cal_eyebrow:      "تقويم 2026 · شهر بشهر",
     cal_title:        "كل أفلامك في مكان واحد.",
@@ -430,8 +449,17 @@ window.CINEMAP_I18N = {
     filter_mood:      "المزاج",
     filter_status:    "الحالة",
     filter_month:     "الشهر",
+    filter_picks:     "مختار",
+    filter_btn:       "فلترة",
+    filter_apply:     "تطبيق",
+    filter_reset:     "إعادة ضبط",
+    filter_close:     "إغلاق",
+    filter_active:    "فلتر نشط",
+    filter_active_pl: "فلاتر نشطة",
+    filter_title:     "فلترة الأفلام",
     reset:            "مسح الفلاتر",
     no_results:       "ما لقينا أفلام بهذه الفلاتر.",
+    movies_count:     "فيلم",
 
     // movie card actions
     save:             "احفظ",
@@ -536,6 +564,14 @@ window.CINEMAP_I18N = {
     j0_card3_title:   "Get Notified",
     j0_card3_body:    "We'll ping you the moment tickets open — never miss a night out.",
 
+    feat_eyebrow:     "Most anticipated · 2026",
+    feat_title:       "Biggest Movies of 2026",
+    feat_sub:         "The highest-potential upcoming releases. Save what excites you and get notified when tickets open.",
+    feat_projected:   "Projected",
+    feat_admissions:  "admissions",
+    feat_rank:        "Rank",
+    feat_swipe:       "Swipe to explore",
+
     cal_eyebrow:      "2026 calendar · month by month",
     cal_title:        "Every movie in one place.",
     cal_sub:          "Tap any film for details, or save it to your list.",
@@ -545,8 +581,17 @@ window.CINEMAP_I18N = {
     filter_mood:      "Mood",
     filter_status:    "Status",
     filter_month:     "Month",
+    filter_picks:     "Picks",
+    filter_btn:       "Filter",
+    filter_apply:     "Apply",
+    filter_reset:     "Reset",
+    filter_close:     "Close",
+    filter_active:    "filter active",
+    filter_active_pl: "filters active",
+    filter_title:     "Filter movies",
     reset:            "Reset filters",
     no_results:       "No movies match these filters.",
+    movies_count:     "films",
 
     save:             "Save",
     saved:            "✓ Saved",
@@ -643,4 +688,31 @@ window.movieTitle = function(m, lang) {
 window.movieOverview = function(m, lang) {
   if (lang === 'en') return m.overviewEn || m.overview || '';
   return m.overview || m.overviewEn || '';
+};
+
+// Featured (top 10 by projectedAdmissions / featuredRank)
+window.getFeaturedMovies = function() {
+  return window.CINEMAP_MOVIES
+    .filter(m => m.featuredRank)
+    .sort((a, b) => a.featuredRank - b.featuredRank);
+};
+
+// Format projected admissions: 1,000,000 → "1M" / "1 مليون"
+window.fmtAdmissions = function(n, lang) {
+  if (!n) return '';
+  if (lang === 'en') {
+    if (n >= 1000000) {
+      const v = n / 1000000;
+      return (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)) + 'M';
+    }
+    if (n >= 1000) return Math.round(n / 1000) + 'K';
+    return String(n);
+  }
+  // Arabic
+  if (n >= 1000000) {
+    const v = n / 1000000;
+    return (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1)) + ' مليون';
+  }
+  if (n >= 1000) return Math.round(n / 1000) + ' ألف';
+  return String(n);
 };
