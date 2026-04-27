@@ -71,7 +71,7 @@ function WatchlistSection({ lang, watchlist, savedMovies, onRemove, onShareList,
                     <window.CinePoster movie={m} compact />
                   </button>
                   <div className="cm-wl-meta">
-                    <h4 className="cm-wl-title" dir="auto">{window.movieTitle(m, lang)}</h4>
+                    <h4 className="cm-wl-title">{window.movieTitle(m, lang)}</h4>
                     <div className="cm-wl-date">{window.fmtDate(m.date, lang)}</div>
                   </div>
                   <button className="cm-wl-remove" onClick={() => onRemove(m)} aria-label="remove">×</button>

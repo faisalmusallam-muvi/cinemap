@@ -968,11 +968,22 @@
       position: relative;
       aspect-ratio: 2/3;
       width: 100%;
+      max-width: 100%;
       border-radius: 10px;
       overflow: hidden;
       background: var(--charcoal);
+      contain: content;
     }
-    .poster-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .poster-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+      display: block;
+    }
     .poster-skeleton {
       position: absolute; inset: 0;
       background: linear-gradient(90deg, rgba(245,242,235,0.04), rgba(245,242,235,0.1), rgba(245,242,235,0.04));
@@ -1082,9 +1093,9 @@
       border: 1px solid var(--line-strong);
     }
 
-    .mmodal-title { font-size: clamp(24px, 3vw, 36px); font-weight: 800; letter-spacing: -0.01em; }
-    .mmodal-en-title { font-size: 14px; color: var(--ink-2); margin-top: 4px; }
-    .mmodal-overview { color: var(--ink-1); line-height: 1.6; font-size: 15px; }
+    .mmodal-title { font-size: clamp(24px, 3vw, 36px); font-weight: 800; letter-spacing: -0.01em; text-align: start; }
+    .mmodal-en-title { font-size: 14px; color: var(--ink-2); margin-top: 4px; text-align: start; }
+    .mmodal-overview { color: var(--ink-1); line-height: 1.6; font-size: 15px; text-align: start; }
 
     .mmodal-cast-label { font-size: 11px; font-weight: 800; letter-spacing: 0.16em; color: var(--ink-3); text-transform: uppercase; margin-bottom: 8px; }
     .mmodal-cast-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
@@ -1153,6 +1164,8 @@
     }
 
     .mmodal-trailer {
+      position: relative;
+      z-index: 3;
       width: 100%;
       aspect-ratio: 16/9;
       background: #000;
@@ -1611,13 +1624,23 @@
        23) Movie Row layout fixes (RTL + LTR)
        ========================================================= */
     .cm-movie {
-      grid-template-columns: 84px 1fr;
+      grid-template-columns: 84px minmax(0, 1fr);
       gap: 12px;
       align-items: stretch;
     }
+    .cm-movie-thumb {
+      display: block;
+      padding: 0;
+      background: none;
+      border: none;
+      width: 100%;
+      max-width: 100%;
+      align-self: start;
+      overflow: hidden;
+    }
     @media (max-width: 540px) {
       .cm-movie {
-        grid-template-columns: 72px 1fr;
+        grid-template-columns: 72px minmax(0, 1fr);
         gap: 10px;
         padding: 10px;
       }
@@ -1641,6 +1664,7 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
       margin: 0 0 6px 0;
+      text-align: start;
     }
     .cm-movie-meta {
       display: flex;

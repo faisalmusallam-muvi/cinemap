@@ -80,7 +80,7 @@ function FeaturedCarousel({ lang, watchlist, notified, onToggleSave, onToggleNot
 
               <div className="cm-fc-body">
                 <span className="cm-fc-badge">★ {badge}</span>
-                <h3 className="cm-fc-title" dir="auto" onClick={() => onOpenMovie(m)}>{title}</h3>
+                <h3 className="cm-fc-title" onClick={() => onOpenMovie(m)}>{title}</h3>
                 <div className="cm-fc-meta">
                   <span className="cm-fc-date">{dateStr}</span>
                   <span className="cm-fc-dot" />

@@ -2,40 +2,17 @@
 const { useState, useEffect, useRef } = window.React;
 
 // ---------- Logo ----------
-function CinemapLogo({ height = 32, monochrome = false }) {
-  // Inline SVG: a map-pin with a film-strip eye, amber accent.
-  // Uses currentColor so it inherits the surrounding text color.
+function CinemapLogo({ height = 32 }) {
+  // Uses the brand SVG (white emblem + "Cinemap" wordmark baked in).
+  // Height controls the rendered size; aspect ratio is 1:1 from the viewBox.
   return (
-    <span className="cinemap-logo" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-      <svg width={height} height={height} viewBox="0 0 48 48" fill="none" aria-hidden="true">
-        <defs>
-          <linearGradient id="cm-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#FFC857" />
-            <stop offset="1" stopColor="#FF8A00" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M24 4c-8.3 0-15 6.6-15 14.8C9 30.6 24 44 24 44s15-13.4 15-25.2C39 10.6 32.3 4 24 4z"
-          fill={monochrome ? 'currentColor' : 'url(#cm-grad)'}
-        />
-        <circle cx="24" cy="18.5" r="6.5" fill="#0A1320" />
-        {/* film perforations */}
-        <rect x="20.2" y="14.2" width="1.4" height="1.4" rx="0.3" fill="#FFC857" />
-        <rect x="26.4" y="14.2" width="1.4" height="1.4" rx="0.3" fill="#FFC857" />
-        <rect x="20.2" y="22.4" width="1.4" height="1.4" rx="0.3" fill="#FFC857" />
-        <rect x="26.4" y="22.4" width="1.4" height="1.4" rx="0.3" fill="#FFC857" />
-        {/* play triangle */}
-        <path d="M22.4 16.2 L27.2 18.7 L22.4 21.2 Z" fill="#FFC857" />
-      </svg>
-      <span className="cinemap-wordmark" style={{
-        fontFamily: "'Outfit', 'IBM Plex Sans Arabic', system-ui, sans-serif",
-        fontWeight: 700,
-        letterSpacing: '-0.01em',
-        fontSize: Math.round(height * 0.6),
-        color: 'var(--cream)',
-      }}>
-        Cinemap
-      </span>
+    <span className="cinemap-logo" style={{ display: 'inline-block' }}>
+      <img
+        src="assets/cinemap-logo.svg"
+        alt="Cinemap"
+        height={height}
+        style={{ height: `${height}px`, width: 'auto', display: 'block' }}
+      />
     </span>
   );
 }

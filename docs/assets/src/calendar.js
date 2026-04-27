@@ -1,30 +1,42 @@
 /* global React */
 const { useMemo, useState, useEffect } = window.React;
 
-// ---------- Group of chips ----------
-function ChipGroup({ label, items, active, onPick, lang, allLabel }) {
+// ---------- Group of chips (multi-select) ----------
+// `selected` is a Set of keys; "All" clears the set; other chips toggle membership.
+function ChipGroup({ label, items, selected, onToggle, onClear, lang, allLabel }) {
+  const empty = selected.size === 0;
   return (
     <div className="cm-fbar-group">
       <span className="cm-fbar-label">{label}</span>
       <div className="cm-chips">
         <button
-          className={`cm-chip ${!active ? 'is-active' : ''}`}
-          onClick={() => onPick(null)}
+          className={`cm-chip ${empty ? 'is-active' : ''}`}
+          onClick={onClear}
         >{allLabel}</button>
-        {items.map(([k, v]) => (
-          <button
-            key={k}
-            className={`cm-chip ${active === k ? 'is-active' : ''}`}
-            style={active === k ? { '--chip-color': v.color || 'var(--amber)' } : {}}
-            onClick={() => onPick(active === k ? null : k)}
-          >
-            {v.color && <span className="cm-chip-dot" style={{ background: v.color }} />}
-            {lang === 'en' ? v.en : v.ar}
-          </button>
-        ))}
+        {items.map(([k, v]) => {
+          const on = selected.has(typeof k === 'number' ? k : k);
+          return (
+            <button
+              key={k}
+              className={`cm-chip ${on ? 'is-active' : ''}`}
+              style={on ? { '--chip-color': v.color || 'var(--amber)' } : {}}
+              onClick={() => onToggle(k)}
+            >
+              {v.color && <span className="cm-chip-dot" style={{ background: v.color }} />}
+              {lang === 'en' ? v.en : v.ar}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
+}
+
+// Helper: toggle a value's membership in a Set, returning a new Set
+function toggleSet(set, val) {
+  const next = new Set(set);
+  if (next.has(val)) next.delete(val); else next.add(val);
+  return next;
 }
 
 // ---------- FilterSheet (bottom sheet on mobile, modal on desktop) ----------
@@ -35,7 +47,8 @@ function FilterSheet({ open, onClose, lang, draft, setDraft, onApply, onReset })
   const M = window.CINEMAP_MOODS;
   const S = window.CINEMAP_STATUSES;
   const monthsLabels = lang === 'en' ? window.CINEMAP_MONTHS_EN : window.CINEMAP_MONTHS_AR;
-  const monthEntries = monthsLabels.map((label, idx) => [String(idx), { en: label, ar: label }]);
+  // Month entries use numeric keys so the Set holds the same number type as movie.month
+  const monthEntries = monthsLabels.map((label, idx) => [idx, { en: label, ar: label }]);
 
   useEffect(() => {
     if (!open) return;
@@ -46,9 +59,10 @@ function FilterSheet({ open, onClose, lang, draft, setDraft, onApply, onReset })
   }, [open, onClose]);
 
   if (!open) return null;
-  const set = (k, v) => setDraft({ ...draft, [k]: v });
 
-  // Render via portal so backdrop-filter on .cm-fbar doesn't trap our position:fixed
+  const toggle = (dim, val) => setDraft(prev => ({ ...prev, [dim]: toggleSet(prev[dim], val) }));
+  const clear  = (dim) => setDraft(prev => ({ ...prev, [dim]: new Set() }));
+
   return window.ReactDOM.createPortal(
     <div className="cm-sheet-overlay" onClick={onClose}>
       <div className="cm-sheet" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
@@ -62,40 +76,45 @@ function FilterSheet({ open, onClose, lang, draft, setDraft, onApply, onReset })
           <ChipGroup
             label={t.filter_status}
             items={Object.entries(S)}
-            active={draft.status}
-            onPick={(v) => set('status', v)}
+            selected={draft.status}
+            onToggle={(v) => toggle('status', v)}
+            onClear={() => clear('status')}
             lang={lang}
             allLabel={t.filter_all}
           />
           <ChipGroup
             label={t.filter_genre}
             items={Object.entries(G)}
-            active={draft.genre}
-            onPick={(v) => set('genre', v)}
+            selected={draft.genre}
+            onToggle={(v) => toggle('genre', v)}
+            onClear={() => clear('genre')}
             lang={lang}
             allLabel={t.filter_all}
           />
           <ChipGroup
             label={t.filter_lang}
             items={Object.entries(L)}
-            active={draft.language}
-            onPick={(v) => set('language', v)}
+            selected={draft.language}
+            onToggle={(v) => toggle('language', v)}
+            onClear={() => clear('language')}
             lang={lang}
             allLabel={t.filter_all}
           />
           <ChipGroup
             label={t.filter_mood}
             items={Object.entries(M)}
-            active={draft.mood}
-            onPick={(v) => set('mood', v)}
+            selected={draft.mood}
+            onToggle={(v) => toggle('mood', v)}
+            onClear={() => clear('mood')}
             lang={lang}
             allLabel={t.filter_all}
           />
           <ChipGroup
             label={t.filter_month}
             items={monthEntries}
-            active={draft.month}
-            onPick={(v) => set('month', v)}
+            selected={draft.month}
+            onToggle={(v) => toggle('month', v)}
+            onClear={() => clear('month')}
             lang={lang}
             allLabel={t.filter_all}
           />
@@ -121,24 +140,30 @@ function FilterBar({ lang, filters, setFilters, totalCount }) {
   // Keep draft in sync if external filters change (e.g. quick chip)
   useEffect(() => { setDraft(filters); }, [filters]);
 
+  const empty = () => ({
+    status: new Set(), genre: new Set(), language: new Set(),
+    mood: new Set(), month: new Set(), picksOnly: false,
+  });
+
   const activeCount =
-    (filters.status ? 1 : 0) +
-    (filters.genre ? 1 : 0) +
-    (filters.language ? 1 : 0) +
-    (filters.mood ? 1 : 0) +
-    (filters.month != null ? 1 : 0) +
+    filters.status.size +
+    filters.genre.size +
+    filters.language.size +
+    filters.mood.size +
+    filters.month.size +
     (filters.picksOnly ? 1 : 0);
 
-  const reset = () => setFilters({ status: null, genre: null, language: null, mood: null, month: null, picksOnly: false });
-  const resetDraft = () => setDraft({ status: null, genre: null, language: null, mood: null, month: null, picksOnly: false });
+  const reset = () => setFilters(empty());
+  const resetDraft = () => setDraft(empty());
   const apply = () => { setFilters(draft); setSheet(false); };
 
-  const setQuickStatus = (val) => {
-    setFilters({ ...filters, status: filters.status === val ? null : val, picksOnly: false });
+  const toggleQuickStatus = (val) => {
+    setFilters(prev => ({ ...prev, status: toggleSet(prev.status, val) }));
   };
-  const togglePicks = () => {
-    setFilters({ ...filters, picksOnly: !filters.picksOnly });
-  };
+  const clearStatus = () => setFilters(prev => ({ ...prev, status: new Set(), picksOnly: false }));
+  const togglePicks = () => setFilters(prev => ({ ...prev, picksOnly: !prev.picksOnly }));
+
+  const noStatusActive = filters.status.size === 0 && !filters.picksOnly;
 
   return (
     <div className="cm-fbar">
@@ -164,18 +189,18 @@ function FilterBar({ lang, filters, setFilters, totalCount }) {
           </div>
         </div>
 
-        {/* Quick row — status + picks (always visible, compact) */}
+        {/* Quick row — status + picks (multi-select) */}
         <div className="cm-fbar-quick">
           <button
-            className={`cm-chip ${!filters.status && !filters.picksOnly ? 'is-active' : ''}`}
-            onClick={() => setFilters({ ...filters, status: null, picksOnly: false })}
+            className={`cm-chip ${noStatusActive ? 'is-active' : ''}`}
+            onClick={clearStatus}
           >{t.filter_all}</button>
           {Object.entries(S).map(([k, v]) => (
             <button
               key={k}
-              className={`cm-chip ${filters.status === k ? 'is-active' : ''}`}
-              style={filters.status === k ? { '--chip-color': 'var(--amber)' } : {}}
-              onClick={() => setQuickStatus(k)}
+              className={`cm-chip ${filters.status.has(k) ? 'is-active' : ''}`}
+              style={filters.status.has(k) ? { '--chip-color': 'var(--amber)' } : {}}
+              onClick={() => toggleQuickStatus(k)}
             >{lang === 'en' ? v.en : v.ar}</button>
           ))}
           <button
@@ -235,7 +260,7 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, onToggleSave,
 
       <div className="cm-movie-body">
         <div className="cm-movie-info" onClick={() => onOpenMovie(movie)}>
-          <h3 className="cm-movie-title" dir="auto">{title}</h3>
+          <h3 className="cm-movie-title">{title}</h3>
           <div className="cm-movie-meta">
             <span className="cm-movie-date">{window.fmtDate(movie.date, lang)}</span>
             <span className="cm-pill" style={{ '--accent': g?.color }}>

@@ -255,9 +255,9 @@ function MovieModal({ movie, lang, onClose }) {
 
             {/* Title */}
             <div>
-              <h2 className="mmodal-title" dir="auto">{title}</h2>
+              <h2 className="mmodal-title">{title}</h2>
               {subTitle && subTitle !== title && (
-                <div className="mmodal-en-title" dir="auto">{subTitle}</div>
+                <div className="mmodal-en-title">{subTitle}</div>
               )}
             </div>
 

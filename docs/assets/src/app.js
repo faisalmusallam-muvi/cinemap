@@ -45,9 +45,17 @@ function App() {
     try { return parseInt(localStorage.getItem(LS.trailer) || '0', 10) || 0; } catch { return 0; }
   });
 
-  // ---------- Filters ----------
-  const [filters, setFilters] = useState({ status: null, genre: null, language: null, mood: null, month: null, picksOnly: false });
-  const resetFilters = () => setFilters({ status: null, genre: null, language: null, mood: null, month: null, picksOnly: false });
+  // ---------- Filters (multi-select Sets per dimension) ----------
+  const emptyFilters = () => ({
+    status: new Set(),
+    genre: new Set(),
+    language: new Set(),
+    mood: new Set(),
+    month: new Set(),
+    picksOnly: false,
+  });
+  const [filters, setFilters] = useState(emptyFilters);
+  const resetFilters = () => setFilters(emptyFilters());
 
   // ---------- Modal ----------
   const [modalMovie, setModalMovie] = useState(null);
@@ -70,11 +78,11 @@ function App() {
   // ---------- Filtered movies ----------
   const filteredMovies = useMemo(() => {
     return movies.filter(m => {
-      if (filters.status && m.status !== filters.status) return false;
-      if (filters.genre && m.genre !== filters.genre) return false;
-      if (filters.language && m.language !== filters.language) return false;
-      if (filters.mood && m.mood !== filters.mood) return false;
-      if (filters.month != null && m.month !== Number(filters.month)) return false;
+      if (filters.status.size > 0   && !filters.status.has(m.status))     return false;
+      if (filters.genre.size > 0    && !filters.genre.has(m.genre))       return false;
+      if (filters.language.size > 0 && !filters.language.has(m.language)) return false;
+      if (filters.mood.size > 0     && !filters.mood.has(m.mood))         return false;
+      if (filters.month.size > 0    && !filters.month.has(m.month))       return false;
       if (filters.picksOnly && !m.pick) return false;
       return true;
     });
