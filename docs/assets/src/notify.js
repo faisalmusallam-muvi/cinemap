@@ -29,6 +29,7 @@ window.cinemapSendNotify = async function sendNotify({ contact, movie, lang }) {
   if (!url) return { ok: false, error: 'no-endpoint' };
 
   const payload = {
+    name: contact.name || '',
     email: contact.email,
     whatsapp: contact.whatsapp || '',
     city: contact.city || '',
@@ -68,12 +69,14 @@ window.cinemapSendNotify = async function sendNotify({ contact, movie, lang }) {
 // so future requests can fire silently in the background.
 function NotifyCapture({ open, lang, movie, onClose, onSubmitted }) {
   const t = window.CINEMAP_I18N[lang];
-  const initial = loadContact() || { email: '', whatsapp: '', city: '' };
-  const [email, setEmail]       = useState(initial.email);
-  const [whatsapp, setWhatsapp] = useState(initial.whatsapp);
-  const [city, setCity]         = useState(initial.city);
+  const initial = loadContact() || { name: '', email: '', whatsapp: '', city: '' };
+  const [name, setName]         = useState(initial.name || '');
+  const [email, setEmail]       = useState(initial.email || '');
+  const [whatsapp, setWhatsapp] = useState(initial.whatsapp || '');
+  const [city, setCity]         = useState(initial.city || '');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]       = useState(null);
+  const nameInputRef  = useRef(null);
   const emailInputRef = useRef(null);
 
   useEffect(() => {
@@ -81,8 +84,11 @@ function NotifyCapture({ open, lang, movie, onClose, onSubmitted }) {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
-    // Focus the first empty field
-    setTimeout(() => emailInputRef.current?.focus(), 50);
+    // Focus the first empty field (name first, else email)
+    setTimeout(() => {
+      if (!name) nameInputRef.current?.focus();
+      else if (!email) emailInputRef.current?.focus();
+    }, 50);
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, [open, onClose]);
 
@@ -91,12 +97,19 @@ function NotifyCapture({ open, lang, movie, onClose, onSubmitted }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    const trimmedName  = name.trim();
     const trimmedEmail = email.trim();
+    if (!trimmedName)  { setError(t.notify_name_required); return; }
     if (!trimmedEmail) { setError(t.notify_required); return; }
     if (!isValidEmail(trimmedEmail)) { setError(t.notify_invalid); return; }
 
     setSubmitting(true);
-    const contact = { email: trimmedEmail, whatsapp: whatsapp.trim(), city: city.trim() };
+    const contact = {
+      name:     trimmedName,
+      email:    trimmedEmail,
+      whatsapp: whatsapp.trim(),
+      city:     city.trim(),
+    };
     const res = await window.cinemapSendNotify({ contact, movie, lang });
     setSubmitting(false);
 
@@ -129,6 +142,19 @@ function NotifyCapture({ open, lang, movie, onClose, onSubmitted }) {
         </div>
 
         <form className="cm-notify-form" onSubmit={handleSubmit} noValidate>
+          <label className="cm-notify-field">
+            <span className="cm-notify-lbl">{t.notify_name} *</span>
+            <input
+              ref={nameInputRef}
+              type="text"
+              value={name}
+              onChange={(e) => { setName(e.target.value); setError(null); }}
+              placeholder={t.notify_name_ph}
+              required
+              autoComplete="name"
+            />
+          </label>
+
           <label className="cm-notify-field">
             <span className="cm-notify-lbl">{t.notify_email} *</span>
             <input
