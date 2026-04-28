@@ -225,6 +225,20 @@
 
     .cm-nav-right { display: flex; align-items: center; gap: 10px; }
 
+    /* Cinemap horizontal logo lockup — mark stays on the LEFT in both
+       AR and EN so the brand mark is consistent across languages. */
+    .cinemap-logo-h {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      direction: ltr;            /* lock the lockup so the penguin doesn't flip in RTL */
+      unicode-bidi: isolate;
+    }
+    .cinemap-logo-h .cinemap-wordmark {
+      direction: ltr;
+      unicode-bidi: isolate;
+    }
+
     /* Search */
     .cm-search { position: relative; flex: 0 1 280px; min-width: 0; }
     .cm-search-input-wrap {

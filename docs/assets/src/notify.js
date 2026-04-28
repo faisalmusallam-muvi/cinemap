@@ -99,7 +99,7 @@ function NotifyCapture({ open, lang, movie, onClose, onSubmitted }) {
     setError(null);
     const trimmedName  = name.trim();
     const trimmedEmail = email.trim();
-    if (!trimmedName)  { setError(t.notify_name_required); return; }
+    // Name is optional — only email is required for the reminder to work.
     if (!trimmedEmail) { setError(t.notify_required); return; }
     if (!isValidEmail(trimmedEmail)) { setError(t.notify_invalid); return; }
 
@@ -143,14 +143,13 @@ function NotifyCapture({ open, lang, movie, onClose, onSubmitted }) {
 
         <form className="cm-notify-form" onSubmit={handleSubmit} noValidate>
           <label className="cm-notify-field">
-            <span className="cm-notify-lbl">{t.notify_name} *</span>
+            <span className="cm-notify-lbl">{t.notify_name_optional}</span>
             <input
               ref={nameInputRef}
               type="text"
               value={name}
               onChange={(e) => { setName(e.target.value); setError(null); }}
               placeholder={t.notify_name_ph}
-              required
               autoComplete="name"
             />
           </label>
