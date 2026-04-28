@@ -293,78 +293,78 @@ function MovieModal({ movie, lang, onClose }) {
               {movie.runtime && (
                 <div className="mmodal-meta-item">
                   <span className="mmodal-meta-lbl">{t.duration}</span>
-                  <span className="mmodal-meta-val ltr">{movie.runtime} {t.min}</span>
+                  <span className="mmodal-meta-val">{movie.runtime} {t.min}</span>
                 </div>
               )}
               {movie.rating && (
                 <div className="mmodal-meta-item">
                   <span className="mmodal-meta-lbl">{t.age_rating}</span>
-                  <span className="mmodal-meta-val ltr">{movie.rating}</span>
+                  <span className="mmodal-meta-val">{movie.rating}</span>
                 </div>
               )}
               <div className="mmodal-meta-item">
                 <span className="mmodal-meta-lbl">{t.countdown}</span>
-                <span className="mmodal-meta-val" style={{ color: past ? 'var(--ink-3)' : g.color }}>
+                <span className="mmodal-meta-val" style={past ? { color: 'var(--ink-3)' } : null}>
                   {past ? t.released : <><strong>{days}</strong> {t.days}</>}
                 </span>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="mmodal-actions">
-              {ytKey && (
-                <button
-                  className={`mmodal-btn-trailer ${trailerVisible ? 'is-active' : ''}`}
-                  onClick={e => { e.stopPropagation(); setTrailerVisible(v => !v); }}
-                >
-                  <span className="ltr">{trailerVisible ? '✕' : '▶'}</span>
-                  {trailerVisible ? t.hide_trailer : t.watch_trailer}
-                </button>
-              )}
-
-              <div className="mmodal-cal-wrap" onClick={e => e.stopPropagation()}>
-                <button
-                  className="mmodal-btn-cal"
-                  onClick={() => setCalOpen(v => !v)}
-                >
-                  <span>📅</span>
-                  {t.add_calendar}
-                </button>
-                {calOpen && (
-                  <div className="mmodal-cal-dropdown">
-                    <a
-                      href={googleCalUrl(movie, lang)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mmodal-cal-item"
-                    >
-                      <span className="mmodal-cal-icon" style={{ background: '#4285F4', color: '#fff' }}>G</span>
-                      {t.google_cal}
-                    </a>
-                    <button
-                      className="mmodal-cal-item"
-                      onClick={() => { downloadIcal(movie, lang); setCalOpen(false); }}
-                    >
-                      <span className="mmodal-cal-icon" style={{ background: '#1d1d1f', color: '#fff' }}>🍎</span>
-                      {t.apple_cal}
-                    </button>
-                    <a
-                      href={outlookCalUrl(movie, lang)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mmodal-cal-item"
-                    >
-                      <span className="mmodal-cal-icon" style={{ background: '#0078D4', color: '#fff' }}>O</span>
-                      {t.outlook_cal}
-                    </a>
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Embedded trailer (full-width, below content) */}
+        {/* Sticky action footer — always visible at bottom of modal */}
+        <div className="mmodal-footer">
+          {ytKey && (
+            <button
+              className={`mmodal-btn-trailer ${trailerVisible ? 'is-active' : ''}`}
+              onClick={e => { e.stopPropagation(); setTrailerVisible(v => !v); }}
+            >
+              <span className="ltr">{trailerVisible ? '✕' : '▶'}</span>
+              {trailerVisible ? t.hide_trailer : t.watch_trailer}
+            </button>
+          )}
+
+          <div className="mmodal-cal-wrap" onClick={e => e.stopPropagation()}>
+            <button
+              className="mmodal-btn-cal"
+              onClick={() => setCalOpen(v => !v)}
+            >
+              <span>📅</span>
+              {t.add_calendar}
+            </button>
+            {calOpen && (
+              <div className="mmodal-cal-dropdown">
+                <a
+                  href={googleCalUrl(movie, lang)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mmodal-cal-item"
+                >
+                  <span className="mmodal-cal-icon" style={{ background: '#4285F4', color: '#fff' }}>G</span>
+                  {t.google_cal}
+                </a>
+                <button
+                  className="mmodal-cal-item"
+                  onClick={() => { downloadIcal(movie, lang); setCalOpen(false); }}
+                >
+                  <span className="mmodal-cal-icon" style={{ background: '#1d1d1f', color: '#fff' }}>🍎</span>
+                  {t.apple_cal}
+                </button>
+                <a
+                  href={outlookCalUrl(movie, lang)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mmodal-cal-item"
+                >
+                  <span className="mmodal-cal-icon" style={{ background: '#0078D4', color: '#fff' }}>O</span>
+                  {t.outlook_cal}
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Embedded trailer (full-width, below footer) */}
         {trailerVisible && ytKey && (
           <div className="mmodal-trailer">
             <iframe

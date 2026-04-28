@@ -1,6 +1,16 @@
 /* Cinemap — data, taxonomies, i18n, helpers */
 
 // ============================================================
+// 0) Config
+// ============================================================
+window.CINEMAP_CONFIG = {
+  // Formspree endpoint that receives notify-me submissions.
+  // Each movie request POSTs the contact + movie payload here;
+  // emails arrive in the Formspree inbox + can be exported as CSV.
+  notifyEndpoint: 'https://formspree.io/f/mlgaykkv',
+};
+
+// ============================================================
 // 1) MOVIE DATA — preserved from previous site, enriched with
 //    language / mood / status fields for new filters.
 // ============================================================
@@ -537,6 +547,26 @@ window.CINEMAP_I18N = {
     rating:           "التصنيف",
     cast:             "الممثلون",
 
+    // notify popup
+    notify_title:     "ذكّرنا فيك أول ما تفتح التذاكر",
+    notify_sub:       "اعطنا إيميلك (وواتساب اختياري) ونبلّغك أول ما تفتح تذاكر هذا الفيلم.",
+    notify_for:       "تذكير على فيلم",
+    notify_email:     "الإيميل",
+    notify_email_ph:  "you@example.com",
+    notify_whatsapp:  "واتساب (اختياري)",
+    notify_whatsapp_ph: "+9665XXXXXXXX",
+    notify_city:      "المدينة (اختياري)",
+    notify_city_ph:   "الرياض",
+    notify_submit:    "فعّل التذكير",
+    notify_sending:   "جاري الإرسال...",
+    notify_skip:      "لاحقًا",
+    notify_privacy:   "بنستخدم بياناتك بس عشان نذكّرك. ما نشاركها مع أحد.",
+    notify_required:  "الإيميل مطلوب",
+    notify_invalid:   "ما يبدو إيميل صحيح",
+    notify_error:     "صار في مشكلة. حاول مرة ثانية.",
+    notify_success:   "بنذكّرك أول ما تفتح التذاكر 🔔",
+    notify_quick:     "بنذكّرك على هذا الفيلم 🔔",
+
     // movie modal
     release_date:     "تاريخ الإطلاق",
     duration:         "مدة الفيلم",
@@ -677,6 +707,26 @@ window.CINEMAP_I18N = {
     minutes:          "min",
     rating:           "Rating",
     cast:             "Top Cast",
+
+    // notify popup
+    notify_title:     "We'll let you know when tickets open",
+    notify_sub:       "Drop your email (WhatsApp optional) and we'll ping you the moment tickets for this film go on sale.",
+    notify_for:       "Reminder for",
+    notify_email:     "Email",
+    notify_email_ph:  "you@example.com",
+    notify_whatsapp:  "WhatsApp (optional)",
+    notify_whatsapp_ph: "+9665XXXXXXXX",
+    notify_city:      "City (optional)",
+    notify_city_ph:   "Riyadh",
+    notify_submit:    "Turn on reminder",
+    notify_sending:   "Sending...",
+    notify_skip:      "Maybe later",
+    notify_privacy:   "We only use your info to remind you. We never share it.",
+    notify_required:  "Email is required",
+    notify_invalid:   "That doesn't look like a valid email",
+    notify_error:     "Something went wrong. Please try again.",
+    notify_success:   "We'll let you know when tickets open 🔔",
+    notify_quick:     "Reminder set for this movie 🔔",
 
     // movie modal
     release_date:     "Release Date",

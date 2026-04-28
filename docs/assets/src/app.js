@@ -62,6 +62,9 @@ function App() {
   window.openModal = setModalMovie;
   window.openTrailer = setModalMovie;
 
+  // ---------- Notify capture popup ----------
+  const [notifyMovie, setNotifyMovie] = useState(null);
+
   // ---------- Active month (scroll spy) ----------
   const [activeMonth, setActiveMonth] = useState(0);
 
@@ -163,18 +166,52 @@ function App() {
 
   const toggleNotify = (m) => {
     const k = movieKey(m);
+    // If already notified → toggle OFF locally (no need to "unsubscribe" Formspree)
+    if (notified.has(k)) {
+      setNotified(prev => {
+        const next = new Set(prev);
+        next.delete(k);
+        saveSet(LS.notify, next);
+        return next;
+      });
+      pushToast(t.toast_notify_off, 'info', '🔕');
+      return;
+    }
+    // Turning notify ON: do we already have a saved contact?
+    const contact = window.cinemapLoadContact?.();
+    if (!contact || !contact.email) {
+      // First time — open the capture popup; the popup will submit and we'll
+      // mark notified inside its onSubmitted handler.
+      setNotifyMovie(m);
+      return;
+    }
+    // Have a saved contact — fire silently in the background.
     setNotified(prev => {
       const next = new Set(prev);
-      if (next.has(k)) {
-        next.delete(k);
-        pushToast(t.toast_notify_off, 'info', '🔕');
-      } else {
-        next.add(k);
-        pushToast(t.toast_notify_on, 'success', '🔔');
-      }
+      next.add(k);
       saveSet(LS.notify, next);
       return next;
     });
+    pushToast(t.notify_quick, 'success', '🔔');
+    window.cinemapSendNotify?.({ contact, movie: m, lang }).then(res => {
+      if (!res?.ok) {
+        // Soft-fail: keep local state but warn
+        pushToast(t.notify_error, 'info', '⚠');
+      }
+    });
+  };
+
+  const onNotifySubmitted = ({ contact: _contact }) => {
+    if (!notifyMovie) return;
+    const k = movieKey(notifyMovie);
+    setNotified(prev => {
+      const next = new Set(prev);
+      next.add(k);
+      saveSet(LS.notify, next);
+      return next;
+    });
+    pushToast(t.notify_success, 'success', '🔔');
+    setNotifyMovie(null);
   };
 
   const handleTrailer = (m) => {
@@ -352,6 +389,14 @@ function App() {
       <window.Footer lang={lang} />
 
       <window.Toaster toasts={toasts} onDismiss={dismissToast} />
+
+      <window.NotifyCapture
+        open={!!notifyMovie}
+        movie={notifyMovie}
+        lang={lang}
+        onClose={() => setNotifyMovie(null)}
+        onSubmitted={onNotifySubmitted}
+      />
 
       {modalMovie && (
         <window.MovieModal
