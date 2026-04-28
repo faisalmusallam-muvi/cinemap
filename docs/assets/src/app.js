@@ -317,7 +317,6 @@ function App() {
                 notified={notified}
                 onToggleSave={toggleSave}
                 onToggleNotify={toggleNotify}
-                onTrailer={handleTrailer}
                 onShare={handleShare}
               />
             ))

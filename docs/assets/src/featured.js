@@ -118,12 +118,12 @@ function FeaturedCarousel({ lang, watchlist, notified, onToggleSave, onToggleNot
                   </button>
                   <button
                     className="cm-fc-act"
-                    onClick={(e) => { e.stopPropagation(); onTrailer(m); }}
-                    aria-label={t.trailer}
-                    title={t.trailer}
+                    onClick={(e) => { e.stopPropagation(); onShare(m); }}
+                    aria-label={t.share}
+                    title={t.share}
                   >
-                    <span className="cm-fc-act-icon">▶</span>
-                    <span className="cm-fc-act-lbl">{t.trailer}</span>
+                    <span className="cm-fc-act-icon">↗</span>
+                    <span className="cm-fc-act-lbl">{t.share}</span>
                   </button>
                 </div>
               </div>

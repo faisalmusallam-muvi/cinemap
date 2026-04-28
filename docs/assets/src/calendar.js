@@ -245,8 +245,23 @@ function MonthBar({ activeMonth, onJumpMonth, lang, monthCounts }) {
   );
 }
 
+// Render a small "calendar chip" — month name on top, day number large below.
+function DateChip({ iso, lang }) {
+  const d = new Date(iso);
+  const day = d.getDate();
+  const monthShort = lang === 'en'
+    ? window.CINEMAP_MONTHS_EN[d.getMonth()]
+    : window.CINEMAP_MONTHS_AR[d.getMonth()];
+  return (
+    <span className="cm-datechip" aria-label={`${day} ${monthShort}`}>
+      <span className="cm-datechip-month">{monthShort}</span>
+      <span className="cm-datechip-day">{String(day).padStart(2, '0')}</span>
+    </span>
+  );
+}
+
 // ---------- MovieRow ----------
-function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, onToggleSave, onToggleNotify, onTrailer, onShare }) {
+function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, onToggleSave, onToggleNotify, onShare }) {
   const t = window.CINEMAP_I18N[lang];
   const g = window.CINEMAP_GENRES[movie.genre];
   const days = window.daysUntil(movie.date);
@@ -262,7 +277,7 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, onToggleSave,
         <div className="cm-movie-info" onClick={() => onOpenMovie(movie)}>
           <h3 className="cm-movie-title">{title}</h3>
           <div className="cm-movie-meta">
-            <span className="cm-movie-date">{window.fmtDate(movie.date, lang)}</span>
+            <DateChip iso={movie.date} lang={lang} />
             <span className="cm-pill" style={{ '--accent': g?.color }}>
               <span className="cm-chip-dot" style={{ background: g?.color }} />
               {lang === 'en' ? (g?.en || movie.genre) : (g?.ar || movie.genre)}
@@ -295,10 +310,6 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, onToggleSave,
             <span className="cm-action-icon">🔔</span>
             <span className="cm-action-lbl">{isNotified ? t.notified : t.notify}</span>
           </button>
-          <button className="cm-action" onClick={() => onTrailer(movie)} aria-label={t.trailer} title={t.trailer}>
-            <span className="cm-action-icon">▶</span>
-            <span className="cm-action-lbl">{t.trailer}</span>
-          </button>
           <button className="cm-action" onClick={() => onShare(movie)} aria-label={t.share} title={t.share}>
             <span className="cm-action-icon">↗</span>
             <span className="cm-action-lbl">{t.share}</span>
@@ -310,7 +321,7 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, onToggleSave,
 }
 
 // ---------- MonthPanel ----------
-function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, onToggleSave, onToggleNotify, onTrailer, onShare }) {
+function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, onToggleSave, onToggleNotify, onShare }) {
   const months = lang === 'en' ? window.CINEMAP_MONTHS_EN_FULL : window.CINEMAP_MONTHS_AR;
   const movs = useMemo(
     () => movies.filter(m => m.month === index).sort((a, b) => new Date(a.date) - new Date(b.date)),
@@ -339,7 +350,6 @@ function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, onT
             isNotified={notified.has(m.en + '|' + m.date)}
             onToggleSave={onToggleSave}
             onToggleNotify={onToggleNotify}
-            onTrailer={onTrailer}
             onShare={onShare}
           />
         ))}

@@ -105,10 +105,10 @@ const RAW_MOVIES = [
     overview: "عودة ميراندا بريستلي بعد عقدين من الفيلم الأصلي.",
     overviewEn: "Miranda Priestly returns, two decades on.",
     runtime: 110, rating: "PG-13" },
-  { month: 3, ar: "The Goat", en: "The Goat", genre: "drama", date: "2026-04-24", language: 'en', mood: 'deep',
-    overview: "دراما رياضية عن أعظم لاعب في التاريخ.",
-    overviewEn: "A sports drama about the greatest of all time.",
-    runtime: 120, rating: "PG-13" },
+  { month: 3, ar: "GOAT", en: "GOAT", genre: "family", date: "2026-04-24", language: 'en', mood: 'family',
+    overview: "فيلم كرتون عائلي عن مغامرة شيّقة وممتعة للصغار والكبار.",
+    overviewEn: "A family animated adventure full of laughs for kids and adults alike.",
+    runtime: 95, rating: "PG" },
 
   // MAY
   { month: 4, ar: "Mortal Kombat 2", en: "Mortal Kombat 2", genre: "action", date: "2026-05-07",
@@ -536,6 +536,23 @@ window.CINEMAP_I18N = {
     minutes:          "دقيقة",
     rating:           "التصنيف",
     cast:             "الممثلون",
+
+    // movie modal
+    release_date:     "تاريخ الإطلاق",
+    duration:         "مدة الفيلم",
+    age_rating:       "التصنيف العمري",
+    countdown:        "العد التنازلي",
+    released:         "تم العرض",
+    min:              "دقيقة",
+    film:             "فيلم",
+    films_pl:         "أفلام",
+    orig_title:       "العنوان الأصلي",
+    watch_trailer:    "شاهد الإعلان",
+    hide_trailer:     "إغلاق الإعلان",
+    add_calendar:     "أضف للتقويم",
+    google_cal:       "Google Calendar",
+    apple_cal:        "Apple / iCal",
+    outlook_cal:      "Outlook",
   },
   en: {
     nav_movies:       "Movies",
@@ -660,6 +677,23 @@ window.CINEMAP_I18N = {
     minutes:          "min",
     rating:           "Rating",
     cast:             "Top Cast",
+
+    // movie modal
+    release_date:     "Release Date",
+    duration:         "Runtime",
+    age_rating:       "Age Rating",
+    countdown:        "Countdown",
+    released:         "Released",
+    min:              "min",
+    film:             "film",
+    films_pl:         "films",
+    orig_title:       "Original Title",
+    watch_trailer:    "Watch Trailer",
+    hide_trailer:     "Close Trailer",
+    add_calendar:     "Add to Calendar",
+    google_cal:       "Google Calendar",
+    apple_cal:        "Apple / iCal",
+    outlook_cal:      "Outlook",
   }
 };
 
