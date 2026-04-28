@@ -2,9 +2,43 @@
 const { useState, useEffect, useRef } = window.React;
 
 // ---------- Logo ----------
-function CinemapLogo({ height = 32 }) {
-  // Uses the brand SVG (white emblem + "Cinemap" wordmark baked in).
-  // Height controls the rendered size; aspect ratio is 1:1 from the viewBox.
+// `variant`:
+//   "vertical"   — full brand SVG (mark stacked above "Cinemap" wordmark).
+//                  Best for the hero and footer where there's room.
+//   "horizontal" — mark to the side + "Cinemap" rendered as Outfit text.
+//                  Best for tight chrome like the nav bar where a vertical
+//                  lockup makes the wordmark unreadable.
+function CinemapLogo({ height = 32, variant = 'vertical' }) {
+  if (variant === 'horizontal') {
+    const markSize = Math.round(height * 0.95);
+    return (
+      <span
+        className="cinemap-logo cinemap-logo-h"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}
+      >
+        <img
+          src="assets/cinemap-mark.svg"
+          alt=""
+          aria-hidden="true"
+          style={{ height: `${markSize}px`, width: 'auto', display: 'block' }}
+        />
+        <span
+          className="cinemap-wordmark"
+          style={{
+            fontFamily: "'Outfit', 'IBM Plex Sans Arabic', system-ui, sans-serif",
+            fontWeight: 800,
+            letterSpacing: '-0.02em',
+            fontSize: Math.round(height * 0.78),
+            color: 'var(--cream)',
+            lineHeight: 1,
+          }}
+        >
+          Cinemap
+        </span>
+      </span>
+    );
+  }
+
   return (
     <span className="cinemap-logo" style={{ display: 'inline-block' }}>
       <img
@@ -162,7 +196,7 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpHow, onJump
     <nav className="cm-nav">
       <div className="cm-nav-inner">
         <a href="#top" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-          <CinemapLogo height={36} />
+          <CinemapLogo height={28} variant="horizontal" />
         </a>
 
         <div className="cm-nav-links">

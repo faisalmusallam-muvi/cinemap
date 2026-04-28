@@ -1,10 +1,11 @@
 /* Cinemap service worker — minimal cache-first shell with network fallback */
-const CACHE = 'cinemap-shell-v1';
+const CACHE = 'cinemap-shell-v2';
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './assets/cinemap-logo.svg',
+  './assets/cinemap-mark.svg',
   './assets/vendor/react.development.js',
   './assets/vendor/react-dom.development.js',
   './assets/vendor/babel.min.js',
