@@ -17,8 +17,132 @@ function CinemapLogo({ height = 32 }) {
   );
 }
 
+// ---------- Search ----------
+function SearchBar({ lang, onOpenMovie }) {
+  const t = window.CINEMAP_I18N[lang];
+  const [open, setOpen]   = useState(false);
+  const [query, setQuery] = useState('');
+  const [active, setActive] = useState(0);
+  const inputRef = useRef(null);
+  const containerRef = useRef(null);
+
+  // Filter movies — match either Arabic or English title (case-insensitive)
+  const matches = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    const allMovies = window.CINEMAP_MOVIES;
+    const scored = [];
+    for (const m of allMovies) {
+      const en = (m.en || '').toLowerCase();
+      const ar = (m.ar || '');
+      const enHit = en.includes(q);
+      const arHit = ar.includes(query.trim());
+      if (enHit || arHit) {
+        // Score: starts-with > contains; then by date proximity
+        let score = 0;
+        if (en.startsWith(q)) score += 10;
+        if (ar.startsWith(query.trim())) score += 10;
+        if (enHit) score += 1;
+        if (arHit) score += 1;
+        scored.push({ m, score });
+      }
+    }
+    scored.sort((a, b) => b.score - a.score || new Date(a.m.date) - new Date(b.m.date));
+    return scored.slice(0, 8).map(x => x.m);
+  }, [query]);
+
+  // Close on outside click / Esc
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => {
+      if (!containerRef.current?.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    const onKey = (e) => { if (e.key === 'Escape') { setOpen(false); inputRef.current?.blur(); } };
+    document.addEventListener('mousedown', onDoc);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  // Reset highlighted index when query changes
+  useEffect(() => { setActive(0); }, [query]);
+
+  const select = (m) => {
+    onOpenMovie(m);
+    setOpen(false);
+    setQuery('');
+    inputRef.current?.blur();
+  };
+
+  const onKeyDown = (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); setActive(i => Math.min(matches.length - 1, i + 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(i => Math.max(0, i - 1)); }
+    else if (e.key === 'Enter')   { e.preventDefault(); if (matches[active]) select(matches[active]); }
+  };
+
+  return (
+    <div className="cm-search" ref={containerRef}>
+      <div className={`cm-search-input-wrap ${open ? 'is-open' : ''}`}>
+        <span className="cm-search-icon" aria-hidden="true">🔍</span>
+        <input
+          ref={inputRef}
+          type="search"
+          className="cm-search-input"
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={onKeyDown}
+          placeholder={t.search_ph}
+          aria-label={t.search_open}
+          autoComplete="off"
+        />
+        {query && (
+          <button
+            className="cm-search-clear"
+            onClick={() => { setQuery(''); inputRef.current?.focus(); }}
+            aria-label="clear"
+            type="button"
+          >×</button>
+        )}
+      </div>
+
+      {open && query && (
+        <div className="cm-search-results" role="listbox">
+          {matches.length === 0 ? (
+            <div className="cm-search-empty">{t.search_no_results}</div>
+          ) : (
+            matches.map((m, i) => {
+              const g = window.CINEMAP_GENRES[m.genre];
+              return (
+                <button
+                  key={m.en + m.date}
+                  className={`cm-search-item ${i === active ? 'is-active' : ''}`}
+                  onMouseEnter={() => setActive(i)}
+                  onClick={() => select(m)}
+                  role="option"
+                  aria-selected={i === active}
+                >
+                  <span className="cm-search-item-title">{window.movieTitle(m, lang)}</span>
+                  <span className="cm-search-item-meta">
+                    <span style={{ color: g?.color }}>{lang === 'en' ? (g?.en || m.genre) : (g?.ar || m.genre)}</span>
+                    <span className="cm-search-item-date">· {window.fmtDate(m.date, lang)}</span>
+                  </span>
+                </button>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ---------- Nav ----------
-function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpHow, onJumpVision }) {
+function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpHow, onJumpVision, onOpenMovie }) {
   const t = window.CINEMAP_I18N[lang];
   const [open, setOpen] = useState(false);
 
@@ -48,6 +172,8 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpHow, onJump
           <a href="#roadmap" onClick={(e) => { e.preventDefault(); onJumpVision(); }}>{t.nav_vision}</a>
         </div>
 
+        <SearchBar lang={lang} onOpenMovie={onOpenMovie} />
+
         <div className="cm-nav-right">
           <button
             className="cm-lang"
@@ -72,7 +198,13 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpHow, onJump
       </div>
 
       {open && (
-        <div className="cm-mobile-menu" onClick={() => setOpen(false)}>
+        <div className="cm-mobile-menu" onClick={(e) => e.stopPropagation()}>
+          <div className="cm-mobile-search">
+            <SearchBar
+              lang={lang}
+              onOpenMovie={(m) => { setOpen(false); onOpenMovie?.(m); }}
+            />
+          </div>
           <a href="#calendar" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpCalendar(); }}>{t.nav_movies}</a>
           <a href="#watchlist" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpWatchlist(); }}>{t.nav_watchlist}</a>
           <a href="#journey" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpHow(); }}>{t.nav_how}</a>

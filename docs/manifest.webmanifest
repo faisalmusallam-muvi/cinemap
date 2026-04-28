@@ -1,0 +1,28 @@
+{
+  "name": "Cinemap — Movie Night Companion",
+  "short_name": "Cinemap",
+  "description": "Discover the biggest 2026 movies, save your watchlist, and get notified when tickets open.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A1320",
+  "theme_color": "#0A1320",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["entertainment", "lifestyle"],
+  "icons": [
+    {
+      "src": "assets/cinemap-logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/cinemap-logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -570,6 +570,12 @@ window.CINEMAP_I18N = {
     notify_success:   "بنذكّرك أول ما تفتح التذاكر 🔔",
     notify_quick:     "بنذكّرك على هذا الفيلم 🔔",
 
+    // search
+    search_ph:        "ابحث عن فيلم...",
+    search_open:      "ابحث",
+    search_no_results:"ما لقينا أي فيلم بهذا الاسم",
+    search_results:   "نتائج",
+
     // movie modal
     release_date:     "تاريخ الإطلاق",
     duration:         "مدة الفيلم",
@@ -734,6 +740,12 @@ window.CINEMAP_I18N = {
     notify_success:   "We'll let you know when tickets open 🔔",
     notify_quick:     "Reminder set for this movie 🔔",
 
+    // search
+    search_ph:        "Search a movie...",
+    search_open:      "Search",
+    search_no_results:"No movies match",
+    search_results:   "results",
+
     // movie modal
     release_date:     "Release Date",
     duration:         "Runtime",
@@ -778,6 +790,23 @@ window.movieTitle = function(m, lang) {
 window.movieOverview = function(m, lang) {
   if (lang === 'en') return m.overviewEn || m.overview || '';
   return m.overview || m.overviewEn || '';
+};
+
+// Stable URL slug for a movie (used in deep-links and search keys).
+window.movieSlug = function(m) {
+  const base = (m.en || m.ar || '').toString().toLowerCase();
+  return base
+    .replace(/[^a-z0-9؀-ۿ\s-]/g, '') // keep alphanumerics + Arabic + spaces/hyphens
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 80);
+};
+
+// Find a movie by slug (for deep-link routing).
+window.findMovieBySlug = function(slug) {
+  if (!slug) return null;
+  return window.CINEMAP_MOVIES.find(m => window.movieSlug(m) === slug) || null;
 };
 
 // Featured (top 10 by projectedAdmissions / featuredRank)

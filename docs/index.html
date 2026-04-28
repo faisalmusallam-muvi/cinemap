@@ -7,6 +7,13 @@
   <meta name="description" content="Cinemap — Discover the biggest 2026 movies, save your watchlist, and get notified when tickets open. Your smart companion for better movie nights.">
   <meta name="theme-color" content="#0A1320">
 
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/cinemap-logo.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Cinemap">
+
   <meta property="og:type" content="website">
   <meta property="og:title" content="Cinemap · Your movie year starts here.">
   <meta property="og:description" content="Discover the biggest upcoming movies, save your favorites, and get notified when tickets open.">
@@ -217,6 +224,106 @@
     .cm-nav-links a:hover { color: var(--cream); }
 
     .cm-nav-right { display: flex; align-items: center; gap: 10px; }
+
+    /* Search */
+    .cm-search { position: relative; flex: 0 1 280px; min-width: 0; }
+    .cm-search-input-wrap {
+      display: flex; align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(245,242,235,0.05);
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      transition: background .15s, border-color .15s;
+    }
+    .cm-search-input-wrap.is-open,
+    .cm-search-input-wrap:focus-within {
+      background: rgba(245,242,235,0.08);
+      border-color: rgba(255,138,0,0.5);
+    }
+    .cm-search-icon { font-size: 13px; opacity: 0.7; }
+    .cm-search-input {
+      flex: 1; min-width: 0;
+      background: none; border: none; outline: none;
+      color: var(--cream);
+      font-family: inherit;
+      font-size: 14px;
+    }
+    .cm-search-input::placeholder { color: var(--ink-3); }
+    .cm-search-input::-webkit-search-cancel-button { display: none; }
+    .cm-search-clear {
+      background: none; border: none; padding: 0;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      color: var(--ink-2);
+      font-size: 16px;
+      cursor: pointer;
+      display: grid; place-items: center;
+    }
+    .cm-search-clear:hover { background: rgba(245,242,235,0.1); color: var(--cream); }
+
+    .cm-search-results {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0; right: 0;
+      max-height: 360px;
+      overflow-y: auto;
+      background: rgba(10,19,32,0.96);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--line-strong);
+      border-radius: 14px;
+      box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6);
+      z-index: 110;
+      animation: slide-down .15s ease;
+      padding: 6px;
+    }
+    .cm-search-empty {
+      padding: 14px 16px;
+      color: var(--ink-2);
+      font-size: 13px;
+      text-align: center;
+    }
+    .cm-search-item {
+      display: flex; flex-direction: column;
+      gap: 3px;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: none;
+      border: none;
+      color: var(--cream);
+      cursor: pointer;
+      transition: background .12s;
+      text-align: start;
+    }
+    .cm-search-item:hover,
+    .cm-search-item.is-active { background: rgba(255,138,0,0.12); }
+    .cm-search-item-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--cream);
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .cm-search-item-meta {
+      display: flex;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--ink-2);
+    }
+    .cm-search-item-date { color: var(--ink-2); }
+
+    @media (max-width: 980px) {
+      .cm-search { flex: 0 1 200px; }
+    }
+    @media (max-width: 720px) {
+      /* Mobile: search hidden in main nav; appears inside the burger menu instead */
+      .cm-nav-inner > .cm-search { display: none; }
+    }
+    .cm-mobile-search { padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+    .cm-mobile-search .cm-search { flex: 1; width: 100%; }
 
     .cm-lang {
       display: inline-flex; align-items: center; gap: 6px;
@@ -1952,5 +2059,14 @@
   <script type="text/babel" src="assets/src/notify.js"></script>
   <script type="text/babel" src="assets/src/sections.js"></script>
   <script type="text/babel" src="assets/src/app.js"></script>
+
+  <script>
+    // Register the PWA service worker (only in production hosts; skip on file://)
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

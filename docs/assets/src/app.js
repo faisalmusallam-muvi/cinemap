@@ -62,6 +62,41 @@ function App() {
   window.openModal = setModalMovie;
   window.openTrailer = setModalMovie;
 
+  // ---------- Deep-link routing ----------
+  // URL format: #/m/<slug>  → opens that movie's modal.
+  // Reading the hash on mount + reacting to hashchange opens the modal;
+  // setting the hash whenever modalMovie changes keeps the URL shareable.
+  useEffect(() => {
+    const applyHash = () => {
+      const h = window.location.hash || '';
+      const m = h.match(/^#\/m\/([^/?#]+)/);
+      if (m) {
+        const movie = window.findMovieBySlug(decodeURIComponent(m[1]));
+        if (movie) setModalMovie(movie);
+        else setModalMovie(null);
+      } else {
+        setModalMovie(prev => (prev ? null : prev));
+      }
+    };
+    applyHash();
+    window.addEventListener('hashchange', applyHash);
+    return () => window.removeEventListener('hashchange', applyHash);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Mirror modalMovie back into the hash so the URL stays shareable.
+  useEffect(() => {
+    if (modalMovie) {
+      const slug = window.movieSlug(modalMovie);
+      const target = `#/m/${slug}`;
+      if (window.location.hash !== target) {
+        history.replaceState(null, '', target);
+      }
+    } else if (window.location.hash.startsWith('#/m/')) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, [modalMovie]);
+
   // ---------- Notify capture popup ----------
   const [notifyMovie, setNotifyMovie] = useState(null);
 
@@ -230,7 +265,7 @@ function App() {
 
   const handleShare = async (m) => {
     const title = window.movieTitle(m, lang);
-    const url = `${location.origin}${location.pathname}#movie=${encodeURIComponent(m.en)}`;
+    const url = `${location.origin}${location.pathname}#/m/${window.movieSlug(m)}`;
     const shareText = lang === 'en'
       ? `${title} — coming ${window.fmtDate(m.date, 'en')}. Saved on Cinemap.`
       : `${title} — قريبًا ${window.fmtDate(m.date, 'ar')}. من Cinemap.`;
@@ -292,6 +327,7 @@ function App() {
         onJumpWatchlist={jumpToWatchlist}
         onJumpHow={jumpToHow}
         onJumpVision={jumpToVision}
+        onOpenMovie={setModalMovie}
       />
 
       <window.Hero
