@@ -324,7 +324,7 @@ function ExpBadge({ exp }) {
 }
 
 // ---------- Movie Modal (rich full-screen) ----------
-function MovieModal({ movie, lang, onClose }) {
+function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched }) {
   const [posterData, setPosterData] = useState(null);
   const [cast, setCast] = useState([]);
   const [ytKey, setYtKey] = useState(null);
@@ -477,44 +477,55 @@ function MovieModal({ movie, lang, onClose }) {
             </button>
           )}
 
-          <div className="mmodal-cal-wrap" onClick={e => e.stopPropagation()}>
+          {past && onToggleWatched ? (
+            // Released movies: "Add to Calendar" makes no sense — show "Mark as Watched" instead
             <button
-              className="mmodal-btn-cal"
-              onClick={() => setCalOpen(v => !v)}
+              className={`mmodal-btn-watched ${isWatched ? 'is-on' : ''}`}
+              onClick={e => { e.stopPropagation(); onToggleWatched(movie); }}
             >
-              <span>📅</span>
-              {t.add_calendar}
+              <span className="ltr">{isWatched ? '✓' : '⭐'}</span>
+              {t.watched}
             </button>
-            {calOpen && (
-              <div className="mmodal-cal-dropdown">
-                <a
-                  href={googleCalUrl(movie, lang)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mmodal-cal-item"
-                >
-                  <span className="mmodal-cal-icon" style={{ background: '#4285F4', color: '#fff' }}>G</span>
-                  {t.google_cal}
-                </a>
-                <button
-                  className="mmodal-cal-item"
-                  onClick={() => { downloadIcal(movie, lang); setCalOpen(false); }}
-                >
-                  <span className="mmodal-cal-icon" style={{ background: '#1d1d1f', color: '#fff' }}>🍎</span>
-                  {t.apple_cal}
-                </button>
-                <a
-                  href={outlookCalUrl(movie, lang)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mmodal-cal-item"
-                >
-                  <span className="mmodal-cal-icon" style={{ background: '#0078D4', color: '#fff' }}>O</span>
-                  {t.outlook_cal}
-                </a>
-              </div>
-            )}
-          </div>
+          ) : (
+            <div className="mmodal-cal-wrap" onClick={e => e.stopPropagation()}>
+              <button
+                className="mmodal-btn-cal"
+                onClick={() => setCalOpen(v => !v)}
+              >
+                <span>📅</span>
+                {t.add_calendar}
+              </button>
+              {calOpen && (
+                <div className="mmodal-cal-dropdown">
+                  <a
+                    href={googleCalUrl(movie, lang)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mmodal-cal-item"
+                  >
+                    <span className="mmodal-cal-icon" style={{ background: '#4285F4', color: '#fff' }}>G</span>
+                    {t.google_cal}
+                  </a>
+                  <button
+                    className="mmodal-cal-item"
+                    onClick={() => { downloadIcal(movie, lang); setCalOpen(false); }}
+                  >
+                    <span className="mmodal-cal-icon" style={{ background: '#1d1d1f', color: '#fff' }}>🍎</span>
+                    {t.apple_cal}
+                  </button>
+                  <a
+                    href={outlookCalUrl(movie, lang)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mmodal-cal-item"
+                  >
+                    <span className="mmodal-cal-icon" style={{ background: '#0078D4', color: '#fff' }}>O</span>
+                    {t.outlook_cal}
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
       </div>

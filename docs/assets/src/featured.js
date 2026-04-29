@@ -2,7 +2,7 @@
 const { useEffect, useRef, useState, useMemo } = window.React;
 
 // ---------- Featured Movies Carousel ----------
-function FeaturedCarousel({ lang, watchlist, notified, onToggleSave, onToggleNotify, onTrailer, onShare, onOpenMovie }) {
+function FeaturedCarousel({ lang, watchlist, notified, watched, onToggleSave, onToggleNotify, onToggleWatched, onTrailer, onShare, onOpenMovie }) {
   const t = window.CINEMAP_I18N[lang];
   const movies = useMemo(() => window.getFeaturedMovies(), []);
   const trackRef = useRef(null);
@@ -59,6 +59,8 @@ function FeaturedCarousel({ lang, watchlist, notified, onToggleSave, onToggleNot
           const k = movieKey(m);
           const isSaved = watchlist.has(k);
           const isNotified = notified.has(k);
+          const isWatched = watched?.has(k) || false;
+          const isReleased = window.daysUntil(m.date) < 0;
           const badge = lang === 'en' ? m.badge : (m.badgeAr || m.badge);
           const projected = window.fmtAdmissions(m.projectedAdmissions, lang);
           const dateStr = window.fmtDate(m.date, lang);
@@ -107,15 +109,27 @@ function FeaturedCarousel({ lang, watchlist, notified, onToggleSave, onToggleNot
                     <span className="cm-fc-act-icon">{isSaved ? '✓' : '＋'}</span>
                     <span className="cm-fc-act-lbl">{isSaved ? t.saved : t.save}</span>
                   </button>
-                  <button
-                    className={`cm-fc-act ${isNotified ? 'is-on' : ''}`}
-                    onClick={(e) => { e.stopPropagation(); onToggleNotify(m); }}
-                    aria-label={isNotified ? t.notified : t.notify}
-                    title={isNotified ? t.notified : t.notify}
-                  >
-                    <span className="cm-fc-act-icon">🔔</span>
-                    <span className="cm-fc-act-lbl">{isNotified ? t.notified : t.notify}</span>
-                  </button>
+                  {isReleased ? (
+                    <button
+                      className={`cm-fc-act cm-action-watched ${isWatched ? 'is-on' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); onToggleWatched(m); }}
+                      aria-label={isWatched ? t.watched_done : t.watched}
+                      title={isWatched ? t.watched_done : t.watched}
+                    >
+                      <span className="cm-fc-act-icon">{isWatched ? '✓' : '⭐'}</span>
+                      <span className="cm-fc-act-lbl">{isWatched ? t.watched_done : t.watched}</span>
+                    </button>
+                  ) : (
+                    <button
+                      className={`cm-fc-act ${isNotified ? 'is-on' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); onToggleNotify(m); }}
+                      aria-label={isNotified ? t.notified : t.notify}
+                      title={isNotified ? t.notified : t.notify}
+                    >
+                      <span className="cm-fc-act-icon">🔔</span>
+                      <span className="cm-fc-act-lbl">{isNotified ? t.notified : t.notify}</span>
+                    </button>
+                  )}
                   <button
                     className="cm-fc-act"
                     onClick={(e) => { e.stopPropagation(); onShare(m); }}

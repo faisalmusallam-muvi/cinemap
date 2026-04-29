@@ -261,10 +261,13 @@ function DateChip({ iso, lang }) {
 }
 
 // ---------- MovieRow ----------
-function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, onToggleSave, onToggleNotify, onShare }) {
+function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched,
+                   onToggleSave, onToggleNotify, onToggleWatched, onShare }) {
   const t = window.CINEMAP_I18N[lang];
   const g = window.CINEMAP_GENRES[movie.genre];
   const days = window.daysUntil(movie.date);
+  // If the release date has passed → show "I watched it" instead of "Notify me"
+  const isReleased = days < 0;
   const title = window.movieTitle(movie, lang);
 
   return (
@@ -301,15 +304,29 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, onToggleSave,
             <span className="cm-action-icon">{isSaved ? '✓' : '＋'}</span>
             <span className="cm-action-lbl">{isSaved ? t.saved : t.save}</span>
           </button>
-          <button
-            className={`cm-action ${isNotified ? 'is-on' : ''}`}
-            onClick={() => onToggleNotify(movie)}
-            aria-label={t.notify}
-            title={isNotified ? t.notified : t.notify}
-          >
-            <span className="cm-action-icon">🔔</span>
-            <span className="cm-action-lbl">{isNotified ? t.notified : t.notify}</span>
-          </button>
+
+          {isReleased ? (
+            <button
+              className={`cm-action cm-action-watched ${isWatched ? 'is-on' : ''}`}
+              onClick={() => onToggleWatched(movie)}
+              aria-label={t.watched}
+              title={isWatched ? t.watched_done : t.watched}
+            >
+              <span className="cm-action-icon">{isWatched ? '✓' : '⭐'}</span>
+              <span className="cm-action-lbl">{isWatched ? t.watched_done : t.watched}</span>
+            </button>
+          ) : (
+            <button
+              className={`cm-action ${isNotified ? 'is-on' : ''}`}
+              onClick={() => onToggleNotify(movie)}
+              aria-label={t.notify}
+              title={isNotified ? t.notified : t.notify}
+            >
+              <span className="cm-action-icon">🔔</span>
+              <span className="cm-action-lbl">{isNotified ? t.notified : t.notify}</span>
+            </button>
+          )}
+
           <button className="cm-action" onClick={() => onShare(movie)} aria-label={t.share} title={t.share}>
             <span className="cm-action-icon">↗</span>
             <span className="cm-action-lbl">{t.share}</span>
@@ -321,7 +338,8 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, onToggleSave,
 }
 
 // ---------- MonthPanel ----------
-function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, onToggleSave, onToggleNotify, onShare }) {
+function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, watched,
+                     onToggleSave, onToggleNotify, onToggleWatched, onShare }) {
   const months = lang === 'en' ? window.CINEMAP_MONTHS_EN_FULL : window.CINEMAP_MONTHS_AR;
   const movs = useMemo(
     () => movies.filter(m => m.month === index).sort((a, b) => new Date(a.date) - new Date(b.date)),
@@ -348,8 +366,10 @@ function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, onT
             onOpenMovie={onOpenMovie}
             isSaved={watchlist.has(m.en + '|' + m.date)}
             isNotified={notified.has(m.en + '|' + m.date)}
+            isWatched={watched?.has(m.en + '|' + m.date) || false}
             onToggleSave={onToggleSave}
             onToggleNotify={onToggleNotify}
+            onToggleWatched={onToggleWatched}
             onShare={onShare}
           />
         ))}

@@ -8,6 +8,7 @@ const LS = {
   lang: 'cinemap-lang',
   watchlist: 'cinemap-watchlist',
   notify: 'cinemap-notify',
+  watched: 'cinemap-watched',
   trailer: 'cinemap-trailer-clicks',
 };
 
@@ -38,9 +39,10 @@ function App() {
   }, []);
   useEffect(() => { setLang(lang); /* apply on mount */ /* eslint-disable-next-line */ }, []);
 
-  // ---------- Watchlist + Notify ----------
+  // ---------- Watchlist + Notify + Watched ----------
   const [watchlist, setWatchlist] = useState(() => loadSet(LS.watchlist));
   const [notified,  setNotified]  = useState(() => loadSet(LS.notify));
+  const [watched,   setWatched]   = useState(() => loadSet(LS.watched));
   const [trailerClicks, setTrailerClicks] = useState(() => {
     try { return parseInt(localStorage.getItem(LS.trailer) || '0', 10) || 0; } catch { return 0; }
   });
@@ -236,6 +238,24 @@ function App() {
     });
   };
 
+  // Mark/unmark a movie as watched. Local-only — Ticket 2 (rating sheet)
+  // will pipe the rich payload to Formspree.
+  const toggleWatched = (m) => {
+    const k = movieKey(m);
+    setWatched(prev => {
+      const next = new Set(prev);
+      if (next.has(k)) {
+        next.delete(k);
+        pushToast(t.toast_unwatched, 'info', '○');
+      } else {
+        next.add(k);
+        pushToast(t.toast_watched, 'success', '🎬');
+      }
+      saveSet(LS.watched, next);
+      return next;
+    });
+  };
+
   const onNotifySubmitted = ({ contact: _contact }) => {
     if (!notifyMovie) return;
     const k = movieKey(notifyMovie);
@@ -342,8 +362,10 @@ function App() {
         lang={lang}
         watchlist={watchlist}
         notified={notified}
+        watched={watched}
         onToggleSave={toggleSave}
         onToggleNotify={toggleNotify}
+        onToggleWatched={toggleWatched}
         onTrailer={handleTrailer}
         onShare={handleShare}
         onOpenMovie={setModalMovie}
@@ -388,8 +410,10 @@ function App() {
                 onOpenMovie={setModalMovie}
                 watchlist={watchlist}
                 notified={notified}
+                watched={watched}
                 onToggleSave={toggleSave}
                 onToggleNotify={toggleNotify}
+                onToggleWatched={toggleWatched}
                 onShare={handleShare}
               />
             ))
@@ -439,6 +463,8 @@ function App() {
           movie={modalMovie}
           lang={lang}
           onClose={() => setModalMovie(null)}
+          isWatched={watched.has(movieKey(modalMovie))}
+          onToggleWatched={toggleWatched}
         />
       )}
     </>
