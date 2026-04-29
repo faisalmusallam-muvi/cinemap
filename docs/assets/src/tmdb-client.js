@@ -330,6 +330,7 @@ function MovieModal({ movie, lang, onClose }) {
   const [ytKey, setYtKey] = useState(null);
   const [trailerVisible, setTrailerVisible] = useState(false);
   const [calOpen, setCalOpen] = useState(false);
+  const trailerRef = useRef(null);
   const t = window.MUVI_I18N?.[lang] || window.MUVI_I18N?.ar;
   const g = window.MUVI_GENRES[movie.genre];
   const days = window.daysUntil(movie.date);
@@ -350,6 +351,17 @@ function MovieModal({ movie, lang, onClose }) {
     document.body.style.overflow = 'hidden';
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, []);
+
+  // Auto-scroll the inline trailer into view when the user opens it.
+  // Without this the user clicks "Watch Trailer" and the iframe pops in
+  // below the fold, so they hear sound but see nothing.
+  useEffect(() => {
+    if (!trailerVisible) return;
+    const id = setTimeout(() => {
+      trailerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 80);
+    return () => clearTimeout(id);
+  }, [trailerVisible]);
 
   const title = lang === 'en' ? movie.en : movie.ar;
   const subTitle = lang === 'en' ? movie.ar : movie.en;
@@ -393,6 +405,17 @@ function MovieModal({ movie, lang, onClose }) {
 
             {/* Overview */}
             {movie.overview && <p className="mmodal-overview">{movie.overview}</p>}
+
+            {/* Inline trailer — appears between synopsis and cast when active */}
+            {trailerVisible && ytKey && (
+              <div className="mmodal-trailer mmodal-trailer-inline" ref={trailerRef}>
+                <iframe
+                  src={`https://www.youtube.com/embed/${ytKey}?autoplay=1&rel=0`}
+                  allow="autoplay; fullscreen; encrypted-media"
+                  allowFullScreen
+                />
+              </div>
+            )}
 
             {/* Cast */}
             {cast.length > 0 && (
@@ -494,16 +517,6 @@ function MovieModal({ movie, lang, onClose }) {
           </div>
         </div>
 
-        {/* Embedded trailer (full-width, below footer) */}
-        {trailerVisible && ytKey && (
-          <div className="mmodal-trailer">
-            <iframe
-              src={`https://www.youtube.com/embed/${ytKey}?autoplay=1&rel=0`}
-              allow="autoplay; fullscreen; encrypted-media"
-              allowFullScreen
-            />
-          </div>
-        )}
       </div>
     </div>
   );
