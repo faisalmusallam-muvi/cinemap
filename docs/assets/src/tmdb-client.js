@@ -6,91 +6,221 @@ const TMDB_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmZWUyZTJjZGJmNzI3YmI2ZjJkMGV
 const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w500';
 const TMDB_BG_BASE  = 'https://image.tmdb.org/t/p/w1280';
 
-async function tmdbFetch(movie) {
-  const cacheKey = `tmdb-v2-${movie.en}`;
-  const cached = localStorage.getItem(cacheKey);
-  if (cached) { try { return JSON.parse(cached); } catch {} }
+// Cache versioning + TTLs.
+// Bump CACHE_VERSION on deploy to force-refresh ALL TMDB caches at once
+// (e.g. when posters change across the board, or when TMDB structure shifts).
+// Each entry also has its own TTL so caches roll over automatically without
+// requiring a deploy.
+const CACHE_VERSION = 3;
+const TTL_POSTER_DAYS  = 7;   // posters change ~weekly as marketing rolls out
+const TTL_TRAILER_DAYS = 3;   // trailers drop late, re-check more often
+const TTL_CAST_DAYS    = 30;  // cast is stable once announced
+
+const DAY = 24 * 60 * 60 * 1000;
+
+function readCache(key, ttlDays) {
   try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const entry = JSON.parse(raw);
+    // Old (unversioned) entries: ignore so they re-fetch with the new schema.
+    if (!entry || typeof entry !== 'object' || entry.v !== CACHE_VERSION) return null;
+    const age = Date.now() - (entry.ts || 0);
+    if (age > ttlDays * DAY) return null;
+    return entry.data;
+  } catch { return null; }
+}
+
+function writeCache(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify({ v: CACHE_VERSION, ts: Date.now(), data }));
+  } catch {}
+}
+
+// Optional: clean up stale entries from previous CACHE_VERSIONs to free quota.
+(function pruneOldCaches() {
+  try {
+    const keep = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k) continue;
+      if (k.startsWith('tmdb-')) {
+        try {
+          const v = JSON.parse(localStorage.getItem(k));
+          if (!v || v.v !== CACHE_VERSION) keep.push(k);
+        } catch { keep.push(k); }
+      }
+    }
+    keep.forEach(k => localStorage.removeItem(k));
+  } catch {}
+})();
+
+async function tmdbApi(path, lang = 'en-US') {
+  const sep = path.includes('?') ? '&' : '?';
+  const r = await fetch(`https://api.themoviedb.org/3${path}${sep}language=${lang}`, {
+    headers: { Authorization: `Bearer ${TMDB_TOKEN}`, 'Content-Type': 'application/json;charset=utf-8' }
+  });
+  if (!r.ok) throw new Error(`TMDB ${r.status}`);
+  return r.json();
+}
+
+// ---------- Posters + backdrops ----------
+async function tmdbFetch(movie) {
+  const cacheKey = `tmdb-poster-${movie.en}`;
+  const cached = readCache(cacheKey, TTL_POSTER_DAYS);
+  if (cached) return cached;
+
+  const movieFromYear = new Date(movie.date).getFullYear();
+
+  try {
+    // Direct fetch by tmdbId
     if (movie.tmdbId) {
-      const r = await fetch(`https://api.themoviedb.org/3/movie/${movie.tmdbId}?language=en-US`, {
-        headers: { Authorization: `Bearer ${TMDB_TOKEN}`, 'Content-Type': 'application/json;charset=utf-8' }
-      });
-      if (r.ok) {
-        const d = await r.json();
-        if (d.poster_path) {
-          const out = { poster: `${TMDB_IMG_BASE}${d.poster_path}`, backdrop: d.backdrop_path ? `${TMDB_BG_BASE}${d.backdrop_path}` : null };
-          localStorage.setItem(cacheKey, JSON.stringify(out));
-          return out;
-        }
+      const d = await tmdbApi(`/movie/${movie.tmdbId}`);
+      if (d?.poster_path) {
+        const out = {
+          poster:   `${TMDB_IMG_BASE}${d.poster_path}`,
+          backdrop: d.backdrop_path ? `${TMDB_BG_BASE}${d.backdrop_path}` : null,
+          tmdbId:   movie.tmdbId,
+        };
+        writeCache(cacheKey, out);
+        return out;
       }
     }
+
+    // Search by English title — try year-scoped first, then global
     const q = encodeURIComponent(movie.en);
-    const r = await fetch(`https://api.themoviedb.org/3/search/movie?query=${q}&year=2026&include_adult=false`, {
-      headers: { Authorization: `Bearer ${TMDB_TOKEN}`, 'Content-Type': 'application/json;charset=utf-8' }
-    });
-    if (!r.ok) return null;
-    const d = await r.json();
-    let hit = (d.results || []).find(x => x.poster_path);
+    let hit = null;
+
+    try {
+      const d = await tmdbApi(`/search/movie?query=${q}&year=${movieFromYear}&include_adult=false`);
+      hit = (d.results || []).find(x => x.poster_path);
+    } catch {}
+
     if (!hit) {
-      const r2 = await fetch(`https://api.themoviedb.org/3/search/movie?query=${q}&include_adult=false`, {
-        headers: { Authorization: `Bearer ${TMDB_TOKEN}`, 'Content-Type': 'application/json;charset=utf-8' }
-      });
-      if (r2.ok) {
-        const d2 = await r2.json();
+      try {
+        const d2 = await tmdbApi(`/search/movie?query=${q}&include_adult=false`);
         hit = (d2.results || []).find(x => x.poster_path);
-      }
+      } catch {}
     }
-    if (!hit) return null;
-    const out = { poster: `${TMDB_IMG_BASE}${hit.poster_path}`, backdrop: hit.backdrop_path ? `${TMDB_BG_BASE}${hit.backdrop_path}` : null };
-    localStorage.setItem(cacheKey, JSON.stringify(out));
+
+    if (!hit) {
+      // Cache the negative result briefly (1 day) so we don't hammer TMDB
+      writeCache(cacheKey, { poster: null, backdrop: null, tmdbId: null, missing: true });
+      return null;
+    }
+
+    const out = {
+      poster:   `${TMDB_IMG_BASE}${hit.poster_path}`,
+      backdrop: hit.backdrop_path ? `${TMDB_BG_BASE}${hit.backdrop_path}` : null,
+      tmdbId:   hit.id,
+    };
+    writeCache(cacheKey, out);
     return out;
   } catch { return null; }
 }
 
+// Resolve a movie's tmdbId by looking it up via tmdbFetch. Returns the id or null.
+async function resolveTmdbId(movie) {
+  if (movie.tmdbId) return movie.tmdbId;
+  const data = await tmdbFetch(movie);
+  return data?.tmdbId || null;
+}
+
 // ---------- Trailer key ----------
 async function fetchTrailerKey(movie) {
-  if (!movie.tmdbId) return null;
-  const cacheKey = `tmdb-trailer-${movie.tmdbId}`;
-  const cached = localStorage.getItem(cacheKey);
-  if (cached !== null) return cached || null;
+  // Resolve tmdbId via title search if we don't have one in data
+  const tmdbId = await resolveTmdbId(movie);
+  if (!tmdbId) return null;
+
+  const cacheKey = `tmdb-trailer-${tmdbId}`;
+  const cached = readCache(cacheKey, TTL_TRAILER_DAYS);
+  // Note: explicit empty-string represents "checked, none yet"
+  if (cached !== null && cached !== undefined) return cached || null;
+
   try {
-    const r = await fetch(`https://api.themoviedb.org/3/movie/${movie.tmdbId}/videos?language=en-US`, {
-      headers: { Authorization: `Bearer ${TMDB_TOKEN}` }
-    });
-    if (!r.ok) { localStorage.setItem(cacheKey, ''); return null; }
-    const d = await r.json();
+    const d = await tmdbApi(`/movie/${tmdbId}/videos`);
     const results = d.results || [];
-    const trailer = results.find(v => v.site === 'YouTube' && v.type === 'Trailer' && v.official)
+    const trailer =
+         results.find(v => v.site === 'YouTube' && v.type === 'Trailer' && v.official)
       || results.find(v => v.site === 'YouTube' && v.type === 'Trailer')
+      || results.find(v => v.site === 'YouTube' && v.type === 'Teaser')
       || results.find(v => v.site === 'YouTube');
     const key = trailer?.key || '';
-    localStorage.setItem(cacheKey, key);
+    writeCache(cacheKey, key);
     return key || null;
   } catch { return null; }
 }
 
 // ---------- Cast fetch ----------
 async function fetchCast(movie) {
-  if (!movie.tmdbId) return [];
-  const cacheKey = `tmdb-cast-${movie.tmdbId}`;
-  const cached = localStorage.getItem(cacheKey);
-  if (cached) { try { return JSON.parse(cached); } catch {} }
+  const tmdbId = await resolveTmdbId(movie);
+  if (!tmdbId) return [];
+
+  const cacheKey = `tmdb-cast-${tmdbId}`;
+  const cached = readCache(cacheKey, TTL_CAST_DAYS);
+  if (cached) return cached;
+
   try {
-    const r = await fetch(`https://api.themoviedb.org/3/movie/${movie.tmdbId}/credits?language=en-US`, {
-      headers: { Authorization: `Bearer ${TMDB_TOKEN}` }
-    });
-    if (!r.ok) return [];
-    const d = await r.json();
+    const d = await tmdbApi(`/movie/${tmdbId}/credits`);
     const cast = (d.cast || []).slice(0, 8).map(a => ({
       id: a.id,
       name: a.name,
       character: a.character,
       photo: a.profile_path ? `https://image.tmdb.org/t/p/w185${a.profile_path}` : null,
     }));
-    localStorage.setItem(cacheKey, JSON.stringify(cast));
+    writeCache(cacheKey, cast);
     return cast;
   } catch { return []; }
 }
+
+// ---------- Background prefetch ----------
+// On app boot, warm up the cache for the most visible movies (Featured Top 10
+// + the first month). Posters appear instantly when the user scrolls instead
+// of flashing skeletons. Runs after first paint so it doesn't block render.
+function prefetchHotMovies() {
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(_runPrefetch, { timeout: 4000 });
+  } else {
+    setTimeout(_runPrefetch, 1500);
+  }
+}
+
+async function _runPrefetch() {
+  try {
+    const all = window.CINEMAP_MOVIES || [];
+    const featured = all.filter(m => m.featuredRank).sort((a, b) => a.featuredRank - b.featuredRank);
+    const firstMonth = all.filter(m => m.month === 0).sort((a, b) => new Date(a.date) - new Date(b.date));
+    const seen = new Set();
+    const targets = [...featured, ...firstMonth].filter(m => {
+      const k = m.en + '|' + m.date;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+    // Throttle: max 4 concurrent fetches
+    const queue = targets.slice();
+    const worker = async () => {
+      while (queue.length) {
+        const m = queue.shift();
+        try { await tmdbFetch(m); } catch {}
+        // For movies with a known tmdbId, also warm the trailer cache
+        if (m.tmdbId) { try { await fetchTrailerKey(m); } catch {} }
+      }
+    };
+    await Promise.all([worker(), worker(), worker(), worker()]);
+  } catch {}
+}
+
+// Fire prefetch once per app load (after CINEMAP_MOVIES is on window)
+if (typeof window !== 'undefined') {
+  if (window.CINEMAP_MOVIES) {
+    prefetchHotMovies();
+  } else {
+    window.addEventListener('load', () => prefetchHotMovies(), { once: true });
+  }
+}
+
+window.cinemapPrefetch = prefetchHotMovies;
 
 // ---------- Add to Calendar helpers ----------
 function _calDate(iso) {
