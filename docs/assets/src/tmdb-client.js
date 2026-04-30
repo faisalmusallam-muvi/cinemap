@@ -712,6 +712,8 @@ function MonthRail({ activeMonth, onJump, lang }) {
 
 Object.assign(window, {
   MovieRow, MonthPanel, MonthRail, MonthBar, GenrePill, ExpBadge, MoviePoster, MovieModal,
+  // expose calendar export so the row + featured card can call it directly
+  downloadIcal, googleCalUrl, outlookCalUrl,
   // keep backward compat
   TrailerModal: MovieModal,
 });

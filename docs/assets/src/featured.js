@@ -2,7 +2,7 @@
 const { useEffect, useRef, useState, useMemo } = window.React;
 
 // ---------- Featured Movies Carousel ----------
-function FeaturedCarousel({ lang, watchlist, notified, watched, onToggleSave, onToggleNotify, onToggleWatched, onTrailer, onShare, onOpenMovie }) {
+function FeaturedCarousel({ lang, watchlist, notified, watched, onToggleSave, onToggleNotify, onToggleWatched, onCalendar, onTrailer, onShare, onOpenMovie }) {
   const t = window.CINEMAP_I18N[lang];
   const movies = useMemo(() => window.getFeaturedMovies(), []);
   const trackRef = useRef(null);
@@ -120,15 +120,26 @@ function FeaturedCarousel({ lang, watchlist, notified, watched, onToggleSave, on
                       <span className="cm-fc-act-lbl">{isWatched ? t.watched_done : t.watched}</span>
                     </button>
                   ) : (
-                    <button
-                      className={`cm-fc-act ${isNotified ? 'is-on' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); onToggleNotify(m); }}
-                      aria-label={isNotified ? t.notified : t.notify}
-                      title={isNotified ? t.notified : t.notify}
-                    >
-                      <span className="cm-fc-act-icon">🔔</span>
-                      <span className="cm-fc-act-lbl">{isNotified ? t.notified : t.notify}</span>
-                    </button>
+                    <>
+                      <button
+                        className={`cm-fc-act ${isNotified ? 'is-on' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); onToggleNotify(m); }}
+                        aria-label={isNotified ? t.notified : t.notify}
+                        title={isNotified ? t.notified : t.notify}
+                      >
+                        <span className="cm-fc-act-icon">🔔</span>
+                        <span className="cm-fc-act-lbl">{isNotified ? t.notified : t.notify}</span>
+                      </button>
+                      <button
+                        className="cm-fc-act"
+                        onClick={(e) => { e.stopPropagation(); onCalendar?.(m); }}
+                        aria-label={t.cal_quick}
+                        title={t.cal_quick}
+                      >
+                        <span className="cm-fc-act-icon">📅</span>
+                        <span className="cm-fc-act-lbl">{t.cal_quick}</span>
+                      </button>
+                    </>
                   )}
                   <button
                     className="cm-fc-act"

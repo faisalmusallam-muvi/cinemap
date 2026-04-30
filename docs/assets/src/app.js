@@ -238,6 +238,18 @@ function App() {
     });
   };
 
+  // Quick "Add to my phone calendar" from any row/card. Downloads a .ics
+  // file — iOS auto-opens Apple Calendar, Android offers Google Calendar
+  // via the share sheet, desktop opens the system default calendar app.
+  // The modal still has the explicit Google/Apple/Outlook submenu for
+  // power users who want to choose.
+  const handleCalendar = (m) => {
+    if (typeof window.downloadIcal === 'function') {
+      window.downloadIcal(m, lang);
+      pushToast(t.toast_cal_added, 'success', '📅');
+    }
+  };
+
   // Mark/unmark a movie as watched. Local-only — Ticket 2 (rating sheet)
   // will pipe the rich payload to Formspree.
   const toggleWatched = (m) => {
@@ -366,6 +378,7 @@ function App() {
         onToggleSave={toggleSave}
         onToggleNotify={toggleNotify}
         onToggleWatched={toggleWatched}
+        onCalendar={handleCalendar}
         onTrailer={handleTrailer}
         onShare={handleShare}
         onOpenMovie={setModalMovie}
@@ -414,6 +427,7 @@ function App() {
                 onToggleSave={toggleSave}
                 onToggleNotify={toggleNotify}
                 onToggleWatched={toggleWatched}
+                onCalendar={handleCalendar}
                 onShare={handleShare}
               />
             ))
