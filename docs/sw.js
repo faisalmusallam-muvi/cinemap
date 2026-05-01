@@ -1,5 +1,5 @@
 /* Cinemap service worker — minimal cache-first shell with network fallback */
-const CACHE = 'cinemap-shell-v9';
+const CACHE = 'cinemap-shell-v10';
 const SHELL = [
   './',
   './index.html',

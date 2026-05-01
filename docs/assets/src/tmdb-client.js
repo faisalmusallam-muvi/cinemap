@@ -324,7 +324,7 @@ function ExpBadge({ exp }) {
 }
 
 // ---------- Movie Modal (rich full-screen) ----------
-function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalendar }) {
+function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalendar, rating }) {
   const [posterData, setPosterData] = useState(null);
   const [cast, setCast] = useState([]);
   const [ytKey, setYtKey] = useState(null);
@@ -454,12 +454,24 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
                   <span className="mmodal-meta-val">{movie.rating}</span>
                 </div>
               )}
-              <div className="mmodal-meta-item">
-                <span className="mmodal-meta-lbl">{t.countdown}</span>
-                <span className="mmodal-meta-val" style={past ? { color: 'var(--ink-3)' } : null}>
-                  {past ? t.released : <><strong>{days}</strong> {t.days}</>}
-                </span>
-              </div>
+              {rating && rating.rating > 0 ? (
+                // User has rated this movie — show their rating instead of the countdown
+                <div className="mmodal-meta-item mmodal-meta-rating">
+                  <span className="mmodal-meta-lbl">{t.score_modal_lbl}</span>
+                  <span className="mmodal-meta-val">
+                    <span className="cm-score-star">⭐</span>{' '}
+                    <strong>{rating.rating}</strong>
+                    <span style={{ color: 'var(--ink-2)' }}>/5</span>
+                  </span>
+                </div>
+              ) : (
+                <div className="mmodal-meta-item">
+                  <span className="mmodal-meta-lbl">{t.countdown}</span>
+                  <span className="mmodal-meta-val" style={past ? { color: 'var(--ink-3)' } : null}>
+                    {past ? t.released : <><strong>{days}</strong> {t.days}</>}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>

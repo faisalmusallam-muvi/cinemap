@@ -504,6 +504,15 @@ window.CINEMAP_I18N = {
     rate_v_skip:      "ما يستاهل",
     rate_v_date:      "موعد رومانسي",
     rate_v_alone:     "أمسية لحالك",
+
+    // cinemap score (Ticket 3)
+    score_your:       "تقييمك",
+    score_avg:        "Cinemap Score",
+    score_be_first:   "كن أول من يقيّم",
+    score_viewer:     "مشاهد",
+    score_viewers_pl: "مشاهدين",
+    score_of:         "من",
+    score_modal_lbl:  "تقييمك للفيلم",
     trailer:          "شاهد الإعلان",
     share:            "شارك",
     days:             "يوم",
@@ -710,6 +719,15 @@ window.CINEMAP_I18N = {
     rate_v_skip:      "Skip it",
     rate_v_date:      "Date night",
     rate_v_alone:     "Solo Friday",
+
+    // cinemap score (Ticket 3)
+    score_your:       "Your rating",
+    score_avg:        "Cinemap Score",
+    score_be_first:   "Be the first to rate",
+    score_viewer:     "viewer",
+    score_viewers_pl: "viewers",
+    score_of:         "of",
+    score_modal_lbl:  "Your rating",
     trailer:          "Watch Trailer",
     share:            "Share",
     days:             "days",

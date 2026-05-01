@@ -2,7 +2,7 @@
 const { useEffect, useRef, useState, useMemo } = window.React;
 
 // ---------- Featured Movies Carousel ----------
-function FeaturedCarousel({ lang, watchlist, notified, watched, onToggleSave, onToggleNotify, onToggleWatched, onCalendar, onTrailer, onShare, onOpenMovie }) {
+function FeaturedCarousel({ lang, watchlist, notified, watched, ratings, onToggleSave, onToggleNotify, onToggleWatched, onCalendar, onTrailer, onShare, onOpenMovie }) {
   const t = window.CINEMAP_I18N[lang];
   const movies = useMemo(() => window.getFeaturedMovies(), []);
   const trackRef = useRef(null);
@@ -60,6 +60,7 @@ function FeaturedCarousel({ lang, watchlist, notified, watched, onToggleSave, on
           const isSaved = watchlist.has(k);
           const isNotified = notified.has(k);
           const isWatched = watched?.has(k) || false;
+          const myRating = ratings?.[k];
           const isReleased = window.daysUntil(m.date) < 0;
           const badge = lang === 'en' ? m.badge : (m.badgeAr || m.badge);
           const projected = window.fmtAdmissions(m.projectedAdmissions, lang);
@@ -89,6 +90,17 @@ function FeaturedCarousel({ lang, watchlist, notified, watched, onToggleSave, on
                   <span className="cm-fc-genre" style={{ color: g?.color }}>
                     {lang === 'en' ? (g?.en || m.genre) : (g?.ar || m.genre)}
                   </span>
+                  {myRating && myRating.rating > 0 && (
+                    <>
+                      <span className="cm-fc-dot" />
+                      <span className="cm-score-pill" title={t.score_your}>
+                        <span className="cm-score-star">⭐</span>
+                        <strong className="cm-score-num">{myRating.rating}</strong>
+                        <span className="cm-score-sep">/</span>
+                        <span className="cm-score-max">5</span>
+                      </span>
+                    </>
+                  )}
                 </div>
                 <div className="cm-fc-projected">
                   <span className="cm-fc-flame">🔥</span>

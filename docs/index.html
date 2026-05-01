@@ -2402,6 +2402,55 @@
     .cm-movie-date { color: var(--ink-1); font-weight: 600; }
     .cm-movie-days { color: var(--gold); font-weight: 600; }
 
+    /* Cinemap Score pill — visible on row + featured card when the user
+       has rated a movie. Gold accent so it pairs with the rating sheet's
+       gold stars and the row's gold "Watched" state. */
+    .cm-score-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(255,200,87,0.14);
+      border: 1px solid rgba(255,200,87,0.42);
+      color: var(--cream);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .cm-score-star { font-size: 11px; }
+    .cm-score-num  { color: var(--gold); font-size: 13px; font-weight: 800; }
+    .cm-score-sep  { color: var(--ink-2); margin: 0 1px; }
+    .cm-score-max  { color: var(--ink-2); font-weight: 600; }
+
+    /* "Be the first to rate" inline CTA — only shown when user marked
+       watched but skipped the rating sheet. Subtle, link-style. */
+    .cm-score-prompt {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(255,138,0,0.10);
+      border: 1px dashed rgba(255,138,0,0.4);
+      color: var(--amber);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .cm-score-prompt:hover {
+      background: rgba(255,138,0,0.18);
+      border-style: solid;
+      border-color: rgba(255,138,0,0.6);
+    }
+
+    /* Modal meta card variant when showing the user's rating instead of
+       the countdown — adds a subtle gold tint. */
+    .mmodal-meta-rating {
+      background: rgba(255,200,87,0.08) !important;
+      border-color: rgba(255,200,87,0.32) !important;
+    }
+    .mmodal-meta-rating .mmodal-meta-lbl { color: var(--gold) !important; }
+
     /* Date chip — small calendar-style badge so the date stands out. */
     .cm-datechip {
       display: inline-flex;

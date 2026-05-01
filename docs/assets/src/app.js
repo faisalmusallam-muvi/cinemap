@@ -39,10 +39,11 @@ function App() {
   }, []);
   useEffect(() => { setLang(lang); /* apply on mount */ /* eslint-disable-next-line */ }, []);
 
-  // ---------- Watchlist + Notify + Watched ----------
+  // ---------- Watchlist + Notify + Watched + Ratings ----------
   const [watchlist, setWatchlist] = useState(() => loadSet(LS.watchlist));
   const [notified,  setNotified]  = useState(() => loadSet(LS.notify));
   const [watched,   setWatched]   = useState(() => loadSet(LS.watched));
+  const [ratings,   setRatings]   = useState(() => (window.cinemapLoadRatings && window.cinemapLoadRatings()) || {});
   const [trailerClicks, setTrailerClicks] = useState(() => {
     try { return parseInt(localStorage.getItem(LS.trailer) || '0', 10) || 0; } catch { return 0; }
   });
@@ -288,6 +289,8 @@ function App() {
 
   const onRatingSubmitted = ({ payload: _p, networkOk }) => {
     pushToast(t.rate_thanks, 'success', '⭐');
+    // Refresh ratings state so any score pills/badges update immediately
+    if (window.cinemapLoadRatings) setRatings(window.cinemapLoadRatings());
     setRatingMovie(null);
     if (!networkOk) {
       // Local rating is saved either way; just a soft hint that the cloud
@@ -403,6 +406,7 @@ function App() {
         watchlist={watchlist}
         notified={notified}
         watched={watched}
+        ratings={ratings}
         onToggleSave={toggleSave}
         onToggleNotify={toggleNotify}
         onToggleWatched={toggleWatched}
@@ -452,6 +456,7 @@ function App() {
                 watchlist={watchlist}
                 notified={notified}
                 watched={watched}
+                ratings={ratings}
                 onToggleSave={toggleSave}
                 onToggleNotify={toggleNotify}
                 onToggleWatched={toggleWatched}
@@ -523,6 +528,7 @@ function App() {
           isWatched={watched.has(movieKey(modalMovie))}
           onToggleWatched={toggleWatched}
           onCalendar={handleCalendar}
+          rating={ratings[movieKey(modalMovie)]}
         />
       )}
     </>

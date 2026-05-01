@@ -261,7 +261,7 @@ function DateChip({ iso, lang }) {
 }
 
 // ---------- MovieRow ----------
-function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched,
+function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, rating,
                    onToggleSave, onToggleNotify, onToggleWatched, onCalendar, onShare }) {
   const t = window.CINEMAP_I18N[lang];
   const g = window.CINEMAP_GENRES[movie.genre];
@@ -285,11 +285,28 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched,
               <span className="cm-chip-dot" style={{ background: g?.color }} />
               {lang === 'en' ? (g?.en || movie.genre) : (g?.ar || movie.genre)}
             </span>
-            {days >= 0 && days <= 60 && (
+
+            {/* Score pill / first-rater CTA / countdown — mutually exclusive */}
+            {rating && rating.rating > 0 ? (
+              <span className="cm-score-pill" title={t.score_your}>
+                <span className="cm-score-star">⭐</span>
+                <strong className="cm-score-num">{rating.rating}</strong>
+                <span className="cm-score-sep">/</span>
+                <span className="cm-score-max">5</span>
+              </span>
+            ) : isReleased && isWatched ? (
+              <span
+                className="cm-score-prompt"
+                onClick={(e) => { e.stopPropagation(); onToggleWatched(movie); }}
+              >
+                ⭐ {t.score_be_first}
+              </span>
+            ) : days >= 0 && days <= 60 ? (
               <span className="cm-movie-days">
                 <strong>{days}</strong> {t.days}
               </span>
-            )}
+            ) : null}
+
             {movie.pick && <span className="cm-pill cm-pill-gold">★ {lang === 'en' ? 'Pick' : 'مختار'}</span>}
           </div>
         </div>
@@ -349,7 +366,7 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched,
 }
 
 // ---------- MonthPanel ----------
-function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, watched,
+function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, watched, ratings,
                      onToggleSave, onToggleNotify, onToggleWatched, onCalendar, onShare }) {
   const months = lang === 'en' ? window.CINEMAP_MONTHS_EN_FULL : window.CINEMAP_MONTHS_AR;
   const movs = useMemo(
@@ -378,6 +395,7 @@ function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, wat
             isSaved={watchlist.has(m.en + '|' + m.date)}
             isNotified={notified.has(m.en + '|' + m.date)}
             isWatched={watched?.has(m.en + '|' + m.date) || false}
+            rating={ratings?.[m.en + '|' + m.date]}
             onToggleSave={onToggleSave}
             onToggleNotify={onToggleNotify}
             onToggleWatched={onToggleWatched}

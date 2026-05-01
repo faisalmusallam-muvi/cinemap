@@ -18,6 +18,18 @@ function saveRatingFor(key, payload) {
 window.cinemapLoadRatings = loadRatings;
 window.cinemapSaveRatingFor = saveRatingFor;
 
+// Read this user's rating for a movie (Cinemap Score data source).
+// Returns { rating, vibes, reaction, ts } or null. Future: layer in
+// aggregated cloud data (from Formspree-fed JSON) for true cross-user
+// score, but right now this just returns the local user's rating.
+window.cinemapMovieScore = function(movieKey) {
+  if (!movieKey) return null;
+  const all = loadRatings();
+  const r = all[movieKey];
+  if (!r || !r.rating) return null;
+  return r;
+};
+
 // ---------- Background submit to Formspree ----------
 // Same endpoint as Notify; differentiated by _subject so they're easy to
 // filter in Formspree → CSV → Sheets later.
