@@ -1,5 +1,5 @@
 /* Cinemap service worker — minimal cache-first shell with network fallback */
-const CACHE = 'cinemap-shell-v7';
+const CACHE = 'cinemap-shell-v8';
 const SHELL = [
   './',
   './index.html',
@@ -15,6 +15,7 @@ const SHELL = [
   './assets/src/calendar.js',
   './assets/src/featured.js',
   './assets/src/notify.js',
+  './assets/src/rating.js',
   './assets/src/sections.js',
   './assets/src/app.js',
 ];

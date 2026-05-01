@@ -1396,6 +1396,216 @@
     [dir="ltr"] .cm-footer-right { text-align: left; }
 
     /* =========================================================
+       19c) Rating sheet (Ticket 2 — post-watch reaction)
+       ========================================================= */
+    .cm-rate-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 270;
+      background: rgba(5, 10, 20, 0.7);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fade-in .22s ease;
+    }
+    @media (min-width: 720px) {
+      .cm-rate-overlay { align-items: center; padding: 24px; }
+    }
+
+    .cm-rate {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      max-height: 92vh;
+      overflow-y: auto;
+      background: linear-gradient(180deg, var(--charcoal), var(--midnight));
+      border: 1px solid var(--line-strong);
+      border-radius: 22px 22px 0 0;
+      padding: 22px 22px 18px;
+      box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
+      animation: sheet-up .3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    @media (min-width: 720px) {
+      .cm-rate {
+        border-radius: 22px;
+        animation: fade-in .25s ease;
+      }
+    }
+
+    .cm-rate-head {
+      position: relative;
+      text-align: center;
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .cm-rate-grip {
+      display: block;
+      width: 40px; height: 4px;
+      border-radius: 999px;
+      background: var(--line-strong);
+      margin: 0 auto 14px;
+    }
+    @media (min-width: 720px) { .cm-rate-grip { display: none; } }
+    .cm-rate-x {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(245,242,235,0.06);
+      color: var(--cream);
+      font-size: 22px;
+      display: grid;
+      place-items: center;
+    }
+    [dir="rtl"] .cm-rate-x { right: auto; left: 12px; }
+    .cm-rate-x:hover { background: var(--coral); }
+
+    .cm-rate-bell {
+      font-size: 32px;
+      margin-bottom: 6px;
+      filter: drop-shadow(0 6px 18px rgba(255,200,87,0.45));
+    }
+    .cm-rate-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--cream);
+      letter-spacing: -0.01em;
+      margin: 0 0 6px;
+    }
+    .cm-rate-sub {
+      color: var(--ink-1);
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 0 0 10px;
+    }
+    .cm-rate-movie {
+      display: inline-flex;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--ink-2);
+      align-items: baseline;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .cm-rate-movie-name { color: var(--cream); font-weight: 700; }
+
+    .cm-rate-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .cm-rate-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .cm-rate-lbl {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--amber);
+      text-align: start;
+    }
+
+    /* Star row */
+    .cm-rate-stars {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin: 4px 0 2px;
+    }
+    .cm-rate-star {
+      background: none;
+      border: none;
+      padding: 4px 6px;
+      font-size: 30px;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--ink-3);
+      transition: color .12s ease, transform .12s ease;
+      filter: drop-shadow(0 0 0 transparent);
+    }
+    .cm-rate-star:hover { transform: translateY(-2px); }
+    .cm-rate-star.is-on {
+      color: var(--gold);
+      filter: drop-shadow(0 4px 12px rgba(255,200,87,0.45));
+    }
+
+    /* Vibe chips */
+    .cm-rate-vibes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .cm-rate-vibe {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(245,242,235,0.05);
+      border: 1px solid var(--line-strong);
+      color: var(--ink-1);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+    }
+    .cm-rate-vibe:hover { background: rgba(245,242,235,0.09); color: var(--cream); }
+    .cm-rate-vibe.is-on {
+      background: rgba(255,138,0,0.18);
+      border-color: rgba(255,138,0,0.55);
+      color: var(--amber);
+    }
+    .cm-rate-vibe-icon { font-size: 14px; }
+
+    /* Reaction input */
+    .cm-rate-reaction {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(245,242,235,0.04);
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      color: var(--cream);
+      font-family: inherit;
+      font-size: 15px;
+      transition: border-color .15s, background .15s;
+    }
+    .cm-rate-reaction::placeholder { color: var(--ink-3); }
+    .cm-rate-reaction:focus {
+      outline: none;
+      border-color: var(--amber);
+      background: rgba(245,242,235,0.07);
+    }
+
+    .cm-rate-error {
+      padding: 10px 12px;
+      background: rgba(255,77,77,0.12);
+      border: 1px solid rgba(255,77,77,0.3);
+      border-radius: 10px;
+      color: var(--coral);
+      font-size: 13px;
+      font-weight: 600;
+      text-align: start;
+    }
+
+    .cm-rate-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .cm-rate-actions .cm-btn {
+      flex: 1;
+      justify-content: center;
+    }
+    .cm-rate-actions .cm-btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+
+    /* =========================================================
        19b) Notify capture popup
        ========================================================= */
     .cm-notify-overlay {
@@ -2108,6 +2318,7 @@
   <script type="text/babel" src="assets/src/calendar.js"></script>
   <script type="text/babel" src="assets/src/featured.js"></script>
   <script type="text/babel" src="assets/src/notify.js"></script>
+  <script type="text/babel" src="assets/src/rating.js"></script>
   <script type="text/babel" src="assets/src/sections.js"></script>
   <script type="text/babel" src="assets/src/app.js"></script>
 

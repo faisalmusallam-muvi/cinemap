@@ -102,6 +102,9 @@ function App() {
   // ---------- Notify capture popup ----------
   const [notifyMovie, setNotifyMovie] = useState(null);
 
+  // ---------- Rating sheet (Ticket 2) ----------
+  const [ratingMovie, setRatingMovie] = useState(null);
+
   // ---------- Active month (scroll spy) ----------
   const [activeMonth, setActiveMonth] = useState(0);
 
@@ -250,22 +253,44 @@ function App() {
     }
   };
 
-  // Mark/unmark a movie as watched. Local-only — Ticket 2 (rating sheet)
-  // will pipe the rich payload to Formspree.
+  // Mark/unmark a movie as watched. Going OFF→ON: we toggle the local set
+  // AND open the rating sheet a beat after the toast so the sheet doesn't
+  // collide with the toast. Going ON→OFF: just toggle, no sheet.
+  // NOTE: we read the current state via the closure (`watched`) instead of
+  // relying on a flag set inside the updater — React 18's updater runs
+  // lazily during reconciliation, so any side-effect flag set in there is
+  // not observable in the same synchronous block.
   const toggleWatched = (m) => {
     const k = movieKey(m);
+    const goingOn = !watched.has(k);
+
     setWatched(prev => {
       const next = new Set(prev);
-      if (next.has(k)) {
-        next.delete(k);
-        pushToast(t.toast_unwatched, 'info', '○');
-      } else {
-        next.add(k);
-        pushToast(t.toast_watched, 'success', '🎬');
-      }
+      if (next.has(k)) next.delete(k);
+      else next.add(k);
       saveSet(LS.watched, next);
       return next;
     });
+
+    pushToast(
+      goingOn ? t.toast_watched : t.toast_unwatched,
+      goingOn ? 'success' : 'info',
+      goingOn ? '🎬' : '○'
+    );
+
+    if (goingOn) {
+      setTimeout(() => setRatingMovie(m), 350);
+    }
+  };
+
+  const onRatingSubmitted = ({ payload: _p, networkOk }) => {
+    pushToast(t.rate_thanks, 'success', '⭐');
+    setRatingMovie(null);
+    if (!networkOk) {
+      // Local rating is saved either way; just a soft hint that the cloud
+      // copy might be delayed.
+      setTimeout(() => pushToast(t.notify_error, 'info', '⚠'), 100);
+    }
   };
 
   const onNotifySubmitted = ({ contact: _contact }) => {
@@ -470,6 +495,14 @@ function App() {
         lang={lang}
         onClose={() => setNotifyMovie(null)}
         onSubmitted={onNotifySubmitted}
+      />
+
+      <window.RatingSheet
+        open={!!ratingMovie}
+        movie={ratingMovie}
+        lang={lang}
+        onClose={() => setRatingMovie(null)}
+        onSubmitted={onRatingSubmitted}
       />
 
       {modalMovie && (
