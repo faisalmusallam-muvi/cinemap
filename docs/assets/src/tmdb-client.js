@@ -324,12 +324,11 @@ function ExpBadge({ exp }) {
 }
 
 // ---------- Movie Modal (rich full-screen) ----------
-function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched }) {
+function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalendar }) {
   const [posterData, setPosterData] = useState(null);
   const [cast, setCast] = useState([]);
   const [ytKey, setYtKey] = useState(null);
   const [trailerVisible, setTrailerVisible] = useState(false);
-  const [calOpen, setCalOpen] = useState(false);
   const trailerRef = useRef(null);
   const t = window.MUVI_I18N?.[lang] || window.MUVI_I18N?.ar;
   const g = window.MUVI_GENRES[movie.genre];
@@ -339,7 +338,7 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched }) {
   useEffect(() => {
     if (!movie) return;
     setPosterData(null); setCast([]); setYtKey(null);
-    setTrailerVisible(false); setCalOpen(false);
+    setTrailerVisible(false);
     tmdbFetch(movie).then(setPosterData);
     fetchCast(movie).then(setCast);
     fetchTrailerKey(movie).then(k => setYtKey(k || null));
@@ -487,44 +486,15 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched }) {
               {t.watched}
             </button>
           ) : (
-            <div className="mmodal-cal-wrap" onClick={e => e.stopPropagation()}>
-              <button
-                className="mmodal-btn-cal"
-                onClick={() => setCalOpen(v => !v)}
-              >
-                <span>📅</span>
-                {t.add_calendar}
-              </button>
-              {calOpen && (
-                <div className="mmodal-cal-dropdown">
-                  <a
-                    href={googleCalUrl(movie, lang)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mmodal-cal-item"
-                  >
-                    <span className="mmodal-cal-icon" style={{ background: '#4285F4', color: '#fff' }}>G</span>
-                    {t.google_cal}
-                  </a>
-                  <button
-                    className="mmodal-cal-item"
-                    onClick={() => { downloadIcal(movie, lang); setCalOpen(false); }}
-                  >
-                    <span className="mmodal-cal-icon" style={{ background: '#1d1d1f', color: '#fff' }}>🍎</span>
-                    {t.apple_cal}
-                  </button>
-                  <a
-                    href={outlookCalUrl(movie, lang)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mmodal-cal-item"
-                  >
-                    <span className="mmodal-cal-icon" style={{ background: '#0078D4', color: '#fff' }}>O</span>
-                    {t.outlook_cal}
-                  </a>
-                </div>
-              )}
-            </div>
+            // Future movies: open the shared CalendarPicker bottom sheet
+            // (anchored to body, never clipped by the sticky footer).
+            <button
+              className="mmodal-btn-cal"
+              onClick={e => { e.stopPropagation(); onCalendar?.(movie); }}
+            >
+              <span>📅</span>
+              {t.add_calendar}
+            </button>
           )}
         </div>
 

@@ -481,7 +481,10 @@ window.CINEMAP_I18N = {
     toast_watched:    "حفظنا إنك شفته. كيف كان؟",
     toast_unwatched:  "ألغينا التعليم",
     cal_quick:        "تقويم",
-    toast_cal_added:  "نزّلنا الحدث — افتحه عشان يضاف لتقويمك.",
+    cal_pick_title:   "أضف للتقويم",
+    cal_pick_sub:     "اختر تقويمك المفضّل",
+    cal_cancel:       "إلغاء",
+    toast_cal_added:  "تمام — أضفناه لتقويمك.",
 
     // rating sheet (Ticket 2)
     rate_title:       "كيف كان؟",
@@ -684,7 +687,10 @@ window.CINEMAP_I18N = {
     toast_watched:    "Saved as watched. How was it?",
     toast_unwatched:  "Removed from watched",
     cal_quick:        "Calendar",
-    toast_cal_added:  "Event downloaded — open it to add to your calendar.",
+    cal_pick_title:   "Add to calendar",
+    cal_pick_sub:     "Pick where to save it",
+    cal_cancel:       "Cancel",
+    toast_cal_added:  "Added to your calendar.",
 
     // rating sheet (Ticket 2)
     rate_title:       "How was it?",

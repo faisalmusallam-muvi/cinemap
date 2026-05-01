@@ -1396,6 +1396,159 @@
     [dir="ltr"] .cm-footer-right { text-align: left; }
 
     /* =========================================================
+       19d) CalendarPicker bottom sheet
+       Used by both the row's 📅 button and the modal's "Add to
+       Calendar" button. Replaces the old anchored dropdown that
+       got clipped by the modal's sticky footer.
+       ========================================================= */
+    .cm-cal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 280;
+      background: rgba(5, 10, 20, 0.7);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fade-in .22s ease;
+    }
+    @media (min-width: 720px) {
+      .cm-cal-overlay { align-items: center; padding: 24px; }
+    }
+
+    .cm-cal {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      max-height: 92vh;
+      overflow-y: auto;
+      background: linear-gradient(180deg, var(--charcoal), var(--midnight));
+      border: 1px solid var(--line-strong);
+      border-radius: 22px 22px 0 0;
+      padding: 18px 18px 14px;
+      box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
+      animation: sheet-up .3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    @media (min-width: 720px) {
+      .cm-cal {
+        border-radius: 22px;
+        animation: fade-in .25s ease;
+      }
+    }
+
+    .cm-cal-head {
+      position: relative;
+      text-align: center;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .cm-cal-grip {
+      display: block;
+      width: 40px; height: 4px;
+      border-radius: 999px;
+      background: var(--line-strong);
+      margin: 0 auto 12px;
+    }
+    @media (min-width: 720px) { .cm-cal-grip { display: none; } }
+    .cm-cal-x {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(245,242,235,0.06);
+      color: var(--cream);
+      font-size: 22px;
+      display: grid;
+      place-items: center;
+    }
+    [dir="rtl"] .cm-cal-x { right: auto; left: 8px; }
+    .cm-cal-x:hover { background: var(--coral); }
+
+    .cm-cal-icon {
+      font-size: 28px;
+      margin-bottom: 4px;
+      filter: drop-shadow(0 6px 18px rgba(255,138,0,0.4));
+    }
+    .cm-cal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--cream);
+      letter-spacing: -0.01em;
+      margin: 0 0 4px;
+    }
+    .cm-cal-sub {
+      color: var(--ink-1);
+      font-size: 13px;
+      margin: 0 0 8px;
+    }
+    .cm-cal-movie {
+      display: inline-flex;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--ink-2);
+      align-items: baseline;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .cm-cal-movie-name { color: var(--cream); font-weight: 700; }
+
+    .cm-cal-options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .cm-cal-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(245,242,235,0.04);
+      border: 1px solid var(--line-strong);
+      border-radius: 14px;
+      color: var(--cream);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: start;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, transform .12s ease;
+    }
+    .cm-cal-option:hover {
+      background: rgba(245,242,235,0.08);
+      border-color: rgba(255,138,0,0.4);
+      transform: translateY(-1px);
+    }
+    .cm-cal-option:active { transform: translateY(0); }
+
+    .cm-cal-option-icon {
+      flex-shrink: 0;
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      display: grid; place-items: center;
+      font-size: 14px; font-weight: 800;
+    }
+    .cm-cal-option-lbl { flex: 1; }
+    .cm-cal-option-arrow {
+      font-size: 20px;
+      color: var(--ink-3);
+      line-height: 1;
+    }
+    [dir="rtl"] .cm-cal-option-arrow { transform: scaleX(-1); }
+
+    .cm-cal-foot {
+      display: flex;
+      padding-top: 6px;
+    }
+    .cm-cal-foot .cm-btn {
+      flex: 1;
+      justify-content: center;
+    }
+
+    /* =========================================================
        19c) Rating sheet (Ticket 2 — post-watch reaction)
        ========================================================= */
     .cm-rate-overlay {
@@ -2319,6 +2472,7 @@
   <script type="text/babel" src="assets/src/featured.js"></script>
   <script type="text/babel" src="assets/src/notify.js"></script>
   <script type="text/babel" src="assets/src/rating.js"></script>
+  <script type="text/babel" src="assets/src/calpicker.js"></script>
   <script type="text/babel" src="assets/src/sections.js"></script>
   <script type="text/babel" src="assets/src/app.js"></script>
 

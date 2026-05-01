@@ -105,6 +105,9 @@ function App() {
   // ---------- Rating sheet (Ticket 2) ----------
   const [ratingMovie, setRatingMovie] = useState(null);
 
+  // ---------- Calendar picker bottom sheet ----------
+  const [calendarMovie, setCalendarMovie] = useState(null);
+
   // ---------- Active month (scroll spy) ----------
   const [activeMonth, setActiveMonth] = useState(0);
 
@@ -241,16 +244,11 @@ function App() {
     });
   };
 
-  // Quick "Add to my phone calendar" from any row/card. Downloads a .ics
-  // file — iOS auto-opens Apple Calendar, Android offers Google Calendar
-  // via the share sheet, desktop opens the system default calendar app.
-  // The modal still has the explicit Google/Apple/Outlook submenu for
-  // power users who want to choose.
+  // "Add to calendar" from any row, card, or modal — opens the
+  // CalendarPicker bottom sheet so the user explicitly picks Google /
+  // Apple / Outlook. Same behavior on every surface.
   const handleCalendar = (m) => {
-    if (typeof window.downloadIcal === 'function') {
-      window.downloadIcal(m, lang);
-      pushToast(t.toast_cal_added, 'success', '📅');
-    }
+    setCalendarMovie(m);
   };
 
   // Mark/unmark a movie as watched. Going OFF→ON: we toggle the local set
@@ -279,6 +277,11 @@ function App() {
     );
 
     if (goingOn) {
+      // If the user marked watched from inside the movie modal, close the
+      // modal first so the rating sheet doesn't appear behind it. This
+      // gives a single-overlay experience identical to clicking Watched
+      // from a calendar row.
+      setModalMovie(null);
       setTimeout(() => setRatingMovie(m), 350);
     }
   };
@@ -505,6 +508,13 @@ function App() {
         onSubmitted={onRatingSubmitted}
       />
 
+      <window.CalendarPicker
+        open={!!calendarMovie}
+        movie={calendarMovie}
+        lang={lang}
+        onClose={() => setCalendarMovie(null)}
+      />
+
       {modalMovie && (
         <window.MovieModal
           movie={modalMovie}
@@ -512,6 +522,7 @@ function App() {
           onClose={() => setModalMovie(null)}
           isWatched={watched.has(movieKey(modalMovie))}
           onToggleWatched={toggleWatched}
+          onCalendar={handleCalendar}
         />
       )}
     </>
