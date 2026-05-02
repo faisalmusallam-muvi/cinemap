@@ -144,13 +144,19 @@ function RatingSheet({ open, lang, movie, onClose, onSubmitted }) {
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    const onKey = (e) => { if (e.key === 'Escape' && !submitting) onClose(); };
     window.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
-  }, [open, onClose]);
+  }, [open, onClose, submitting]);
 
   if (!open || !movie) return null;
+
+  const handleClose = (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    if (!submitting) onClose();
+  };
 
   const toggleVibe = (id) => {
     setVibes(prev => {
@@ -206,11 +212,18 @@ function RatingSheet({ open, lang, movie, onClose, onSubmitted }) {
   const vibeOptions = vibesFor(t);
 
   return window.ReactDOM.createPortal(
-    <div className="cm-rate-overlay" onClick={onClose} role="dialog" aria-modal="true">
+    <div className="cm-rate-overlay" onClick={handleClose} role="dialog" aria-modal="true">
       <div className="cm-rate" onClick={(e) => e.stopPropagation()}>
         <div className="cm-rate-head">
           <span className="cm-rate-grip" aria-hidden="true" />
-          <button className="cm-rate-x" onClick={onClose} aria-label={t.rate_close}>×</button>
+          <button
+            type="button"
+            className="cm-rate-x"
+            onClick={handleClose}
+            aria-label={t.rate_close}
+            title={t.rate_close}
+            disabled={submitting}
+          >×</button>
 
           <div className="cm-rate-bell" aria-hidden="true">🎬</div>
           <h3 className="cm-rate-title">{t.rate_title}</h3>
@@ -278,7 +291,7 @@ function RatingSheet({ open, lang, movie, onClose, onSubmitted }) {
             <button
               type="button"
               className="cm-btn cm-btn-ghost"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={submitting}
             >{t.rate_skip}</button>
             <button
