@@ -11,7 +11,7 @@ const TMDB_BG_BASE  = 'https://image.tmdb.org/t/p/w1280';
 // (e.g. when posters change across the board, or when TMDB structure shifts).
 // Each entry also has its own TTL so caches roll over automatically without
 // requiring a deploy.
-const CACHE_VERSION = 3;
+const CACHE_VERSION = 4;
 const TTL_POSTER_DAYS  = 7;   // posters change ~weekly as marketing rolls out
 const TTL_TRAILER_DAYS = 3;   // trailers drop late, re-check more often
 const TTL_CAST_DAYS    = 30;  // cast is stable once announced
@@ -64,6 +64,74 @@ async function tmdbApi(path, lang = 'en-US') {
   return r.json();
 }
 
+function tmdbNormTitle(s) {
+  return (s || '')
+    .toString()
+    .toLowerCase()
+    .replace(/^the\s+/, '')
+    .replace(/,\s*the$/, '')
+    .replace(/[^a-z0-9\u0600-\u06ff]+/g, ' ')
+    .trim();
+}
+
+function tmdbSearchCandidates(movie) {
+  const values = [
+    movie.en,
+    movie.ar,
+    ...(movie.aliases || []),
+  ].filter(Boolean);
+  return [...new Set(values.map(v => v.toString().trim()).filter(Boolean))];
+}
+
+function tmdbScoreHit(hit, query, year) {
+  const title = tmdbNormTitle(hit.title || hit.name);
+  const original = tmdbNormTitle(hit.original_title || hit.original_name);
+  const q = tmdbNormTitle(query);
+  const hitYear = Number((hit.release_date || '').slice(0, 4));
+  let score = 0;
+
+  if (hit.poster_path) score += 100;
+  if (hit.backdrop_path) score += 10;
+  if (title === q || original === q) score += 55;
+  else if (title.includes(q) || q.includes(title) || original.includes(q) || q.includes(original)) score += 25;
+  if (hitYear && hitYear === year) score += 20;
+  else if (hitYear && Math.abs(hitYear - year) === 1) score += 8;
+  score += Math.min(Number(hit.popularity || 0), 20);
+
+  return score;
+}
+
+async function tmdbSearchBest(movie) {
+  const movieFromYear = new Date(movie.date).getFullYear();
+  const candidates = tmdbSearchCandidates(movie);
+  const hits = [];
+
+  for (const query of candidates) {
+    const q = encodeURIComponent(query);
+    const paths = [
+      `/search/movie?query=${q}&year=${movieFromYear}&include_adult=false`,
+      `/search/movie?query=${q}&primary_release_year=${movieFromYear}&include_adult=false`,
+      `/search/movie?query=${q}&include_adult=false`,
+    ];
+
+    for (const path of paths) {
+      try {
+        const data = await tmdbApi(path, movie.language === 'ar' ? 'ar-SA' : 'en-US');
+        (data.results || []).slice(0, 8).forEach(hit => {
+          hits.push({ hit, query, score: tmdbScoreHit(hit, query, movieFromYear) });
+        });
+      } catch {}
+    }
+  }
+
+  const best = hits
+    .filter(x => x.hit?.poster_path)
+    .sort((a, b) => b.score - a.score)[0]
+    || hits.sort((a, b) => b.score - a.score)[0];
+
+  return best?.hit || null;
+}
+
 // ---------- Posters + backdrops ----------
 async function tmdbFetch(movie) {
   const cacheKey = `tmdb-poster-${movie.en}`;
@@ -87,21 +155,10 @@ async function tmdbFetch(movie) {
       }
     }
 
-    // Search by English title — try year-scoped first, then global
-    const q = encodeURIComponent(movie.en);
-    let hit = null;
-
-    try {
-      const d = await tmdbApi(`/search/movie?query=${q}&year=${movieFromYear}&include_adult=false`);
-      hit = (d.results || []).find(x => x.poster_path);
-    } catch {}
-
-    if (!hit) {
-      try {
-        const d2 = await tmdbApi(`/search/movie?query=${q}&include_adult=false`);
-        hit = (d2.results || []).find(x => x.poster_path);
-      } catch {}
-    }
+    // Search TMDB using English title, Arabic title, and aliases.
+    // This matters for Saudi/Egyptian releases because TMDB often indexes
+    // them under Arabic script or a different transliteration.
+    const hit = await tmdbSearchBest(movie);
 
     if (!hit) {
       // Cache the negative result briefly (1 day) so we don't hammer TMDB
@@ -113,6 +170,9 @@ async function tmdbFetch(movie) {
       poster:   `${TMDB_IMG_BASE}${hit.poster_path}`,
       backdrop: hit.backdrop_path ? `${TMDB_BG_BASE}${hit.backdrop_path}` : null,
       tmdbId:   hit.id,
+      title:    hit.title || hit.original_title || movie.en,
+      overview: hit.overview || null,
+      releaseDate: hit.release_date || null,
     };
     writeCache(cacheKey, out);
     return out;
@@ -154,7 +214,15 @@ async function fetchTrailerKey(movie) {
 // ---------- Cast fetch ----------
 async function fetchCast(movie) {
   const tmdbId = await resolveTmdbId(movie);
-  if (!tmdbId) return [];
+  const fallbackCast = () => {
+    if (!Array.isArray(movie.cast) || !movie.cast.length) return [];
+    return movie.cast.map((name, index) => (
+      typeof name === 'string'
+        ? { id: `manual-${movie.en}-${index}`, name, character: '', photo: null }
+        : { id: name.id || `manual-${movie.en}-${index}`, name: name.name, character: name.character || '', photo: name.photo || null }
+    ));
+  };
+  if (!tmdbId) return fallbackCast();
 
   const cacheKey = `tmdb-cast-${tmdbId}`;
   const cached = readCache(cacheKey, TTL_CAST_DAYS);
@@ -169,8 +237,8 @@ async function fetchCast(movie) {
       photo: a.profile_path ? `https://image.tmdb.org/t/p/w185${a.profile_path}` : null,
     }));
     writeCache(cacheKey, cast);
-    return cast;
-  } catch { return []; }
+    return cast.length ? cast : fallbackCast();
+  } catch { return fallbackCast(); }
 }
 
 // ---------- Background prefetch ----------
