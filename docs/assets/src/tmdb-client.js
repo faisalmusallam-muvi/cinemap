@@ -370,7 +370,7 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
     <div className="mmodal-overlay" onClick={onClose}>
       <div
         className="mmodal-box"
-        onClick={e => { e.stopPropagation(); setCalOpen(false); }}
+        onClick={e => e.stopPropagation()}
       >
         {/* Blurred backdrop background */}
         <div className="mmodal-bg">

@@ -253,8 +253,22 @@ function Footer({ lang }) {
           <p className="cm-footer-tag">{t.footer_tag}</p>
         </div>
         <div className="cm-footer-right">
+          <span className="cm-footer-links">
+            <a href="about.html">{t.footer_about}</a>
+            <a href="privacy.html">{t.footer_privacy}</a>
+            <a href="terms.html">{t.footer_terms}</a>
+            <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>
+          </span>
           <span>{t.footer_made}</span>
           <span>{t.footer_subtitle}</span>
+          <span className="cm-footer-tmdb">
+            <img
+              src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_1-5bdc75aaebeb75dc7ae79426ddd9be3b2be1e342510f8202baf6bffa71d7f5c4.svg"
+              alt="TMDB"
+              loading="lazy"
+            />
+            <span>{t.footer_tmdb}</span>
+          </span>
         </div>
       </div>
     </footer>

@@ -24,18 +24,21 @@ function CalendarPicker({ open, lang, movie, onClose }) {
 
   // Each handler closes the sheet right after firing the action.
   const goGoogle = () => {
+    window.cinemapTrackMovie?.('calendar_add', movie, { service: 'google' });
     if (typeof window.googleCalUrl === 'function') {
       window.open(window.googleCalUrl(movie, lang), '_blank', 'noopener');
     }
     onClose();
   };
   const goApple = () => {
+    window.cinemapTrackMovie?.('calendar_add', movie, { service: 'apple_ical' });
     if (typeof window.downloadIcal === 'function') {
       window.downloadIcal(movie, lang);
     }
     onClose();
   };
   const goOutlook = () => {
+    window.cinemapTrackMovie?.('calendar_add', movie, { service: 'outlook' });
     if (typeof window.outlookCalUrl === 'function') {
       window.open(window.outlookCalUrl(movie, lang), '_blank', 'noopener');
     }

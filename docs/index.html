@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Cinemap · Movie Night Companion</title>
-  <meta name="description" content="Cinemap — Discover the biggest 2026 movies, save your watchlist, and get notified when tickets open. Your smart companion for better movie nights.">
+  <title>سينماب · أفلام عليها كلام</title>
+  <meta name="description" content="سينماب — اكتشف الأفلام الجاية، احفظ قائمتك، وقيّم اللي شفته. أفلام عليها كلام في مكان واحد.">
   <meta name="theme-color" content="#0A1320">
 
   <!-- PWA -->
@@ -12,11 +12,11 @@
   <link rel="apple-touch-icon" href="assets/cinemap-logo.svg">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Cinemap">
+  <meta name="apple-mobile-web-app-title" content="سينماب">
 
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Cinemap · Your movie year starts here.">
-  <meta property="og:description" content="Discover the biggest upcoming movies, save your favorites, and get notified when tickets open.">
+  <meta property="og:title" content="سينماب · أفلام عليها كلام">
+  <meta property="og:description" content="اكتشف الجاي، احفظ قائمتك، وقيّم اللي شفته.">
   <meta property="og:image" content="assets/cinemap-white.svg">
   <meta name="twitter:card" content="summary_large_image">
 
@@ -1060,6 +1060,30 @@
       color: var(--ink-2); font-size: 12.5px;
       text-align: end;
     }
+    .cm-footer-links {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .cm-footer-links a {
+      color: var(--ink-1);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .cm-footer-tmdb {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+      max-width: 420px;
+      line-height: 1.45;
+    }
+    .cm-footer-tmdb img {
+      width: 26px;
+      height: 26px;
+      flex: 0 0 auto;
+    }
 
     /* =========================================================
        15) Toasts
@@ -1745,6 +1769,33 @@
       font-size: 13px;
       font-weight: 600;
       text-align: start;
+    }
+
+    .cm-consent-row {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 9px;
+      align-items: start;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(245,242,235,0.035);
+      border: 1px solid var(--line);
+      color: var(--ink-2);
+      font-size: 11.5px;
+      line-height: 1.55;
+      text-align: start;
+    }
+    .cm-consent-row input {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      accent-color: var(--amber);
+    }
+    .cm-consent-row a {
+      color: var(--gold);
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
 
     .cm-rate-actions {
@@ -2514,20 +2565,23 @@
   <script src="assets/vendor/babel.min.js"></script>
 
   <!-- Source -->
-  <script src="assets/src/utils.js"></script>
-  <script type="text/babel" src="assets/src/tmdb-client.js"></script>
-  <script type="text/babel" src="assets/src/ui.js"></script>
-  <script type="text/babel" src="assets/src/calendar.js"></script>
-  <script type="text/babel" src="assets/src/featured.js"></script>
-  <script type="text/babel" src="assets/src/notify.js"></script>
-  <script type="text/babel" src="assets/src/rating.js"></script>
-  <script type="text/babel" src="assets/src/calpicker.js"></script>
-  <script type="text/babel" src="assets/src/sections.js"></script>
-  <script type="text/babel" src="assets/src/app.js"></script>
+  <script src="assets/src/utils.js?v=13"></script>
+  <script src="assets/src/analytics.js?v=13"></script>
+  <script type="text/babel" src="assets/src/tmdb-client.js?v=13"></script>
+  <script type="text/babel" src="assets/src/ui.js?v=13"></script>
+  <script type="text/babel" src="assets/src/calendar.js?v=13"></script>
+  <script type="text/babel" src="assets/src/featured.js?v=13"></script>
+  <script type="text/babel" src="assets/src/notify.js?v=13"></script>
+  <script type="text/babel" src="assets/src/rating.js?v=13"></script>
+  <script type="text/babel" src="assets/src/calpicker.js?v=13"></script>
+  <script type="text/babel" src="assets/src/sections.js?v=13"></script>
+  <script type="text/babel" src="assets/src/app.js?v=13"></script>
 
   <script>
-    // Register the PWA service worker (only in production hosts; skip on file://)
-    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    // Register the PWA service worker on hosted HTTP(S) origins, but skip
+    // localhost so local QA always reads the current source files.
+    const isLocalPreview = ['localhost', '127.0.0.1', '::1'].includes(location.hostname);
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !isLocalPreview) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(() => {});
       });

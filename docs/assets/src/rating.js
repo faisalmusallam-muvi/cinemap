@@ -49,6 +49,9 @@ window.cinemapSendRating = async function sendRating({ movie, rating, vibes, rea
     vibes:    Array.isArray(vibes) ? vibes.join(',') : '',
     reaction: reaction || '',
     language: lang,
+    ratingConsent: true,
+    ratingConsentAt: new Date().toISOString(),
+    privacyPolicyVersion: '2026-05-02',
     timestamp: new Date().toISOString(),
     _subject: `Cinemap rating: ${movie.en} (${rating || '-'}/5)`,
   };
@@ -124,6 +127,7 @@ function RatingSheet({ open, lang, movie, onClose, onSubmitted }) {
   const [stars, setStars]     = useState(existing.rating || 0);
   const [vibes, setVibes]     = useState(new Set(existing.vibes || []));
   const [reaction, setReaction] = useState(existing.reaction || '');
+  const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]     = useState(null);
 
@@ -134,6 +138,7 @@ function RatingSheet({ open, lang, movie, onClose, onSubmitted }) {
     setStars(cur.rating || 0);
     setVibes(new Set(cur.vibes || []));
     setReaction(cur.reaction || '');
+    setConsent(false);
     setError(null);
   }, [open, movieKey]);
 
@@ -165,14 +170,26 @@ function RatingSheet({ open, lang, movie, onClose, onSubmitted }) {
       setError(t.rate_need_star);
       return;
     }
+    if (!consent) {
+      setError(t.rate_need_consent);
+      return;
+    }
 
     const vibesArr = [...vibes];
-    const payload = { rating: stars, vibes: vibesArr, reaction: reaction.trim() };
+    const payload = {
+      rating: stars,
+      vibes: vibesArr,
+      reaction: reaction.trim(),
+      privacyConsent: true,
+      privacyConsentAt: new Date().toISOString(),
+      privacyPolicyVersion: '2026-05-02',
+    };
 
     setSubmitting(true);
     saveRatingFor(movieKey, payload);
 
-    const contact = window.cinemapLoadContact?.();
+    const storedContact = window.cinemapLoadContact?.();
+    const contact = storedContact?.privacyConsent ? storedContact : null;
     const res = await window.cinemapSendRating({
       movie, rating: stars, vibes: vibesArr, reaction: reaction.trim(),
       contact, lang,
@@ -241,6 +258,19 @@ function RatingSheet({ open, lang, movie, onClose, onSubmitted }) {
               maxLength={140}
             />
           </div>
+
+          <label className="cm-consent-row">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => { setConsent(e.target.checked); setError(null); }}
+              required
+            />
+            <span>
+              {t.rate_consent}{' '}
+              <a href="privacy.html" target="_blank" rel="noopener">{t.footer_privacy}</a>
+            </span>
+          </label>
 
           {error && <div className="cm-rate-error">{error}</div>}
 

@@ -36,6 +36,7 @@ function App() {
     try { localStorage.setItem(LS.lang, l); } catch {}
     document.documentElement.setAttribute('lang', l === 'en' ? 'en' : 'ar');
     document.documentElement.setAttribute('dir', l === 'en' ? 'ltr' : 'rtl');
+    window.cinemapTrack?.('language_set', { selectedLang: l });
   }, []);
   useEffect(() => { setLang(lang); /* apply on mount */ /* eslint-disable-next-line */ }, []);
 
@@ -192,15 +193,22 @@ function App() {
   // ---------- Actions ----------
   const t = window.CINEMAP_I18N[lang];
 
+  const openMovie = useCallback((m, source = 'unknown') => {
+    window.cinemapTrackMovie?.('movie_view', m, { source });
+    setModalMovie(m);
+  }, []);
+
   const toggleSave = (m) => {
     const k = movieKey(m);
     setWatchlist(prev => {
       const next = new Set(prev);
       if (next.has(k)) {
         next.delete(k);
+        window.cinemapTrackMovie?.('movie_unsave', m, { source: 'action' });
         pushToast(t.toast_removed, 'info', '🗑');
       } else {
         next.add(k);
+        window.cinemapTrackMovie?.('movie_save', m, { source: 'action' });
         pushToast(t.toast_saved, 'success', '💛');
       }
       saveSet(LS.watchlist, next);
@@ -218,12 +226,14 @@ function App() {
         saveSet(LS.notify, next);
         return next;
       });
+      window.cinemapTrackMovie?.('notify_off', m, { source: 'action' });
       pushToast(t.toast_notify_off, 'info', '🔕');
       return;
     }
     // Turning notify ON: do we already have a saved contact?
     const contact = window.cinemapLoadContact?.();
-    if (!contact || !contact.email) {
+    if (!contact || !contact.email || !contact.privacyConsent) {
+      window.cinemapTrackMovie?.('notify_form_open', m, { source: 'action' });
       // First time — open the capture popup; the popup will submit and we'll
       // mark notified inside its onSubmitted handler.
       setNotifyMovie(m);
@@ -236,6 +246,7 @@ function App() {
       saveSet(LS.notify, next);
       return next;
     });
+    window.cinemapTrackMovie?.('notify_on', m, { source: 'quick' });
     pushToast(t.notify_quick, 'success', '🔔');
     window.cinemapSendNotify?.({ contact, movie: m, lang }).then(res => {
       if (!res?.ok) {
@@ -249,6 +260,7 @@ function App() {
   // CalendarPicker bottom sheet so the user explicitly picks Google /
   // Apple / Outlook. Same behavior on every surface.
   const handleCalendar = (m) => {
+    window.cinemapTrackMovie?.('calendar_picker_open', m, { source: 'action' });
     setCalendarMovie(m);
   };
 
@@ -270,6 +282,7 @@ function App() {
       saveSet(LS.watched, next);
       return next;
     });
+    window.cinemapTrackMovie?.(goingOn ? 'watched_on' : 'watched_off', m, { source: modalMovie ? 'modal' : 'row' });
 
     pushToast(
       goingOn ? t.toast_watched : t.toast_unwatched,
@@ -288,6 +301,12 @@ function App() {
   };
 
   const onRatingSubmitted = ({ payload: _p, networkOk }) => {
+    window.cinemapTrackMovie?.('rating_submitted', ratingMovie, {
+      rating: _p?.rating || 0,
+      vibeCount: Array.isArray(_p?.vibes) ? _p.vibes.length : 0,
+      hasReaction: !!_p?.reaction,
+      networkOk: !!networkOk,
+    });
     pushToast(t.rate_thanks, 'success', '⭐');
     // Refresh ratings state so any score pills/badges update immediately
     if (window.cinemapLoadRatings) setRatings(window.cinemapLoadRatings());
@@ -299,6 +318,12 @@ function App() {
     }
   };
 
+  const openRatingSheet = (m) => {
+    window.cinemapTrackMovie?.('rating_sheet_open', m, { source: 'score_prompt' });
+    setModalMovie(null);
+    setRatingMovie(m);
+  };
+
   const onNotifySubmitted = ({ contact: _contact }) => {
     if (!notifyMovie) return;
     const k = movieKey(notifyMovie);
@@ -308,11 +333,13 @@ function App() {
       saveSet(LS.notify, next);
       return next;
     });
+    window.cinemapTrackMovie?.('notify_on', notifyMovie, { source: 'form' });
     pushToast(t.notify_success, 'success', '🔔');
     setNotifyMovie(null);
   };
 
   const handleTrailer = (m) => {
+    window.cinemapTrackMovie?.('trailer_click', m, { source: 'action' });
     setTrailerClicks(c => {
       const next = c + 1;
       try { localStorage.setItem(LS.trailer, String(next)); } catch {}
@@ -320,7 +347,7 @@ function App() {
     });
     if (window.fetchTrailerKey && m.tmdbId) {
       // Open the modal — modal already handles trailer playback
-      setModalMovie(m);
+      openMovie(m, 'trailer');
     } else {
       pushToast(t.toast_trailer, 'info', '▶');
     }
@@ -331,23 +358,27 @@ function App() {
     const url = `${location.origin}${location.pathname}#/m/${window.movieSlug(m)}`;
     const shareText = lang === 'en'
       ? `${title} — coming ${window.fmtDate(m.date, 'en')}. Saved on Cinemap.`
-      : `${title} — قريبًا ${window.fmtDate(m.date, 'ar')}. من Cinemap.`;
+      : `${title} — قريبًا ${window.fmtDate(m.date, 'ar')}. من سينماب.`;
     if (navigator.share) {
       try {
         await navigator.share({ title: 'Cinemap', text: shareText, url });
+        window.cinemapTrackMovie?.('movie_share', m, { method: 'web_share' });
         return;
       } catch { /* user dismissed — fall through */ }
     }
     try {
       await navigator.clipboard.writeText(`${shareText}\n${url}`);
+      window.cinemapTrackMovie?.('movie_share', m, { method: 'clipboard' });
       pushToast(t.toast_copied, 'success', '📋');
     } catch {
+      window.cinemapTrackMovie?.('movie_share', m, { method: 'fallback_failed' });
       pushToast(t.toast_copied, 'info', '📋');
     }
   };
 
   const handleShareList = async () => {
     if (savedMovies.length === 0) {
+      window.cinemapTrack?.('watchlist_share_empty');
       pushToast(t.toast_wl_empty, 'info', '🎬');
       return;
     }
@@ -356,15 +387,21 @@ function App() {
     );
     const header = lang === 'en'
       ? `My 2026 Cinemap watchlist (${savedMovies.length}):`
-      : `قائمة Cinemap الخاصة بي لـ 2026 (${savedMovies.length}):`;
+      : `قائمة سينماب الخاصة بي لـ 2026 (${savedMovies.length}):`;
     const text = `${header}\n${lines.join('\n')}\n\n${location.origin}${location.pathname}`;
     if (navigator.share) {
-      try { await navigator.share({ title: 'Cinemap Watchlist', text }); return; } catch {}
+      try {
+        await navigator.share({ title: 'Cinemap Watchlist', text });
+        window.cinemapTrack?.('watchlist_share', { method: 'web_share', count: savedMovies.length });
+        return;
+      } catch {}
     }
     try {
       await navigator.clipboard.writeText(text);
+      window.cinemapTrack?.('watchlist_share', { method: 'clipboard', count: savedMovies.length });
       pushToast(t.toast_wl_copied, 'success', '📋');
     } catch {
+      window.cinemapTrack?.('watchlist_share', { method: 'fallback_failed', count: savedMovies.length });
       pushToast(t.toast_wl_copied, 'info', '📋');
     }
   };
@@ -373,10 +410,12 @@ function App() {
     if (savedMovies.length === 0) return;
     setWatchlist(new Set());
     saveSet(LS.watchlist, new Set());
+    window.cinemapTrack?.('watchlist_clear', { count: savedMovies.length });
     pushToast(t.toast_wl_clear, 'info', '🗑');
   };
 
   const handleWaitlist = () => {
+    window.cinemapTrack?.('waitlist_interest');
     pushToast(t.toast_waitlist, 'success', '✓');
   };
 
@@ -390,7 +429,7 @@ function App() {
         onJumpWatchlist={jumpToWatchlist}
         onJumpHow={jumpToHow}
         onJumpVision={jumpToVision}
-        onOpenMovie={setModalMovie}
+        onOpenMovie={(m) => openMovie(m, 'search')}
       />
 
       <window.Hero
@@ -413,7 +452,7 @@ function App() {
         onCalendar={handleCalendar}
         onTrailer={handleTrailer}
         onShare={handleShare}
-        onOpenMovie={setModalMovie}
+        onOpenMovie={(m) => openMovie(m, 'featured')}
       />
 
       {/* Calendar */}
@@ -452,7 +491,7 @@ function App() {
                 index={i}
                 movies={filteredMovies}
                 lang={lang}
-                onOpenMovie={setModalMovie}
+                onOpenMovie={(m) => openMovie(m, 'calendar')}
                 watchlist={watchlist}
                 notified={notified}
                 watched={watched}
@@ -460,6 +499,7 @@ function App() {
                 onToggleSave={toggleSave}
                 onToggleNotify={toggleNotify}
                 onToggleWatched={toggleWatched}
+                onRateMovie={openRatingSheet}
                 onCalendar={handleCalendar}
                 onShare={handleShare}
               />
@@ -476,7 +516,7 @@ function App() {
         onShareList={handleShareList}
         onClear={handleClearList}
         onJumpCalendar={jumpToCalendar}
-        onOpenMovie={setModalMovie}
+        onOpenMovie={(m) => openMovie(m, 'watchlist')}
       />
 
       <window.Journey0 lang={lang} onJumpCalendar={jumpToCalendar} />

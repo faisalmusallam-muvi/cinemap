@@ -32,7 +32,7 @@ function CinemapMark({ size = 28, color = 'var(--amber)', className = '' }) {
 //   "horizontal" — amber mark + "Cinemap" wordmark in Outfit, mark always
 //                  on the LEFT regardless of page direction (brand mark
 //                  consistency). Best for nav chrome.
-function CinemapLogo({ height = 32, variant = 'vertical' }) {
+function CinemapLogo({ height = 32, variant = 'vertical', label = 'Cinemap' }) {
   if (variant === 'horizontal') {
     const markSize = Math.round(height * 0.95);
     return (
@@ -49,7 +49,7 @@ function CinemapLogo({ height = 32, variant = 'vertical' }) {
             lineHeight: 1,
           }}
         >
-          Cinemap
+          {label}
         </span>
       </span>
     );
@@ -212,7 +212,7 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpHow, onJump
     <nav className="cm-nav">
       <div className="cm-nav-inner">
         <a href="#top" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-          <CinemapLogo height={28} variant="horizontal" />
+          <CinemapLogo height={28} variant="horizontal" label={lang === 'en' ? 'Cinemap' : 'سينماب'} />
         </a>
 
         <div className="cm-nav-links">
@@ -378,8 +378,8 @@ function CinePoster({ movie, compact = false }) {
 // ---------- Marquee ----------
 function Marquee({ lang }) {
   const arItems = [
-    "أفلام 2026", "60+ فيلم", "تقويم Cinemap", "إنتاج عربي", "احفظ قائمتك", "ذكّرني",
-    "ليلة سينمائية أحلى", "Cinemap", "Movie Night Companion"
+    "أفلام عليها كلام", "60+ فيلم", "تقويم سينماب", "إنتاج عربي", "احفظ قائمتك", "قيّم اللي شفته",
+    "وش بتشوف؟", "سينماب", "قائمتك في مكان واحد"
   ];
   const enItems = [
     "Movies of 2026", "60+ films", "Cinemap calendar", "Local stories", "Save your list", "Notify me",

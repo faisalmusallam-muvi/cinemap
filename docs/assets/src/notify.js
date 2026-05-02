@@ -33,6 +33,9 @@ window.cinemapSendNotify = async function sendNotify({ contact, movie, lang }) {
     email: contact.email,
     whatsapp: contact.whatsapp || '',
     city: contact.city || '',
+    privacyConsent: !!contact.privacyConsent,
+    privacyConsentAt: contact.privacyConsentAt || '',
+    privacyPolicyVersion: contact.privacyPolicyVersion || '2026-05-02',
     movie: movie.en,
     movieAr: movie.ar,
     releaseDate: movie.date,
@@ -74,6 +77,7 @@ function NotifyCapture({ open, lang, movie, onClose, onSubmitted }) {
   const [email, setEmail]       = useState(initial.email || '');
   const [whatsapp, setWhatsapp] = useState(initial.whatsapp || '');
   const [city, setCity]         = useState(initial.city || '');
+  const [consent, setConsent]   = useState(!!initial.privacyConsent);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]       = useState(null);
   const nameInputRef  = useRef(null);
@@ -102,6 +106,7 @@ function NotifyCapture({ open, lang, movie, onClose, onSubmitted }) {
     // Name is optional — only email is required for the reminder to work.
     if (!trimmedEmail) { setError(t.notify_required); return; }
     if (!isValidEmail(trimmedEmail)) { setError(t.notify_invalid); return; }
+    if (!consent) { setError(t.notify_consent_required); return; }
 
     setSubmitting(true);
     const contact = {
@@ -109,6 +114,9 @@ function NotifyCapture({ open, lang, movie, onClose, onSubmitted }) {
       email:    trimmedEmail,
       whatsapp: whatsapp.trim(),
       city:     city.trim(),
+      privacyConsent: true,
+      privacyConsentAt: new Date().toISOString(),
+      privacyPolicyVersion: '2026-05-02',
     };
     const res = await window.cinemapSendNotify({ contact, movie, lang });
     setSubmitting(false);
@@ -188,6 +196,19 @@ function NotifyCapture({ open, lang, movie, onClose, onSubmitted }) {
               onChange={(e) => setCity(e.target.value)}
               placeholder={t.notify_city_ph}
             />
+          </label>
+
+          <label className="cm-consent-row">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => { setConsent(e.target.checked); setError(null); }}
+              required
+            />
+            <span>
+              {t.notify_consent}{' '}
+              <a href="privacy.html" target="_blank" rel="noopener">{t.footer_privacy}</a>
+            </span>
           </label>
 
           {error && <div className="cm-notify-error">{error}</div>}

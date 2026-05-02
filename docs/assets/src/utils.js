@@ -416,23 +416,23 @@ window.CINEMAP_I18N = {
     nav_watchlist:    "قائمتي",
     nav_how:          "كيف يعمل",
     nav_vision:       "الرؤية",
-    nav_cta:          "ابنِ قائمتي",
+    nav_cta:          "ابدأ قائمتك",
 
     // hero
-    hero_eyebrow:     "رفيقك السينمائي · 2026",
-    hero_title:       "سنتك السينمائية تبدأ هنا.",
-    hero_sub:         "اكتشف أهم الأفلام القادمة، احفظ مفضلاتك، وخلك أول من يعرف متى تفتح التذاكر.",
-    hero_cta:         "استكشف أفلام 2026",
-    hero_cta_2:       "ابنِ قائمتي",
-    hero_chip:        "ذكّرني أول ما تفتح التذاكر",
+    hero_eyebrow:     "سينماب · 2026",
+    hero_title:       "أفلام عليها كلام",
+    hero_sub:         "اكتشف الجاي، احفظ قائمتك، وقيّم اللي شفته.",
+    hero_cta:         "شوف الأفلام",
+    hero_cta_2:       "ابدأ قائمتك",
+    hero_chip:        "بنذكّرك أول ما تفتح التذاكر",
     hero_pill_films:  "أكثر من 60 فيلم",
     hero_pill_year:   "السنة كاملة",
     hero_pill_local:  "إنتاج عربي",
 
     // journey 0
     j0_eyebrow:       "المرحلة 0 · الاكتشاف",
-    j0_title:         "ابدأ بالأفلام القادمة.",
-    j0_sub:           "Cinemap يبدأ كتقويم للاكتشاف — نلتقط شغف الجمهور قبل ما تفتح التذاكر بأسابيع.",
+    j0_title:         "كل اللي يهمك قبل لا تحجز.",
+    j0_sub:           "سينماب يبدأ من الاكتشاف — نحفظ اهتمام الجمهور قبل ما تفتح التذاكر بأسابيع.",
     j0_card1_title:   "اكتشف",
     j0_card1_body:    "تقويم كامل لأفلام 2026 — تصفّح حسب الشهر، المزاج، أو اللغة.",
     j0_card2_title:   "احفظ",
@@ -441,9 +441,9 @@ window.CINEMAP_I18N = {
     j0_card3_body:    "نخبرك أول ما تفتح التذاكر — بدون ما تفوتك أي أمسية.",
 
     // featured carousel
-    feat_eyebrow:     "الأكثر ترقبًا · 2026",
-    feat_title:       "أكبر أفلام 2026",
-    feat_sub:         "أفلام متوقع لها أعلى حضور في السوق، احفظ اللي يحمسك وخلك أول من يعرف متى تفتح التذاكر.",
+    feat_eyebrow:     "أفلام عليها كلام · 2026",
+    feat_title:       "الأفلام اللي عليها العين",
+    feat_sub:         "الأفلام المنتظرة في السوق السعودي — احفظ اللي يحمسك وخلك أول من يعرف متى تفتح التذاكر.",
     feat_projected:   "متوقع له",
     feat_admissions:  "حضور",
     feat_rank:        "الترتيب",
@@ -451,8 +451,8 @@ window.CINEMAP_I18N = {
 
     // calendar
     cal_eyebrow:      "تقويم 2026 · شهر بشهر",
-    cal_title:        "كل أفلامك في مكان واحد.",
-    cal_sub:          "اضغط على أي فيلم لعرض التفاصيل، أو احفظه لقائمتك.",
+    cal_title:        "وش بتشوف؟",
+    cal_sub:          "تصفح الجاي، افتح التفاصيل، واحفظ الأفلام اللي ناوي عليها.",
     filter_all:       "الكل",
     filter_genre:     "التصنيف",
     filter_lang:      "اللغة",
@@ -488,7 +488,7 @@ window.CINEMAP_I18N = {
 
     // rating sheet (Ticket 2)
     rate_title:       "كيف كان؟",
-    rate_sub:         "قيّمه ولو سطر — يساعدنا نحسّن الترشيحات وقائمة Cinemap Score.",
+    rate_sub:         "قيّمه ولو بسطر — يساعد سينماب يعرف وش يستاهل عند الجمهور.",
     rate_stars_lbl:   "تقييمك",
     rate_vibes_lbl:   "الجو",
     rate_reaction_ph: "قول رأيك بسطر واحد (اختياري)",
@@ -497,7 +497,9 @@ window.CINEMAP_I18N = {
     rate_skip:        "تخطّي",
     rate_close:       "إغلاق",
     rate_need_star:   "اختر تقييم بالنجوم أو شارك إحساسك",
+    rate_need_consent:"وافق على حفظ وإرسال التقييم أولًا",
     rate_thanks:      "شكرًا لتقييمك — عدّ في 2026 معنا 🎬",
+    rate_consent:     "أوافق على حفظ تقييمي محليًا وإرساله إلى سينماب عبر Formspree لتحسين تقييمات الجمهور. أقدر أطلب حذفه لاحقًا.",
     rate_v_bigscreen: "يستاهل الشاشة الكبيرة",
     rate_v_stream:    "شوفه على نتفلكس",
     rate_v_friends:   "مع الأصحاب",
@@ -507,7 +509,7 @@ window.CINEMAP_I18N = {
 
     // cinemap score (Ticket 3)
     score_your:       "تقييمك",
-    score_avg:        "Cinemap Score",
+    score_avg:        "تقييم سينماب",
     score_be_first:   "كن أول من يقيّم",
     score_viewer:     "مشاهد",
     score_viewers_pl: "مشاهدين",
@@ -519,8 +521,8 @@ window.CINEMAP_I18N = {
 
     // watchlist
     wl_eyebrow:       "قائمتك",
-    wl_title:         "ابنِ قائمتك لأفلام 2026.",
-    wl_sub:           "كل فيلم تحفظه يبقى معك — حتى تفتح التذاكر.",
+    wl_title:         "قائمتك لأفلام 2026.",
+    wl_sub:           "كل فيلم تحفظه يبقى معك — من الحماس الأول لين التقييم بعد المشاهدة.",
     wl_empty:         "قائمتك تنتظر أول فيلم.",
     wl_empty_cta:     "ابدأ من التقويم",
     wl_share:         "شارك القائمة",
@@ -531,7 +533,7 @@ window.CINEMAP_I18N = {
     // investor proof
     ip_eyebrow:       "الإشارات",
     ip_title:         "من الاكتشاف إلى معرفة الطلب.",
-    ip_sub:           "كل حفظ، كل تذكير، كل ضغطة على إعلان — نقطة بيانات تساعد Cinemap يفهم وش يبي السوق قبل ما تفتح التذاكر.",
+    ip_sub:           "كل حفظ، كل تذكير، كل تقييم — إشارة تساعد سينماب يفهم ذوق الجمهور السعودي.",
     ip_saved:         "أفلام محفوظة",
     ip_remind:        "طلبات تذكير",
     ip_trailer:       "مشاهدات إعلانات",
@@ -555,15 +557,19 @@ window.CINEMAP_I18N = {
     rm3_body:         "أرشيف ذكي للأفلام اللي شفتها، تقييماتك، وذكريات الأمسية.",
 
     // final cta
-    fc_title:         "وش بنشوف بعدين؟",
-    fc_sub:           "ابنِ قائمتك لـ 2026 وخلّ Cinemap يذكّرك أول ما تفتح التذاكر.",
-    fc_primary:       "استكشف الأفلام",
+    fc_title:         "جاهز تبني قائمتك؟",
+    fc_sub:           "احفظ الأفلام اللي عليها كلام، وخلّ سينماب يذكّرك أول ما تفتح التذاكر.",
+    fc_primary:       "شوف الأفلام",
     fc_secondary:     "انضم لقائمة الانتظار",
 
     // footer
-    footer_tag:       "رفيقك الذكي لليالي سينمائية أحلى.",
+    footer_tag:       "أفلام عليها كلام، وقائمة تحفظ ذوقك.",
     footer_made:      "صُنع لمحبي السينما في 🇸🇦",
-    footer_subtitle:  "© 2026 Cinemap — التواريخ قابلة للتغيير.",
+    footer_subtitle:  "© 2026 سينماب — التواريخ قابلة للتغيير.",
+    footer_tmdb:      "This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.",
+    footer_about:     "عن سينماب",
+    footer_privacy:   "الخصوصية",
+    footer_terms:     "الشروط",
 
     // toasts
     toast_saved:      "أضفناه لقائمتك.",
@@ -601,6 +607,8 @@ window.CINEMAP_I18N = {
     notify_sending:   "جاري الإرسال...",
     notify_skip:      "لاحقًا",
     notify_privacy:   "بنستخدم بياناتك بس عشان نذكّرك. ما نشاركها مع أحد.",
+    notify_consent:   "أوافق على استخدام بياناتي لإرسال تذكير لهذا الفيلم عبر Formspree، وأقدر أطلب حذفها لاحقًا.",
+    notify_consent_required: "لازم توافق على استخدام بياناتك للتذكير.",
     notify_name_required: "الاسم مطلوب",
     notify_required:  "الإيميل مطلوب",
     notify_invalid:   "ما يبدو إيميل صحيح",
@@ -712,7 +720,9 @@ window.CINEMAP_I18N = {
     rate_skip:        "Skip",
     rate_close:       "Close",
     rate_need_star:   "Pick a star rating or a vibe to save",
+    rate_need_consent:"Please agree to save and send your rating first",
     rate_thanks:      "Thanks — that's logged in your 2026 🎬",
+    rate_consent:     "I agree to save my rating locally and send it to Cinemap through Formspree to improve audience scores. I can request deletion later.",
     rate_v_bigscreen: "Worth the big screen",
     rate_v_stream:    "Stream it",
     rate_v_friends:   "With friends",
@@ -774,6 +784,10 @@ window.CINEMAP_I18N = {
     footer_tag:       "Your smart companion for better movie nights.",
     footer_made:      "Made for movie lovers 🇸🇦",
     footer_subtitle:  "© 2026 Cinemap — dates subject to change.",
+    footer_tmdb:      "This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.",
+    footer_about:     "About",
+    footer_privacy:   "Privacy",
+    footer_terms:     "Terms",
 
     toast_saved:      "Added to your list.",
     toast_removed:    "Removed from your list.",
@@ -809,6 +823,8 @@ window.CINEMAP_I18N = {
     notify_sending:   "Sending...",
     notify_skip:      "Maybe later",
     notify_privacy:   "We only use your info to remind you. We never share it.",
+    notify_consent:   "I agree that Cinemap may use my details to send this movie reminder through Formspree, and I can request deletion later.",
+    notify_consent_required: "Please agree to use your details for this reminder.",
     notify_name_required: "Name is required",
     notify_required:  "Email is required",
     notify_invalid:   "That doesn't look like a valid email",
