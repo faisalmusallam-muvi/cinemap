@@ -1428,7 +1428,7 @@
     .cm-cal-overlay {
       position: fixed;
       inset: 0;
-      z-index: 280;
+      z-index: 360;
       background: rgba(5, 10, 20, 0.7);
       backdrop-filter: blur(10px);
       display: flex;
@@ -1479,10 +1479,13 @@
       position: absolute;
       top: 8px;
       right: 8px;
+      z-index: 3;
       width: 32px; height: 32px;
+      border: 0;
       border-radius: 50%;
       background: rgba(245,242,235,0.06);
       color: var(--cream);
+      cursor: pointer;
       font-size: 22px;
       display: grid;
       place-items: center;
@@ -2569,17 +2572,17 @@
   <script src="assets/vendor/babel.min.js"></script>
 
   <!-- Source -->
-  <script src="assets/src/utils.js?v=14"></script>
-  <script src="assets/src/analytics.js?v=14"></script>
-  <script type="text/babel" src="assets/src/tmdb-client.js?v=14"></script>
-  <script type="text/babel" src="assets/src/ui.js?v=14"></script>
-  <script type="text/babel" src="assets/src/calendar.js?v=14"></script>
-  <script type="text/babel" src="assets/src/featured.js?v=14"></script>
-  <script type="text/babel" src="assets/src/notify.js?v=14"></script>
-  <script type="text/babel" src="assets/src/rating.js?v=14"></script>
-  <script type="text/babel" src="assets/src/calpicker.js?v=14"></script>
-  <script type="text/babel" src="assets/src/sections.js?v=14"></script>
-  <script type="text/babel" src="assets/src/app.js?v=14"></script>
+  <script src="assets/src/utils.js?v=15"></script>
+  <script src="assets/src/analytics.js?v=15"></script>
+  <script type="text/babel" src="assets/src/tmdb-client.js?v=15"></script>
+  <script type="text/babel" src="assets/src/ui.js?v=15"></script>
+  <script type="text/babel" src="assets/src/calendar.js?v=15"></script>
+  <script type="text/babel" src="assets/src/featured.js?v=15"></script>
+  <script type="text/babel" src="assets/src/notify.js?v=15"></script>
+  <script type="text/babel" src="assets/src/rating.js?v=15"></script>
+  <script type="text/babel" src="assets/src/calpicker.js?v=15"></script>
+  <script type="text/babel" src="assets/src/sections.js?v=15"></script>
+  <script type="text/babel" src="assets/src/app.js?v=15"></script>
 
   <script>
     // Register the PWA service worker on hosted HTTP(S) origins, but skip

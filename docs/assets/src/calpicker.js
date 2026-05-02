@@ -19,6 +19,12 @@ function CalendarPicker({ open, lang, movie, onClose }) {
 
   if (!open || !movie) return null;
 
+  const handleClose = (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    onClose();
+  };
+
   const title = window.movieTitle(movie, lang);
   const date  = window.fmtDate(movie.date, lang);
 
@@ -46,11 +52,17 @@ function CalendarPicker({ open, lang, movie, onClose }) {
   };
 
   return window.ReactDOM.createPortal(
-    <div className="cm-cal-overlay" onClick={onClose} role="dialog" aria-modal="true">
+    <div className="cm-cal-overlay" onClick={handleClose} role="dialog" aria-modal="true">
       <div className="cm-cal" onClick={(e) => e.stopPropagation()}>
         <div className="cm-cal-head">
           <span className="cm-cal-grip" aria-hidden="true" />
-          <button className="cm-cal-x" onClick={onClose} aria-label={t.close}>×</button>
+          <button
+            type="button"
+            className="cm-cal-x"
+            onClick={handleClose}
+            aria-label={t.close}
+            title={t.close}
+          >×</button>
 
           <div className="cm-cal-icon" aria-hidden="true">📅</div>
           <h3 className="cm-cal-title">{t.cal_pick_title}</h3>
@@ -80,7 +92,7 @@ function CalendarPicker({ open, lang, movie, onClose }) {
         </div>
 
         <div className="cm-cal-foot">
-          <button className="cm-btn cm-btn-ghost" onClick={onClose}>
+          <button type="button" className="cm-btn cm-btn-ghost" onClick={handleClose}>
             {t.cal_cancel}
           </button>
         </div>
