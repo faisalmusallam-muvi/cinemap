@@ -1,5 +1,5 @@
 /* Cinemap service worker — minimal cache-first shell with network fallback */
-const CACHE = 'cinemap-shell-v20';
+const CACHE = 'cinemap-shell-v21';
 const SHELL = [
   './',
   './index.html',
@@ -12,17 +12,17 @@ const SHELL = [
   './assets/vendor/react.development.js',
   './assets/vendor/react-dom.development.js',
   './assets/vendor/babel.min.js',
-  './assets/src/utils.js?v=20',
-  './assets/src/analytics.js?v=20',
-  './assets/src/tmdb-client.js?v=20',
-  './assets/src/ui.js?v=20',
-  './assets/src/calendar.js?v=20',
-  './assets/src/featured.js?v=20',
-  './assets/src/notify.js?v=20',
-  './assets/src/rating.js?v=20',
-  './assets/src/calpicker.js?v=20',
-  './assets/src/sections.js?v=20',
-  './assets/src/app.js?v=20',
+  './assets/src/utils.js?v=21',
+  './assets/src/analytics.js?v=21',
+  './assets/src/tmdb-client.js?v=21',
+  './assets/src/ui.js?v=21',
+  './assets/src/calendar.js?v=21',
+  './assets/src/featured.js?v=21',
+  './assets/src/notify.js?v=21',
+  './assets/src/rating.js?v=21',
+  './assets/src/calpicker.js?v=21',
+  './assets/src/sections.js?v=21',
+  './assets/src/app.js?v=21',
 ];
 
 self.addEventListener('install', (e) => {

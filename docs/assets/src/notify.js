@@ -29,6 +29,7 @@ window.cinemapSendNotify = async function sendNotify({ contact, movie, lang }) {
   if (!url) return { ok: false, error: 'no-endpoint' };
 
   const payload = {
+    type: 'notify',
     name: contact.name || '',
     email: contact.email,
     whatsapp: contact.whatsapp || '',
