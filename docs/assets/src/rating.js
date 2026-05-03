@@ -194,17 +194,12 @@ function RatingSheet({ open, lang, movie, onClose, onSubmitted }) {
     setSubmitting(true);
     saveRatingFor(movieKey, payload);
 
-    const storedContact = window.cinemapLoadContact?.();
-    const contact = storedContact?.privacyConsent ? storedContact : null;
-    const res = await window.cinemapSendRating({
-      movie, rating: stars, vibes: vibesArr, reaction: reaction.trim(),
-      contact, lang,
-    });
+    // Ratings now flow to Supabase through the anonymous event tracker in
+    // app.js. Keep Formspree for contact/reminder submissions only so the
+    // inbox does not fill with rating emails.
     setSubmitting(false);
 
-    // Even if the network call fails we keep the local rating — Formspree
-    // misses are recoverable later when we ship a real backend.
-    onSubmitted({ payload, networkOk: res?.ok });
+    onSubmitted({ payload, networkOk: true });
   };
 
   const movieTitle = window.movieTitle(movie, lang);
