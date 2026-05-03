@@ -311,6 +311,8 @@ function Hero({ lang, onJumpCalendar, onJumpWatchlist, watchlistCount, featured 
             </button>
           </div>
 
+          <HeroActionGuide lang={lang} />
+
         </div>
 
         <div className="cm-hero-stage" aria-hidden="true">
@@ -320,6 +322,27 @@ function Hero({ lang, onJumpCalendar, onJumpWatchlist, watchlistCount, featured 
 
       <UpdateStrip lang={lang} />
     </section>
+  );
+}
+
+function HeroActionGuide({ lang }) {
+  const t = window.CINEMAP_I18N[lang];
+  const items = [
+    { icon: '+', label: t.hero_guide_save },
+    { icon: '⭐', label: t.hero_guide_rate },
+    { icon: '🔔', label: t.hero_guide_notify },
+    { icon: '📅', label: t.hero_guide_calendar },
+  ];
+
+  return (
+    <div className="cm-hero-guide" aria-label={t.hero_guide_label}>
+      {items.map(item => (
+        <span className="cm-hero-guide-item" key={item.label}>
+          <span className="cm-hero-guide-icon">{item.icon}</span>
+          <span>{item.label}</span>
+        </span>
+      ))}
+    </div>
   );
 }
 

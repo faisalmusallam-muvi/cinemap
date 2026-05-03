@@ -11,7 +11,7 @@ const TMDB_BG_BASE  = 'https://image.tmdb.org/t/p/w1280';
 // (e.g. when posters change across the board, or when TMDB structure shifts).
 // Each entry also has its own TTL so caches roll over automatically without
 // requiring a deploy.
-const CACHE_VERSION = 4;
+const CACHE_VERSION = 5;
 const TTL_POSTER_DAYS  = 7;   // posters change ~weekly as marketing rolls out
 const TTL_TRAILER_DAYS = 3;   // trailers drop late, re-check more often
 const TTL_CAST_DAYS    = 30;  // cast is stable once announced
@@ -62,6 +62,27 @@ async function tmdbApi(path, lang = 'en-US') {
   });
   if (!r.ok) throw new Error(`TMDB ${r.status}`);
   return r.json();
+}
+
+async function tmdbFetchMovieDetails(tmdbId) {
+  const [enResult, arResult] = await Promise.allSettled([
+    tmdbApi(`/movie/${tmdbId}`, 'en-US'),
+    tmdbApi(`/movie/${tmdbId}`, 'ar-SA'),
+  ]);
+  const en = enResult.status === 'fulfilled' ? enResult.value : null;
+  const ar = arResult.status === 'fulfilled' ? arResult.value : null;
+  const base = en || ar;
+  if (!base) return null;
+
+  return {
+    poster:   base.poster_path ? `${TMDB_IMG_BASE}${base.poster_path}` : null,
+    backdrop: base.backdrop_path ? `${TMDB_BG_BASE}${base.backdrop_path}` : null,
+    tmdbId,
+    title:    base.title || base.original_title || '',
+    overviewEn: en?.overview || null,
+    overviewAr: ar?.overview || null,
+    releaseDate: base.release_date || null,
+  };
 }
 
 function tmdbNormTitle(s) {
@@ -143,13 +164,8 @@ async function tmdbFetch(movie) {
   try {
     // Direct fetch by tmdbId
     if (movie.tmdbId) {
-      const d = await tmdbApi(`/movie/${movie.tmdbId}`);
-      if (d?.poster_path) {
-        const out = {
-          poster:   `${TMDB_IMG_BASE}${d.poster_path}`,
-          backdrop: d.backdrop_path ? `${TMDB_BG_BASE}${d.backdrop_path}` : null,
-          tmdbId:   movie.tmdbId,
-        };
+      const out = await tmdbFetchMovieDetails(movie.tmdbId);
+      if (out?.poster) {
         writeCache(cacheKey, out);
         return out;
       }
@@ -166,17 +182,33 @@ async function tmdbFetch(movie) {
       return null;
     }
 
-    const out = {
-      poster:   `${TMDB_IMG_BASE}${hit.poster_path}`,
+    const details = await tmdbFetchMovieDetails(hit.id);
+    const out = details || {
+      poster:   hit.poster_path ? `${TMDB_IMG_BASE}${hit.poster_path}` : null,
       backdrop: hit.backdrop_path ? `${TMDB_BG_BASE}${hit.backdrop_path}` : null,
       tmdbId:   hit.id,
       title:    hit.title || hit.original_title || movie.en,
-      overview: hit.overview || null,
+      overviewEn: hit.overview || null,
+      overviewAr: null,
       releaseDate: hit.release_date || null,
     };
     writeCache(cacheKey, out);
     return out;
   } catch { return null; }
+}
+
+function modalOverview(movie, posterData, lang) {
+  if (lang === 'en') {
+    return posterData?.overviewEn
+      || movie.overviewEn
+      || posterData?.overviewAr
+      || movie.overview
+      || '';
+  }
+
+  return posterData?.overviewAr
+    || movie.overview
+    || 'قصة الفيلم غير متوفرة حالياً، بنحدثها أول ما تتوفر معلومات أوضح.';
 }
 
 // Resolve a movie's tmdbId by looking it up via tmdbFetch. Returns the id or null.
@@ -397,6 +429,7 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
   const [cast, setCast] = useState([]);
   const [ytKey, setYtKey] = useState(null);
   const [trailerVisible, setTrailerVisible] = useState(false);
+  const [posterZoom, setPosterZoom] = useState(false);
   const trailerRef = useRef(null);
   const t = window.MUVI_I18N?.[lang] || window.MUVI_I18N?.ar;
   const g = window.MUVI_GENRES[movie.genre];
@@ -413,11 +446,15 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
   }, [movie.tmdbId, movie.en]);
 
   useEffect(() => {
-    const onKey = e => { if (e.key === 'Escape') onClose(); };
+    const onKey = e => {
+      if (e.key !== 'Escape') return;
+      if (posterZoom) setPosterZoom(false);
+      else onClose();
+    };
     window.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
-  }, []);
+  }, [posterZoom]);
 
   // Auto-scroll the inline trailer into view when the user opens it.
   // Without this the user clicks "Watch Trailer" and the iframe pops in
@@ -433,6 +470,12 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
   const title = lang === 'en' ? movie.en : movie.ar;
   const subTitle = lang === 'en' ? movie.ar : movie.en;
   const dateStr = window.fmtDate ? window.fmtDate(movie.date, lang) : window.fmtDateAr(movie.date);
+  const overview = modalOverview(movie, posterData, lang);
+  const posterSrc = posterData?.poster || null;
+  const backdropSrc = posterData?.backdrop || posterSrc;
+  const backdropGradient = lang === 'ar'
+    ? `linear-gradient(90deg, rgba(6,3,13,0.22) 0%, rgba(6,3,13,0.48) 36%, rgba(6,3,13,0.82) 72%, rgba(6,3,13,0.97) 100%), linear-gradient(180deg, rgba(6,3,13,0.18), rgba(6,3,13,0.94))`
+    : `linear-gradient(90deg, rgba(6,3,13,0.97) 0%, rgba(6,3,13,0.82) 32%, rgba(6,3,13,0.48) 66%, rgba(6,3,13,0.22) 100%), linear-gradient(180deg, rgba(6,3,13,0.18), rgba(6,3,13,0.94))`;
 
   return (
     <div className="mmodal-overlay" onClick={onClose}>
@@ -442,8 +485,8 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
       >
         {/* Blurred backdrop background */}
         <div className="mmodal-bg">
-          {posterData?.backdrop && <img src={posterData.backdrop} className="mmodal-bg-img" alt="" />}
-          <div className="mmodal-bg-grad" style={{ background: `linear-gradient(135deg, rgba(6,3,13,0.97) 0%, rgba(6,3,13,0.65) 45%, ${g.color}22 100%), rgba(6,3,13,0.92)` }} />
+          {backdropSrc && <img src={backdropSrc} className="mmodal-bg-img" alt="" />}
+          <div className="mmodal-bg-grad" style={{ background: backdropGradient }} />
         </div>
 
         <button className="mmodal-close" onClick={onClose}>×</button>
@@ -451,7 +494,17 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
         <div className="mmodal-inner">
           {/* Poster column */}
           <div className="mmodal-poster-col">
-            <MoviePoster movie={movie} className="mmodal-poster-img" />
+            <button
+              type="button"
+              className="mmodal-poster-button"
+              onClick={e => { e.stopPropagation(); if (posterSrc) setPosterZoom(true); }}
+              aria-label={lang === 'en' ? 'Open poster' : 'تكبير البوستر'}
+            >
+              {posterSrc
+                ? <img src={posterSrc} alt={title} className="mmodal-poster-direct" />
+                : <MoviePoster movie={movie} className="mmodal-poster-img" />
+              }
+            </button>
           </div>
 
           {/* Content column */}
@@ -471,7 +524,7 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
             </div>
 
             {/* Overview */}
-            {movie.overview && <p className="mmodal-overview">{movie.overview}</p>}
+            {overview && <p className="mmodal-overview">{overview}</p>}
 
             {/* Inline trailer — appears between synopsis and cast when active */}
             {trailerVisible && ytKey && (
@@ -577,6 +630,13 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
             </button>
           )}
         </div>
+
+        {posterZoom && posterSrc && (
+          <div className="poster-lightbox" onClick={e => { e.stopPropagation(); setPosterZoom(false); }}>
+            <button className="poster-lightbox-close" onClick={e => { e.stopPropagation(); setPosterZoom(false); }}>×</button>
+            <img src={posterSrc} alt={title} />
+          </div>
+        )}
 
       </div>
     </div>

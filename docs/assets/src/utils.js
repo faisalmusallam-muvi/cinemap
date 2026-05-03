@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.24',
-  releaseNoteAr: 'آخر تحديث: نسخة أهدأ وأسهل للتجربة.',
-  releaseNoteEn: 'Latest update: a calmer, cleaner test version.',
+  releaseVersion: 'v1.26',
+  releaseNoteAr: 'آخر تحديث: خلفية تفاصيل الفيلم صارت أوضح وأغنى.',
+  releaseNoteEn: 'Latest update: movie detail backdrops are clearer and richer.',
 };
 
 // ============================================================
@@ -591,6 +591,11 @@ window.CINEMAP_I18N = {
     hero_cta:         "شوف الأفلام",
     hero_cta_2:       "ابدأ قائمتك",
     hero_chip:        "بنذكّرك أول ما تفتح التذاكر",
+    hero_guide_label: "شرح أزرار سينماب",
+    hero_guide_save:  "احفظ",
+    hero_guide_rate:  "قيّم",
+    hero_guide_notify:"نبّهني",
+    hero_guide_calendar:"للتقويم",
 
     // journey 0
     j0_eyebrow:       "المرحلة 0 · الاكتشاف",
@@ -815,6 +820,11 @@ window.CINEMAP_I18N = {
     hero_cta:         "Explore 2026 Movies",
     hero_cta_2:       "Build My Watchlist",
     hero_chip:        "Notify me when tickets open",
+    hero_guide_label: "Cinemap button guide",
+    hero_guide_save:  "Save",
+    hero_guide_rate:  "Rate",
+    hero_guide_notify:"Notify",
+    hero_guide_calendar:"Calendar",
 
     j0_eyebrow:       "Journey 0 · Discovery",
     j0_title:         "Start with what's coming.",
