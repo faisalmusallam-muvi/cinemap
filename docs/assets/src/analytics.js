@@ -4,6 +4,16 @@ const CINEMAP_ANALYTICS_VERSION = '2026-05-02';
 const LS_DEVICE_ID = 'cinemap-device-id';
 const LS_EVENTS = 'cinemap-events';
 
+const SUPABASE_EVENT_TYPES = {
+  movie_save: 'save_movie',
+  movie_unsave: 'unsave_movie',
+  notify_on: 'notify_interest',
+  watched_on: 'watched_movie',
+  rating_submitted: 'rating_submitted',
+  movie_share: 'share_movie',
+  calendar_picker_open: 'calendar_click',
+};
+
 function getDeviceId() {
   try {
     let id = localStorage.getItem(LS_DEVICE_ID);
@@ -43,6 +53,50 @@ function moviePayload(movie) {
   };
 }
 
+function supabasePayload(event) {
+  const eventType = SUPABASE_EVENT_TYPES[event.action];
+  if (!eventType) return null;
+
+  return {
+    visitor_id: event.deviceId,
+    event_type: eventType,
+    movie: event.movieTitleEn || null,
+    movie_ar: event.movieTitleAr || null,
+    release_date: event.movieDate || null,
+    genre: event.movieGenre || null,
+    city: event.city || null,
+    rating: Number.isFinite(Number(event.rating)) ? Number(event.rating) : null,
+    vibes: Array.isArray(event.vibes) ? event.vibes.join(',') : (event.vibes || null),
+    reaction: event.reaction || null,
+    language: event.lang || null,
+    page_path: event.path || null,
+  };
+}
+
+async function sendToSupabase(event) {
+  const endpoint = window.CINEMAP_CONFIG?.supabaseEventsEndpoint;
+  const key = window.CINEMAP_CONFIG?.supabasePublishableKey;
+  const payload = supabasePayload(event);
+  if (!endpoint || !key || !payload) return;
+
+  try {
+    await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify(payload),
+      keepalive: true,
+    });
+  } catch {
+    // Local analytics remains the fallback. We intentionally avoid surfacing
+    // tracking failures to users.
+  }
+}
+
 window.cinemapTrack = function cinemapTrack(action, payload = {}) {
   const event = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -59,6 +113,7 @@ window.cinemapTrack = function cinemapTrack(action, payload = {}) {
   const events = readEvents();
   events.push(event);
   writeEvents(events);
+  sendToSupabase(event);
 
   return event;
 };

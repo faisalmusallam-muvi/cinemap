@@ -8,6 +8,10 @@ window.CINEMAP_CONFIG = {
   // Each movie request POSTs the contact + movie payload here;
   // emails arrive in the Formspree inbox + can be exported as CSV.
   notifyEndpoint: 'https://formspree.io/f/mlgaykkv',
+  // Supabase receives anonymous product signals only. Do not send email,
+  // WhatsApp, names, or other direct contact details here.
+  supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
+  supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
 };
 
 // ============================================================

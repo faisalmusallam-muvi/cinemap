@@ -246,7 +246,7 @@ function App() {
       saveSet(LS.notify, next);
       return next;
     });
-    window.cinemapTrackMovie?.('notify_on', m, { source: 'quick' });
+    window.cinemapTrackMovie?.('notify_on', m, { source: 'quick', city: contact.city || '' });
     pushToast(t.notify_quick, 'success', '🔔');
     window.cinemapSendNotify?.({ contact, movie: m, lang }).then(res => {
       if (!res?.ok) {
@@ -303,8 +303,8 @@ function App() {
   const onRatingSubmitted = ({ payload: _p, networkOk }) => {
     window.cinemapTrackMovie?.('rating_submitted', ratingMovie, {
       rating: _p?.rating || 0,
-      vibeCount: Array.isArray(_p?.vibes) ? _p.vibes.length : 0,
-      hasReaction: !!_p?.reaction,
+      vibes: Array.isArray(_p?.vibes) ? _p.vibes : [],
+      reaction: _p?.reaction || '',
       networkOk: !!networkOk,
     });
     pushToast(t.rate_thanks, 'success', '⭐');
@@ -333,7 +333,7 @@ function App() {
       saveSet(LS.notify, next);
       return next;
     });
-    window.cinemapTrackMovie?.('notify_on', notifyMovie, { source: 'form' });
+    window.cinemapTrackMovie?.('notify_on', notifyMovie, { source: 'form', city: _contact?.city || '' });
     pushToast(t.notify_success, 'success', '🔔');
     setNotifyMovie(null);
   };
