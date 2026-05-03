@@ -451,9 +451,6 @@
 
     .cm-hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
 
-    .cm-hero-pills { display: flex; gap: 10px; flex-wrap: wrap; }
-    .cm-hero-pills .cm-pill { font-size: 13px; padding: 6px 12px; }
-
     /* Hero floating stage */
     .cm-hero-stage {
       position: relative;
@@ -551,32 +548,46 @@
     [dir="ltr"] .cm-stage-chip { right: auto; left: 8%; }
 
     /* =========================================================
-       7) Marquee
+       7) Update Strip
        ========================================================= */
-    .cm-marquee {
-      position: relative; z-index: 2;
-      background: rgba(10,19,32,0.6);
+    .cm-update-strip {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: rgba(10,19,32,0.66);
       border-top: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
-      padding: 16px 0;
-      overflow: hidden;
-      mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-    }
-    .cm-marquee-track {
-      display: flex; gap: 28px;
-      width: max-content;
-      animation: marquee-ltr 50s linear infinite;
-    }
-    [dir="rtl"] .cm-marquee-track { animation-name: marquee-rtl; }
-    .cm-marquee-item {
-      display: inline-flex; align-items: center; gap: 28px;
-      font-size: 16px; font-weight: 700;
+      padding: 11px 18px;
+      text-align: center;
       color: var(--ink-1);
-      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 600;
     }
-    .cm-marquee-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
-    @keyframes marquee-ltr { from { transform: translateX(0); } to { transform: translateX(-33.3333%); } }
-    @keyframes marquee-rtl { from { transform: translateX(0); } to { transform: translateX(33.3333%); } }
+    .cm-update-pill {
+      direction: ltr;
+      unicode-bidi: isolate;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 42px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(255,138,0,0.14);
+      border: 1px solid rgba(255,138,0,0.45);
+      color: var(--amber);
+      font-family: var(--font-en);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .cm-update-copy {
+      color: var(--cream);
+      font-weight: 700;
+    }
 
     /* =========================================================
        8) Journey 0
@@ -2572,17 +2583,17 @@
   <script src="assets/vendor/babel.min.js"></script>
 
   <!-- Source -->
-  <script src="assets/src/utils.js?v=23"></script>
-  <script src="assets/src/analytics.js?v=23"></script>
-  <script type="text/babel" src="assets/src/tmdb-client.js?v=23"></script>
-  <script type="text/babel" src="assets/src/ui.js?v=23"></script>
-  <script type="text/babel" src="assets/src/calendar.js?v=23"></script>
-  <script type="text/babel" src="assets/src/featured.js?v=23"></script>
-  <script type="text/babel" src="assets/src/notify.js?v=23"></script>
-  <script type="text/babel" src="assets/src/rating.js?v=23"></script>
-  <script type="text/babel" src="assets/src/calpicker.js?v=23"></script>
-  <script type="text/babel" src="assets/src/sections.js?v=23"></script>
-  <script type="text/babel" src="assets/src/app.js?v=23"></script>
+  <script src="assets/src/utils.js?v=25"></script>
+  <script src="assets/src/analytics.js?v=25"></script>
+  <script type="text/babel" src="assets/src/tmdb-client.js?v=25"></script>
+  <script type="text/babel" src="assets/src/ui.js?v=25"></script>
+  <script type="text/babel" src="assets/src/calendar.js?v=25"></script>
+  <script type="text/babel" src="assets/src/featured.js?v=25"></script>
+  <script type="text/babel" src="assets/src/notify.js?v=25"></script>
+  <script type="text/babel" src="assets/src/rating.js?v=25"></script>
+  <script type="text/babel" src="assets/src/calpicker.js?v=25"></script>
+  <script type="text/babel" src="assets/src/sections.js?v=25"></script>
+  <script type="text/babel" src="assets/src/app.js?v=25"></script>
 
   <script>
     // Register the PWA service worker on hosted HTTP(S) origins, but skip

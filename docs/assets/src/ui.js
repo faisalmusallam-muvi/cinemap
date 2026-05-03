@@ -311,11 +311,6 @@ function Hero({ lang, onJumpCalendar, onJumpWatchlist, watchlistCount, featured 
             </button>
           </div>
 
-          <div className="cm-hero-pills">
-            <span className="cm-pill">🎬 {t.hero_pill_films}</span>
-            <span className="cm-pill">🗓 {t.hero_pill_year}</span>
-            <span className="cm-pill">🇸🇦 {t.hero_pill_local}</span>
-          </div>
         </div>
 
         <div className="cm-hero-stage" aria-hidden="true">
@@ -323,7 +318,7 @@ function Hero({ lang, onJumpCalendar, onJumpWatchlist, watchlistCount, featured 
         </div>
       </div>
 
-      <Marquee lang={lang} />
+      <UpdateStrip lang={lang} />
     </section>
   );
 }
@@ -375,30 +370,16 @@ function CinePoster({ movie, compact = false }) {
   return <div className="cm-poster-fallback" style={{ '--accent': window.CINEMAP_GENRES[movie.genre]?.color }}>{movie.en}</div>;
 }
 
-// ---------- Marquee ----------
-function Marquee({ lang }) {
-  const arItems = [
-    "أفلام عليها كلام", "60+ فيلم", "تقويم سينماب", "إنتاج عربي", "احفظ قائمتك", "قيّم اللي شفته",
-    "وش بتشوف؟", "سينماب", "قائمتك في مكان واحد"
-  ];
-  const enItems = [
-    "Movies of 2026", "60+ films", "Cinemap calendar", "Local stories", "Save your list", "Notify me",
-    "Better movie nights", "Cinemap", "رفيقك السينمائي"
-  ];
-  const items = lang === 'en' ? enItems : arItems;
-  const all = [...items, ...items, ...items];
+// ---------- Update strip ----------
+function UpdateStrip({ lang }) {
+  const cfg = window.CINEMAP_CONFIG || {};
+  const note = lang === 'en' ? cfg.releaseNoteEn : cfg.releaseNoteAr;
   return (
-    <div className="cm-marquee">
-      <div className="cm-marquee-track">
-        {all.map((txt, i) => (
-          <span className="cm-marquee-item" key={i}>
-            <span>{txt}</span>
-            <span className="cm-marquee-dot" />
-          </span>
-        ))}
-      </div>
+    <div className="cm-update-strip">
+      <span className="cm-update-pill">{cfg.releaseVersion || 'v1'}</span>
+      <span className="cm-update-copy">{note}</span>
     </div>
   );
 }
 
-Object.assign(window, { CinemapLogo, Nav, Hero, Marquee, CinePoster });
+Object.assign(window, { CinemapLogo, Nav, Hero, UpdateStrip, CinePoster });
