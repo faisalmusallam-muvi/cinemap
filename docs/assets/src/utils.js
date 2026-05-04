@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.28',
-  releaseNoteAr: 'آخر تحديث: الصفحة الرئيسية صارت أخف وأوضح للتجربة.',
-  releaseNoteEn: 'Latest update: the homepage is lighter and clearer to use.',
+  releaseVersion: 'v1.29',
+  releaseNoteAr: 'آخر تحديث: التقييم صار أوضح، النجوم مطلوبة قبل الحفظ.',
+  releaseNoteEn: 'Latest update: ratings are cleaner, stars are required before saving.',
 };
 
 // ============================================================
@@ -664,7 +664,7 @@ window.CINEMAP_I18N = {
     rate_sending:     "جاري الإرسال...",
     rate_skip:        "تخطّي",
     rate_close:       "إغلاق",
-    rate_need_star:   "اختر تقييم بالنجوم أو شارك إحساسك",
+    rate_need_star:   "اختر عدد النجوم أولًا أو اضغط تخطّي.",
     rate_need_consent:"وافق على حفظ وإرسال التقييم أولًا",
     rate_thanks:      "شكرًا لتقييمك — عدّ في 2026 معنا 🎬",
     rate_consent:     "أوافق على حفظ تقييمي محليًا وإرسال نسخة مجهولة إلى سينماب لتحسين تقييمات الجمهور. أقدر أطلب حذفه لاحقًا إذا أمكن تحديده.",
@@ -889,7 +889,7 @@ window.CINEMAP_I18N = {
     rate_sending:     "Sending...",
     rate_skip:        "Skip",
     rate_close:       "Close",
-    rate_need_star:   "Pick a star rating or a vibe to save",
+    rate_need_star:   "Pick a star rating first, or press Skip.",
     rate_need_consent:"Please agree to save and send your rating first",
     rate_thanks:      "Thanks — that's logged in your 2026 🎬",
     rate_consent:     "I agree to save my rating locally and send an anonymous copy to Cinemap to improve audience scores. I can request deletion later if it can be identified.",

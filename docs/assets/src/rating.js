@@ -25,7 +25,7 @@ window.cinemapSaveRatingFor = saveRatingFor;
 window.cinemapMovieScore = function(movieKey) {
   if (!movieKey) return null;
   const all = loadRatings();
-  const r = all[movieKey];
+    const r = all[movieKey];
   if (!r || !r.rating) return null;
   return r;
 };
@@ -165,14 +165,18 @@ function RatingSheet({ open, lang, movie, onClose, onSubmitted }) {
       return next;
     });
   };
+  const pickStars = (value) => {
+    setStars(value);
+    setError(null);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
-    // Require at least one of: stars, a vibe, or a reaction. Pure-empty
-    // submission is a no-op (use Skip for that).
-    if (!stars && vibes.size === 0 && !reaction.trim()) {
+    // Cinemap Score needs a real 1-5 star rating. Vibes and reaction are
+    // useful context, but Skip is the path for people who do not want to rate.
+    if (!stars) {
       setError(t.rate_need_star);
       return;
     }
@@ -232,7 +236,7 @@ function RatingSheet({ open, lang, movie, onClose, onSubmitted }) {
         <form className="cm-rate-form" onSubmit={handleSubmit}>
           <div className="cm-rate-section">
             <span className="cm-rate-lbl">{t.rate_stars_lbl}</span>
-            <StarRow value={stars} onPick={setStars} lang={lang} />
+            <StarRow value={stars} onPick={pickStars} lang={lang} />
           </div>
 
           <div className="cm-rate-section">
@@ -292,7 +296,7 @@ function RatingSheet({ open, lang, movie, onClose, onSubmitted }) {
             <button
               type="submit"
               className="cm-btn cm-btn-primary"
-              disabled={submitting}
+              disabled={submitting || !stars}
             >{submitting ? t.rate_sending : t.rate_submit}</button>
           </div>
         </form>
