@@ -192,7 +192,7 @@ function SearchBar({ lang, onOpenMovie }) {
 }
 
 // ---------- Nav ----------
-function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpHow, onJumpVision, onOpenMovie }) {
+function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onOpenMovie }) {
   const t = window.CINEMAP_I18N[lang];
   const [open, setOpen] = useState(false);
 
@@ -218,8 +218,6 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpHow, onJump
         <div className="cm-nav-links">
           <a href="#calendar" onClick={(e) => { e.preventDefault(); onJumpCalendar(); }}>{t.nav_movies}</a>
           <a href="#watchlist" onClick={(e) => { e.preventDefault(); onJumpWatchlist(); }}>{t.nav_watchlist}</a>
-          <a href="#journey" onClick={(e) => { e.preventDefault(); onJumpHow(); }}>{t.nav_how}</a>
-          <a href="#roadmap" onClick={(e) => { e.preventDefault(); onJumpVision(); }}>{t.nav_vision}</a>
         </div>
 
         <SearchBar lang={lang} onOpenMovie={onOpenMovie} />
@@ -257,8 +255,6 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpHow, onJump
           </div>
           <a href="#calendar" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpCalendar(); }}>{t.nav_movies}</a>
           <a href="#watchlist" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpWatchlist(); }}>{t.nav_watchlist}</a>
-          <a href="#journey" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpHow(); }}>{t.nav_how}</a>
-          <a href="#roadmap" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpVision(); }}>{t.nav_vision}</a>
         </div>
       )}
     </nav>

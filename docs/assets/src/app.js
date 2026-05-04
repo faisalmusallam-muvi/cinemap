@@ -183,8 +183,6 @@ function App() {
   };
   const jumpToCalendar = () => jumpTo('#calendar', 70);
   const jumpToWatchlist = () => jumpTo('#watchlist', 70);
-  const jumpToHow = () => jumpTo('#journey', 70);
-  const jumpToVision = () => jumpTo('#roadmap', 70);
   const jumpToMonth = (i) => {
     const el = document.getElementById(`month-${i}`);
     if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - stickyOffset(), behavior: 'smooth' });
@@ -414,11 +412,6 @@ function App() {
     pushToast(t.toast_wl_clear, 'info', '🗑');
   };
 
-  const handleWaitlist = () => {
-    window.cinemapTrack?.('waitlist_interest');
-    pushToast(t.toast_waitlist, 'success', '✓');
-  };
-
   // ---------- Render ----------
   return (
     <>
@@ -427,8 +420,6 @@ function App() {
         setLang={setLang}
         onJumpCalendar={jumpToCalendar}
         onJumpWatchlist={jumpToWatchlist}
-        onJumpHow={jumpToHow}
-        onJumpVision={jumpToVision}
         onOpenMovie={(m) => openMovie(m, 'search')}
       />
 
@@ -518,20 +509,6 @@ function App() {
         onJumpCalendar={jumpToCalendar}
         onOpenMovie={(m) => openMovie(m, 'watchlist')}
       />
-
-      <window.Journey0 lang={lang} onJumpCalendar={jumpToCalendar} />
-
-      <window.InvestorProof
-        lang={lang}
-        watchlist={watchlist}
-        savedMovies={savedMovies}
-        notifyCount={notified.size}
-        trailerClicks={trailerClicks}
-      />
-
-      <window.Roadmap lang={lang} />
-
-      <window.FinalCTA lang={lang} onJumpCalendar={jumpToCalendar} onWaitlist={handleWaitlist} />
 
       <window.Footer lang={lang} />
 
