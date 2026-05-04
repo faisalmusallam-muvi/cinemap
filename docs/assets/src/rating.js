@@ -276,7 +276,7 @@ function RatingSheet({ open, lang, movie, onClose, onSubmitted }) {
               type="checkbox"
               checked={consent}
               onChange={(e) => { setConsent(e.target.checked); setError(null); }}
-              required
+              aria-required="true"
             />
             <span>
               {t.rate_consent}{' '}

@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.29',
-  releaseNoteAr: 'آخر تحديث: التقييم صار أوضح، النجوم مطلوبة قبل الحفظ.',
-  releaseNoteEn: 'Latest update: ratings are cleaner, stars are required before saving.',
+  releaseVersion: 'v1.30',
+  releaseNoteAr: 'آخر تحديث: رسائل أوضح للتقييم والتقويم.',
+  releaseNoteEn: 'Latest update: clearer rating and calendar messages.',
 };
 
 // ============================================================
@@ -665,7 +665,7 @@ window.CINEMAP_I18N = {
     rate_skip:        "تخطّي",
     rate_close:       "إغلاق",
     rate_need_star:   "اختر عدد النجوم أولًا أو اضغط تخطّي.",
-    rate_need_consent:"وافق على حفظ وإرسال التقييم أولًا",
+    rate_need_consent:"علّم على مربع الموافقة عشان نحفظ تقييمك.",
     rate_thanks:      "شكرًا لتقييمك — عدّ في 2026 معنا 🎬",
     rate_consent:     "أوافق على حفظ تقييمي محليًا وإرسال نسخة مجهولة إلى سينماب لتحسين تقييمات الجمهور. أقدر أطلب حذفه لاحقًا إذا أمكن تحديده.",
     rate_v_bigscreen: "يستاهل الشاشة الكبيرة",
@@ -804,7 +804,9 @@ window.CINEMAP_I18N = {
     hide_trailer:     "إغلاق الإعلان",
     add_calendar:     "أضف للتقويم",
     google_cal:       "Google Calendar",
-    apple_cal:        "Apple / iCal",
+    apple_cal:        "Apple Calendar",
+    apple_cal_hint:   "يحمّل ملف .ics تضيفه للتقويم.",
+    apple_cal_ios_hint:"في كروم آيفون يظهر كملف؛ للفتح المباشر جرّبه من Safari.",
     outlook_cal:      "Outlook",
   },
   en: {
@@ -890,7 +892,7 @@ window.CINEMAP_I18N = {
     rate_skip:        "Skip",
     rate_close:       "Close",
     rate_need_star:   "Pick a star rating first, or press Skip.",
-    rate_need_consent:"Please agree to save and send your rating first",
+    rate_need_consent:"Check the consent box so we can save your rating.",
     rate_thanks:      "Thanks — that's logged in your 2026 🎬",
     rate_consent:     "I agree to save my rating locally and send an anonymous copy to Cinemap to improve audience scores. I can request deletion later if it can be identified.",
     rate_v_bigscreen: "Worth the big screen",
@@ -1022,7 +1024,9 @@ window.CINEMAP_I18N = {
     hide_trailer:     "Close Trailer",
     add_calendar:     "Add to Calendar",
     google_cal:       "Google Calendar",
-    apple_cal:        "Apple / iCal",
+    apple_cal:        "Apple Calendar",
+    apple_cal_hint:   "Downloads an .ics file you can add to Calendar.",
+    apple_cal_ios_hint:"On iPhone Chrome this appears as a file; Safari opens it more smoothly.",
     outlook_cal:      "Outlook",
   }
 };

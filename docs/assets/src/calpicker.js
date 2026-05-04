@@ -27,6 +27,10 @@ function CalendarPicker({ open, lang, movie, onClose }) {
 
   const title = window.movieTitle(movie, lang);
   const date  = window.fmtDate(movie.date, lang);
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isSafari = /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|Chrome/i.test(ua);
+  const appleNote = isIOS && !isSafari ? t.apple_cal_ios_hint : t.apple_cal_hint;
 
   // Each handler closes the sheet right after firing the action.
   const goGoogle = () => {
@@ -81,7 +85,10 @@ function CalendarPicker({ open, lang, movie, onClose }) {
           </button>
           <button className="cm-cal-option" onClick={goApple}>
             <span className="cm-cal-option-icon" style={{ background: '#1d1d1f', color: '#fff' }}>🍎</span>
-            <span className="cm-cal-option-lbl">{t.apple_cal}</span>
+            <span className="cm-cal-option-copy">
+              <span className="cm-cal-option-lbl">{t.apple_cal}</span>
+              <span className="cm-cal-option-note">{appleNote}</span>
+            </span>
             <span className="cm-cal-option-arrow" aria-hidden="true">›</span>
           </button>
           <button className="cm-cal-option" onClick={goOutlook}>
