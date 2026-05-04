@@ -6,6 +6,7 @@ function FeaturedCarousel({ lang, watchlist, notified, watched, ratings, onToggl
   const t = window.CINEMAP_I18N[lang];
   const movies = useMemo(() => window.getFeaturedMovies(), []);
   const trackRef = useRef(null);
+  const lastTouchActionRef = useRef({ key: '', ts: 0 });
   const [active, setActive] = useState(0);
 
   // Track active card (centered)
@@ -43,6 +44,24 @@ function FeaturedCarousel({ lang, watchlist, notified, watched, ratings, onToggl
     el.scrollTo({ left: target, behavior: 'smooth' });
   };
 
+  const runClickAction = (e, key, action) => {
+    e.stopPropagation();
+    const last = lastTouchActionRef.current;
+    if (last.key === key && Date.now() - last.ts < 700) {
+      e.preventDefault();
+      return;
+    }
+    action();
+  };
+
+  const runTouchAction = (e, key, action) => {
+    if (e.pointerType !== 'touch') return;
+    e.preventDefault();
+    e.stopPropagation();
+    lastTouchActionRef.current = { key, ts: Date.now() };
+    action();
+  };
+
   const movieKey = (m) => m.en + '|' + m.date;
 
   return (
@@ -73,6 +92,7 @@ function FeaturedCarousel({ lang, watchlist, notified, watched, ratings, onToggl
               <div className="cm-fc-rank">#{m.featuredRank}</div>
 
               <button
+                type="button"
                 className="cm-fc-poster"
                 onClick={() => onOpenMovie(m)}
                 aria-label={title}
@@ -113,8 +133,10 @@ function FeaturedCarousel({ lang, watchlist, notified, watched, ratings, onToggl
 
                 <div className="cm-fc-actions">
                   <button
+                    type="button"
                     className={`cm-fc-act ${isSaved ? 'is-on' : ''}`}
-                    onClick={(e) => { e.stopPropagation(); onToggleSave(m); }}
+                    onClick={(e) => runClickAction(e, `${k}:save`, () => onToggleSave(m))}
+                    onPointerUp={(e) => runTouchAction(e, `${k}:save`, () => onToggleSave(m))}
                     aria-label={isSaved ? t.saved : t.save}
                     title={isSaved ? t.saved : t.save}
                   >
@@ -123,8 +145,10 @@ function FeaturedCarousel({ lang, watchlist, notified, watched, ratings, onToggl
                   </button>
                   {isReleased ? (
                     <button
+                      type="button"
                       className={`cm-fc-act cm-action-watched ${isWatched ? 'is-on' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); onToggleWatched(m); }}
+                      onClick={(e) => runClickAction(e, `${k}:watched`, () => onToggleWatched(m))}
+                      onPointerUp={(e) => runTouchAction(e, `${k}:watched`, () => onToggleWatched(m))}
                       aria-label={isWatched ? t.watched_done : t.watched}
                       title={isWatched ? t.watched_done : t.watched}
                     >
@@ -134,8 +158,10 @@ function FeaturedCarousel({ lang, watchlist, notified, watched, ratings, onToggl
                   ) : (
                     <>
                       <button
+                        type="button"
                         className={`cm-fc-act ${isNotified ? 'is-on' : ''}`}
-                        onClick={(e) => { e.stopPropagation(); onToggleNotify(m); }}
+                        onClick={(e) => runClickAction(e, `${k}:notify`, () => onToggleNotify(m))}
+                        onPointerUp={(e) => runTouchAction(e, `${k}:notify`, () => onToggleNotify(m))}
                         aria-label={isNotified ? t.notified : t.notify}
                         title={isNotified ? t.notified : t.notify}
                       >
@@ -143,8 +169,10 @@ function FeaturedCarousel({ lang, watchlist, notified, watched, ratings, onToggl
                         <span className="cm-fc-act-lbl">{isNotified ? t.notified : t.notify}</span>
                       </button>
                       <button
+                        type="button"
                         className="cm-fc-act"
-                        onClick={(e) => { e.stopPropagation(); onCalendar?.(m); }}
+                        onClick={(e) => runClickAction(e, `${k}:calendar`, () => onCalendar?.(m))}
+                        onPointerUp={(e) => runTouchAction(e, `${k}:calendar`, () => onCalendar?.(m))}
                         aria-label={t.cal_quick}
                         title={t.cal_quick}
                       >
@@ -154,8 +182,10 @@ function FeaturedCarousel({ lang, watchlist, notified, watched, ratings, onToggl
                     </>
                   )}
                   <button
+                    type="button"
                     className="cm-fc-act"
-                    onClick={(e) => { e.stopPropagation(); onShare(m); }}
+                    onClick={(e) => runClickAction(e, `${k}:share`, () => onShare(m))}
+                    onPointerUp={(e) => runTouchAction(e, `${k}:share`, () => onShare(m))}
                     aria-label={t.share}
                     title={t.share}
                   >
