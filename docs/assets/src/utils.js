@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.26',
-  releaseNoteAr: 'آخر تحديث: خلفية تفاصيل الفيلم صارت أوضح وأغنى.',
-  releaseNoteEn: 'Latest update: movie detail backdrops are clearer and richer.',
+  releaseVersion: 'v1.27',
+  releaseNoteAr: 'آخر تحديث: توضيح الخصوصية وفصل بيانات التذكير عن مؤشرات الاستخدام.',
+  releaseNoteEn: 'Latest update: clearer privacy wording and cleaner reminder/data split.',
 };
 
 // ============================================================
@@ -667,7 +667,7 @@ window.CINEMAP_I18N = {
     rate_need_star:   "اختر تقييم بالنجوم أو شارك إحساسك",
     rate_need_consent:"وافق على حفظ وإرسال التقييم أولًا",
     rate_thanks:      "شكرًا لتقييمك — عدّ في 2026 معنا 🎬",
-    rate_consent:     "أوافق على حفظ تقييمي محليًا وإرساله إلى سينماب عبر Formspree لتحسين تقييمات الجمهور. أقدر أطلب حذفه لاحقًا.",
+    rate_consent:     "أوافق على حفظ تقييمي محليًا وإرسال نسخة مجهولة إلى سينماب لتحسين تقييمات الجمهور. أقدر أطلب حذفه لاحقًا إذا أمكن تحديده.",
     rate_v_bigscreen: "يستاهل الشاشة الكبيرة",
     rate_v_stream:    "شوفه على نتفلكس",
     rate_v_friends:   "مع الأصحاب",
@@ -892,7 +892,7 @@ window.CINEMAP_I18N = {
     rate_need_star:   "Pick a star rating or a vibe to save",
     rate_need_consent:"Please agree to save and send your rating first",
     rate_thanks:      "Thanks — that's logged in your 2026 🎬",
-    rate_consent:     "I agree to save my rating locally and send it to Cinemap through Formspree to improve audience scores. I can request deletion later.",
+    rate_consent:     "I agree to save my rating locally and send an anonymous copy to Cinemap to improve audience scores. I can request deletion later if it can be identified.",
     rate_v_bigscreen: "Worth the big screen",
     rate_v_stream:    "Stream it",
     rate_v_friends:   "With friends",
