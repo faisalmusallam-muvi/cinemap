@@ -11,7 +11,7 @@ const TMDB_BG_BASE  = 'https://image.tmdb.org/t/p/w1280';
 // (e.g. when posters change across the board, or when TMDB structure shifts).
 // Each entry also has its own TTL so caches roll over automatically without
 // requiring a deploy.
-const CACHE_VERSION = 5;
+const CACHE_VERSION = 6;
 const TTL_POSTER_DAYS  = 7;   // posters change ~weekly as marketing rolls out
 const TTL_TRAILER_DAYS = 3;   // trailers drop late, re-check more often
 const TTL_CAST_DAYS    = 30;  // cast is stable once announced
@@ -165,7 +165,7 @@ async function tmdbFetch(movie) {
     // Direct fetch by tmdbId
     if (movie.tmdbId) {
       const out = await tmdbFetchMovieDetails(movie.tmdbId);
-      if (out?.poster) {
+      if (out) {
         writeCache(cacheKey, out);
         return out;
       }
@@ -399,6 +399,27 @@ function MoviePoster({ movie, className = '' }) {
     <div className={`poster-wrap ${className}`}>
       {(loading || !src) && <div className="poster-skeleton" />}
       {src && <img src={src} alt={movie.en} className="poster-img" onError={() => setError(true)} />}
+    </div>
+  );
+}
+
+function MovieRowBackdrop({ movie }) {
+  const [src, setSrc] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const result = await tmdbFetch(movie);
+      if (cancelled) return;
+      setSrc(result?.backdrop || result?.poster || null);
+    })();
+    return () => { cancelled = true; };
+  }, [movie.en]);
+
+  if (!src) return null;
+  return (
+    <div className="cm-movie-art" aria-hidden="true">
+      <img src={src} alt="" />
     </div>
   );
 }
@@ -821,7 +842,7 @@ function MonthRail({ activeMonth, onJump, lang }) {
 }
 
 Object.assign(window, {
-  MovieRow, MonthPanel, MonthRail, MonthBar, GenrePill, ExpBadge, MoviePoster, MovieModal,
+  MovieRow, MonthPanel, MonthRail, MonthBar, GenrePill, ExpBadge, MoviePoster, MovieRowBackdrop, MovieModal,
   // expose calendar export so the row + featured card can call it directly
   downloadIcal, googleCalUrl, outlookCalUrl,
   // keep backward compat

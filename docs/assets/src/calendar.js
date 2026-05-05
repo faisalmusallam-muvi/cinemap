@@ -272,6 +272,7 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
 
   return (
     <article className="cm-movie">
+      <window.MovieRowBackdrop movie={movie} />
       <button className="cm-movie-thumb" onClick={() => onOpenMovie(movie)} aria-label={title}>
         <window.CinePoster movie={movie} compact />
       </button>

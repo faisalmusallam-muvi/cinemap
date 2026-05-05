@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.32',
-  releaseNoteAr: 'آخر تحديث: تقييمك صار أوضح في قائمتك.',
-  releaseNoteEn: 'Latest update: your watchlist rating label is clearer.',
+  releaseVersion: 'v1.34',
+  releaseNoteAr: 'آخر تحديث: بيانات Desert Warrior وصور الصفوف صارت أوضح.',
+  releaseNoteEn: 'Latest update: Desert Warrior data and row artwork are clearer.',
 };
 
 // ============================================================
@@ -361,7 +361,7 @@ const KSA_BOX_OFFICE_PHASE1 = [
   { rank: 41, en: "Saffah El Tagammou", admissions: 13669, grossSar: 674889.86, weeks: 2 },
   { rank: 42, en: "Nuremberg", admissions: 11235, grossSar: 656689.66, weeks: 8, distributor: "FSF IND" },
   { rank: 46, en: "Shark Terror", admissions: 10853, grossSar: 486006, weeks: 3 },
-  { rank: 48, en: "The Desert Warrior", aliases: ["Desert Warrior, The"], admissions: 8538, grossSar: 436119.49, weeks: 2 },
+  { rank: 48, en: "Desert Warrior", aliases: ["The Desert Warrior", "Desert Warrior, The"], admissions: 8538, grossSar: 436119.49, weeks: 2 },
   { rank: 49, en: "Reminders Of Him", admissions: 6815, grossSar: 424743.55, weeks: 3 },
   { rank: 50, en: "Al Majhola", admissions: 8652, grossSar: 421497.42, weeks: 5 },
   { rank: 80, en: "Rabsha", admissions: 2967, grossSar: 148152.49, weeks: 4 },
@@ -430,7 +430,7 @@ const KSA_BOX_OFFICE_IMPORTS = [
   { ar: "Shark Terror", en: "Shark Terror", genre: "comedy", date: "2026-04-09", language: "en", mood: "fun",
     overview: "مغامرة قرش خفيفة للجمهور الباحث عن المتعة السريعة.",
     overviewEn: "A light shark adventure for quick fun." },
-  { ar: "The Desert Warrior", en: "The Desert Warrior", aliases: ["Desert Warrior, The"], genre: "action", date: "2026-04-23", language: "en", mood: "thrill",
+  { ar: "Desert Warrior", en: "Desert Warrior", aliases: ["The Desert Warrior", "Desert Warrior, The"], tmdbId: 898704, genre: "action", date: "2026-04-23", language: "en", mood: "thrill",
     overview: "أكشن تاريخي مرتبط بالمنطقة وحقق حضورًا سعوديًا محدودًا.",
     overviewEn: "A regional historical action film with a modest Saudi audience." },
   { ar: "Reminders Of Him", en: "Reminders Of Him", genre: "drama", date: "2026-03-19", language: "en", mood: "romance",
