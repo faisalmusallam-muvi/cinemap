@@ -503,6 +503,7 @@ function App() {
         lang={lang}
         watchlist={watchlist}
         savedMovies={savedMovies}
+        ratings={ratings}
         onRemove={toggleSave}
         onShareList={handleShareList}
         onClear={handleClearList}

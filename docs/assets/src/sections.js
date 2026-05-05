@@ -33,9 +33,22 @@ function Journey0({ lang, onJumpCalendar }) {
 }
 
 // ---------- Watchlist Section ----------
-function WatchlistSection({ lang, watchlist, savedMovies, onRemove, onShareList, onClear, onJumpCalendar, onOpenMovie }) {
+function WatchlistSection({ lang, watchlist, savedMovies, ratings, onRemove, onShareList, onClear, onJumpCalendar, onOpenMovie }) {
   const t = window.CINEMAP_I18N[lang];
   const count = savedMovies.length;
+  const renderRating = (m) => {
+    const r = ratings?.[`${m.en}|${m.date}`];
+    if (!r || !r.rating) return null;
+    const score = Math.max(0, Math.min(5, Number(r.rating) || 0));
+    return (
+      <div className="cm-wl-rating" title={`${t.score_your} ${score}/5`} aria-label={`${t.score_your} ${score}/5`}>
+        {Array.from({ length: 5 }, (_, i) => (
+          <span key={i} className={i < score ? 'is-on' : ''}>★</span>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <section id="watchlist" className="cm-section cm-watchlist">
       <div className="cm-container">
@@ -73,6 +86,7 @@ function WatchlistSection({ lang, watchlist, savedMovies, onRemove, onShareList,
                   <div className="cm-wl-meta">
                     <h4 className="cm-wl-title">{window.movieTitle(m, lang)}</h4>
                     <div className="cm-wl-date">{window.fmtDate(m.date, lang)}</div>
+                    {renderRating(m)}
                   </div>
                   <button className="cm-wl-remove" onClick={() => onRemove(m)} aria-label="remove">×</button>
                 </div>
