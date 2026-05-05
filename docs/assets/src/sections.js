@@ -42,6 +42,7 @@ function WatchlistSection({ lang, watchlist, savedMovies, ratings, onRemove, onS
     const score = Math.max(0, Math.min(5, Number(r.rating) || 0));
     return (
       <div className="cm-wl-rating" title={`${t.score_your} ${score}/5`} aria-label={`${t.score_your} ${score}/5`}>
+        <span className="cm-wl-rating-label">{t.score_your}</span>
         {Array.from({ length: 5 }, (_, i) => (
           <span key={i} className={i < score ? 'is-on' : ''}>★</span>
         ))}

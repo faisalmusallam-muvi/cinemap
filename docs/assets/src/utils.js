@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.31',
-  releaseNoteAr: 'آخر تحديث: تقييمك يظهر في قائمتك.',
-  releaseNoteEn: 'Latest update: your ratings now appear in your watchlist.',
+  releaseVersion: 'v1.32',
+  releaseNoteAr: 'آخر تحديث: تقييمك صار أوضح في قائمتك.',
+  releaseNoteEn: 'Latest update: your watchlist rating label is clearer.',
 };
 
 // ============================================================
