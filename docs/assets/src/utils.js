@@ -208,7 +208,8 @@ const RAW_MOVIES = [
     overviewEn: "The new Evil Dead — the demons are on fire.",
     runtime: 100, rating: "R" },
   { month: 6, ar: "صقر وكناريا", en: "Sakr W Canaria", genre: "arabic", date: "2026-07-02", language: 'ar', mood: 'fun',
-    overview: "كوميديا عربية ضمن قائمة أفلام الصيف في السعودية.",
+    tmdbId: 1358036, localPoster: "assets/posters/sakr-w-canaria.jpg",
+    overview: "كوميديا عربية تجمع صقر وكناريا في مواقف اجتماعية ومغامرات خفيفة ضمن أفلام الصيف في السعودية.",
     overviewEn: "An Arabic comedy in the Saudi summer release slate.",
     rating: "TBC" },
 

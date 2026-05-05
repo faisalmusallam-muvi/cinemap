@@ -153,11 +153,21 @@ async function tmdbSearchBest(movie) {
   return best?.hit || null;
 }
 
+function applyLocalMedia(movie, data) {
+  if (!movie?.localPoster && !movie?.localBackdrop) return data;
+  const out = data || {};
+  return {
+    ...out,
+    poster: out.poster || movie.localPoster || null,
+    backdrop: out.backdrop || movie.localBackdrop || movie.localPoster || null,
+  };
+}
+
 // ---------- Posters + backdrops ----------
 async function tmdbFetch(movie) {
   const cacheKey = `tmdb-poster-${movie.en}`;
   const cached = readCache(cacheKey, TTL_POSTER_DAYS);
-  if (cached) return cached;
+  if (cached) return applyLocalMedia(movie, cached);
 
   const movieFromYear = new Date(movie.date).getFullYear();
 
@@ -166,8 +176,9 @@ async function tmdbFetch(movie) {
     if (movie.tmdbId) {
       const out = await tmdbFetchMovieDetails(movie.tmdbId);
       if (out) {
-        writeCache(cacheKey, out);
-        return out;
+        const merged = applyLocalMedia(movie, out);
+        writeCache(cacheKey, merged);
+        return merged;
       }
     }
 
@@ -178,8 +189,9 @@ async function tmdbFetch(movie) {
 
     if (!hit) {
       // Cache the negative result briefly (1 day) so we don't hammer TMDB
-      writeCache(cacheKey, { poster: null, backdrop: null, tmdbId: null, missing: true });
-      return null;
+      const missing = applyLocalMedia(movie, { poster: null, backdrop: null, tmdbId: null, missing: true });
+      writeCache(cacheKey, missing);
+      return missing.poster || missing.backdrop ? missing : null;
     }
 
     const details = await tmdbFetchMovieDetails(hit.id);
@@ -192,9 +204,13 @@ async function tmdbFetch(movie) {
       overviewAr: null,
       releaseDate: hit.release_date || null,
     };
-    writeCache(cacheKey, out);
-    return out;
-  } catch { return null; }
+    const merged = applyLocalMedia(movie, out);
+    writeCache(cacheKey, merged);
+    return merged;
+  } catch {
+    const fallback = applyLocalMedia(movie, { poster: null, backdrop: null, tmdbId: movie.tmdbId || null, missing: true });
+    return fallback.poster || fallback.backdrop ? fallback : null;
+  }
 }
 
 function modalOverview(movie, posterData, lang) {
