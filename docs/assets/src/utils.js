@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.34',
-  releaseNoteAr: 'آخر تحديث: بيانات Desert Warrior وصور الصفوف صارت أوضح.',
-  releaseNoteEn: 'Latest update: Desert Warrior data and row artwork are clearer.',
+  releaseVersion: 'v1.35',
+  releaseNoteAr: 'آخر تحديث: بوستر دورايمون رجع بالمعرّف الصحيح.',
+  releaseNoteEn: 'Latest update: Doraemon poster is back with the correct TMDB id.',
 };
 
 // ============================================================
@@ -30,7 +30,7 @@ const RAW_MOVIES = [
     overviewEn: "The second chapter of the post-outbreak trilogy — 28 years on.",
     runtime: 115, rating: "R" },
   { month: 0, ar: "دورايمون", en: "Doraemon: Nobita's Art World Tales", genre: "anime", date: "2026-01-15",
-    tmdbId: 1277309, language: 'jp', mood: 'family',
+    tmdbId: 1372489, language: 'jp', mood: 'family',
     overview: "مغامرة جديدة للقط الروبوت دورايمون وصديقه نوبيتا في عالم الفن.",
     overviewEn: "A new adventure for Doraemon and Nobita inside a world of art.",
     runtime: 104, rating: "PG" },
