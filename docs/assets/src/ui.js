@@ -75,6 +75,7 @@ function SearchBar({ lang, onOpenMovie }) {
   const [active, setActive] = useState(0);
   const inputRef = useRef(null);
   const containerRef = useRef(null);
+  const lastSearchTrackRef = useRef('');
 
   // Filter movies — match either Arabic or English title (case-insensitive)
   const matches = React.useMemo(() => {
@@ -120,6 +121,28 @@ function SearchBar({ lang, onOpenMovie }) {
 
   // Reset highlighted index when query changes
   useEffect(() => { setActive(0); }, [query]);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) return undefined;
+    const timer = window.setTimeout(() => {
+      const signature = `${q}|${matches.length}`;
+      if (lastSearchTrackRef.current === signature) return;
+      lastSearchTrackRef.current = signature;
+      window.cinemapTrack?.('search_used', {
+        searchQuery: q,
+        queryLength: q.length,
+        resultsCount: matches.length,
+      });
+      if (matches.length === 0) {
+        window.cinemapTrack?.('search_no_results', {
+          searchQuery: q,
+          queryLength: q.length,
+        });
+      }
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, [query, matches.length]);
 
   const select = (m) => {
     onOpenMovie(m);
@@ -195,6 +218,7 @@ function SearchBar({ lang, onOpenMovie }) {
 function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onOpenMovie }) {
   const t = window.CINEMAP_I18N[lang];
   const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
@@ -224,6 +248,14 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onOpenMovie }) {
 
         <div className="cm-nav-right">
           <button
+            className={`cm-nav-search-btn ${searchOpen ? 'is-open' : ''}`}
+            onClick={() => { setSearchOpen(v => !v); setOpen(false); }}
+            aria-label={t.search_open}
+            title={t.search_open}
+          >
+            🔍
+          </button>
+          <button
             className="cm-lang"
             onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}
             title={lang === 'en' ? 'العربية' : 'English'}
@@ -237,7 +269,7 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onOpenMovie }) {
           </button>
           <button
             className={`cm-burger ${open ? 'is-open' : ''}`}
-            onClick={() => setOpen(o => !o)}
+            onClick={() => { setOpen(o => !o); setSearchOpen(false); }}
             aria-label="menu"
           >
             <span /><span /><span />
@@ -245,14 +277,17 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onOpenMovie }) {
         </div>
       </div>
 
+      {searchOpen && (
+        <div className="cm-mobile-search-panel" onClick={(e) => e.stopPropagation()}>
+          <SearchBar
+            lang={lang}
+            onOpenMovie={(m) => { setSearchOpen(false); onOpenMovie?.(m); }}
+          />
+        </div>
+      )}
+
       {open && (
         <div className="cm-mobile-menu" onClick={(e) => e.stopPropagation()}>
-          <div className="cm-mobile-search">
-            <SearchBar
-              lang={lang}
-              onOpenMovie={(m) => { setOpen(false); onOpenMovie?.(m); }}
-            />
-          </div>
           <a href="#calendar" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpCalendar(); }}>{t.nav_movies}</a>
           <a href="#watchlist" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpWatchlist(); }}>{t.nav_watchlist}</a>
         </div>
@@ -298,14 +333,16 @@ function Hero({ lang, onJumpCalendar, onJumpWatchlist, watchlistCount, featured 
           <p className="cm-hero-sub">{t.hero_sub}</p>
 
           <div className="cm-hero-ctas">
-            <button className="cm-btn cm-btn-primary cm-btn-lg" onClick={onJumpCalendar}>
+            <button className="cm-btn cm-btn-primary cm-btn-lg" onClick={() => { window.cinemapTrack?.('homepage_cta_click', { cta: 'calendar' }); onJumpCalendar(); }}>
               {t.hero_cta}
             </button>
-            <button className="cm-btn cm-btn-ghost cm-btn-lg" onClick={onJumpWatchlist}>
+            <button className="cm-btn cm-btn-ghost cm-btn-lg" onClick={() => { window.cinemapTrack?.('homepage_cta_click', { cta: 'watchlist' }); onJumpWatchlist(); }}>
               {t.hero_cta_2}
               {watchlistCount > 0 && <span className="cm-btn-count">{watchlistCount}</span>}
             </button>
           </div>
+
+          {t.hero_support && <p className="cm-hero-support">{t.hero_support}</p>}
 
           <HeroActionGuide lang={lang} />
 

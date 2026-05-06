@@ -224,6 +224,23 @@
     .cm-nav-links a:hover { color: var(--cream); }
 
     .cm-nav-right { display: flex; align-items: center; gap: 10px; }
+    .cm-nav-search-btn {
+      display: none;
+      width: 40px;
+      height: 40px;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(245,242,235,0.055);
+      border: 1px solid var(--line-strong);
+      color: var(--cream);
+      font-size: 16px;
+      line-height: 1;
+    }
+    .cm-nav-search-btn.is-open {
+      background: rgba(255,138,0,0.16);
+      border-color: rgba(255,138,0,0.52);
+      color: var(--amber);
+    }
 
     /* Cinemap horizontal logo lockup — mark stays on the LEFT in both
        AR and EN so the brand mark is consistent across languages. */
@@ -333,11 +350,30 @@
       .cm-search { flex: 0 1 200px; }
     }
     @media (max-width: 720px) {
-      /* Mobile: search hidden in main nav; appears inside the burger menu instead */
+      /* Mobile: search is opened by the top-nav search button. */
       .cm-nav-inner > .cm-search { display: none; }
+      .cm-nav-search-btn { display: grid; }
     }
-    .cm-mobile-search { padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
-    .cm-mobile-search .cm-search { flex: 1; width: 100%; }
+    .cm-mobile-search-panel {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      padding: 12px 18px 14px;
+      background: rgba(10,19,32,0.97);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      animation: slide-down .18s ease;
+    }
+    .cm-mobile-search-panel .cm-search {
+      width: 100%;
+      flex: 1;
+    }
+    @media (max-width: 720px) {
+      .cm-mobile-search-panel { display: block; }
+    }
 
     .cm-lang {
       display: inline-flex; align-items: center; gap: 6px;
@@ -447,6 +483,13 @@
       line-height: 1.55;
       margin-bottom: 28px;
       max-width: 38ch;
+    }
+    .cm-hero-support {
+      color: var(--ink-2);
+      font-size: 14px;
+      font-weight: 700;
+      margin: -14px 0 22px;
+      max-width: 44ch;
     }
 
     .cm-hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
@@ -763,11 +806,32 @@
     .cm-monthbar { top: 134px; }
     @media (max-width: 720px) {
       .cm-fbar { top: 60px; }
-      .cm-monthbar { top: 130px; }
+      .cm-monthbar { display: none; }
+      .cm-fbar .cm-container { gap: 10px; }
+      .cm-fbar-top { gap: 10px; }
+      .cm-fbar-count { font-size: 12px; }
+      .cm-fbar-active { display: none; }
+      .cm-fbar-quick {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+        gap: 7px;
+        align-items: center;
+      }
+      .cm-fbar-quick .cm-chip,
+      .cm-fbar-open {
+        justify-content: center;
+        min-height: 38px;
+        padding-inline: 10px;
+      }
+      .cm-chip-desktop-extra { display: none !important; }
     }
 
     /* Month panel */
     .cm-month { padding: 36px 0 16px; scroll-margin-top: 200px; }
+    @media (max-width: 720px) {
+      .cm-month { scroll-margin-top: 142px; }
+    }
     .cm-month-head { margin-bottom: 18px; display: flex; align-items: baseline; gap: 14px; }
     .cm-month-name {
       font-size: clamp(24px, 3vw, 34px);
@@ -870,6 +934,29 @@
     }
     .cm-movie-date { color: var(--ink-1); font-weight: 600; }
     .cm-movie-days { color: var(--gold); font-weight: 600; }
+    .cm-status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 800;
+      border: 1px solid rgba(245,242,235,0.14);
+      background: rgba(245,242,235,0.06);
+      color: var(--ink-1);
+      white-space: nowrap;
+    }
+    .cm-status-chip.is-upcoming {
+      color: var(--amber);
+      background: rgba(255,138,0,0.12);
+      border-color: rgba(255,138,0,0.34);
+    }
+    .cm-status-chip.is-released {
+      color: var(--teal);
+      background: rgba(34,193,166,0.12);
+      border-color: rgba(34,193,166,0.34);
+    }
 
     .cm-movie-actions { display: flex; flex-wrap: wrap; gap: 6px; }
     .cm-action {
@@ -888,6 +975,11 @@
       border-color: rgba(255,138,0,0.5);
       color: var(--amber);
     }
+    .cm-action-primary {
+      background: rgba(255,138,0,0.14);
+      border-color: rgba(255,138,0,0.42);
+      color: var(--cream);
+    }
     /* "I watched it" — gold accent so it reads distinct from the amber Notify
        state. Gives the row a clear visual cue that this is a post-watch action. */
     .cm-action-watched.is-on {
@@ -898,7 +990,9 @@
     .cm-action-icon { font-size: 13px; line-height: 1; }
     @media (max-width: 540px) {
       .cm-action-lbl { display: none; }
+      .cm-action-primary .cm-action-lbl { display: inline; }
       .cm-action { padding: 8px 10px; }
+      .cm-action-primary { padding-inline: 12px; }
     }
 
     .cm-empty {
@@ -2741,17 +2835,17 @@
   <script src="assets/vendor/babel.min.js"></script>
 
   <!-- Source -->
-  <script src="assets/src/utils.js?v=38"></script>
-  <script src="assets/src/analytics.js?v=38"></script>
-  <script type="text/babel" src="assets/src/tmdb-client.js?v=38"></script>
-  <script type="text/babel" src="assets/src/ui.js?v=38"></script>
-  <script type="text/babel" src="assets/src/calendar.js?v=38"></script>
-  <script type="text/babel" src="assets/src/featured.js?v=38"></script>
-  <script type="text/babel" src="assets/src/notify.js?v=38"></script>
-  <script type="text/babel" src="assets/src/rating.js?v=38"></script>
-  <script type="text/babel" src="assets/src/calpicker.js?v=38"></script>
-  <script type="text/babel" src="assets/src/sections.js?v=38"></script>
-  <script type="text/babel" src="assets/src/app.js?v=38"></script>
+  <script src="assets/src/utils.js?v=41"></script>
+  <script src="assets/src/analytics.js?v=41"></script>
+  <script type="text/babel" src="assets/src/tmdb-client.js?v=41"></script>
+  <script type="text/babel" src="assets/src/ui.js?v=41"></script>
+  <script type="text/babel" src="assets/src/calendar.js?v=41"></script>
+  <script type="text/babel" src="assets/src/featured.js?v=41"></script>
+  <script type="text/babel" src="assets/src/notify.js?v=41"></script>
+  <script type="text/babel" src="assets/src/rating.js?v=41"></script>
+  <script type="text/babel" src="assets/src/calpicker.js?v=41"></script>
+  <script type="text/babel" src="assets/src/sections.js?v=41"></script>
+  <script type="text/babel" src="assets/src/app.js?v=41"></script>
 
   <script>
     // Register the PWA service worker on hosted HTTP(S) origins, but skip

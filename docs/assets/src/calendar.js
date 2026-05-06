@@ -134,6 +134,9 @@ function FilterSheet({ open, onClose, lang, draft, setDraft, onApply, onReset })
 function FilterBar({ lang, filters, setFilters, totalCount }) {
   const t = window.CINEMAP_I18N[lang];
   const S = window.CINEMAP_STATUSES;
+  const quickStatuses = ['now', 'soon', 'released']
+    .filter(k => S[k])
+    .map(k => [k, S[k]]);
   const [sheet, setSheet] = useState(false);
   const [draft, setDraft] = useState(filters);
 
@@ -153,15 +156,50 @@ function FilterBar({ lang, filters, setFilters, totalCount }) {
     filters.month.size +
     (filters.picksOnly ? 1 : 0);
 
-  const reset = () => setFilters(empty());
+  const describeFilters = (f) => [
+    f.status.size ? `status:${[...f.status].join('|')}` : '',
+    f.genre.size ? `genre:${[...f.genre].join('|')}` : '',
+    f.language.size ? `language:${[...f.language].join('|')}` : '',
+    f.mood.size ? `mood:${[...f.mood].join('|')}` : '',
+    f.month.size ? `month:${[...f.month].map(n => Number(n) + 1).join('|')}` : '',
+    f.picksOnly ? 'picks:true' : '',
+  ].filter(Boolean).join(',') || 'all';
+
+  const reset = () => {
+    window.cinemapTrack?.('filter_used', { mode: 'reset', selectedFilter: 'reset', activeCount });
+    setFilters(empty());
+  };
   const resetDraft = () => setDraft(empty());
-  const apply = () => { setFilters(draft); setSheet(false); };
+  const draftActiveCount = (f) =>
+    f.status.size + f.genre.size + f.language.size + f.mood.size + f.month.size + (f.picksOnly ? 1 : 0);
+  const apply = () => {
+    const selectedFilter = describeFilters(draft);
+    window.cinemapTrack?.('filter_used', {
+      mode: 'sheet_apply',
+      selectedFilter,
+      activeCount: draftActiveCount(draft),
+    });
+    window.cinemapTrack?.('filter_apply', {
+      selectedFilter,
+      activeCount: draftActiveCount(draft),
+      resultsCount: totalCount,
+    });
+    setFilters(draft);
+    setSheet(false);
+  };
 
   const toggleQuickStatus = (val) => {
+    window.cinemapTrack?.('filter_used', { mode: 'quick_status', selectedFilter: `status:${val}` });
     setFilters(prev => ({ ...prev, status: toggleSet(prev.status, val) }));
   };
-  const clearStatus = () => setFilters(prev => ({ ...prev, status: new Set(), picksOnly: false }));
-  const togglePicks = () => setFilters(prev => ({ ...prev, picksOnly: !prev.picksOnly }));
+  const clearStatus = () => {
+    window.cinemapTrack?.('filter_used', { mode: 'quick_all', selectedFilter: 'all' });
+    setFilters(prev => ({ ...prev, status: new Set(), picksOnly: false }));
+  };
+  const togglePicks = () => {
+    window.cinemapTrack?.('filter_used', { mode: 'quick_picks', selectedFilter: 'picks' });
+    setFilters(prev => ({ ...prev, picksOnly: !prev.picksOnly }));
+  };
 
   const noStatusActive = filters.status.size === 0 && !filters.picksOnly;
 
@@ -182,7 +220,13 @@ function FilterBar({ lang, filters, setFilters, totalCount }) {
             {activeCount > 0 && (
               <button className="cm-fbar-reset" onClick={reset}>✕ {t.filter_reset}</button>
             )}
-            <button className="cm-fbar-open" onClick={() => setSheet(true)}>
+            <button
+              className="cm-fbar-open"
+              onClick={() => {
+                window.cinemapTrack?.('filter_open', { activeCount, selectedFilter: describeFilters(filters) });
+                setSheet(true);
+              }}
+            >
               <span className="cm-fbar-open-icon">☰</span>
               <span>{t.filter_btn}</span>
             </button>
@@ -195,16 +239,16 @@ function FilterBar({ lang, filters, setFilters, totalCount }) {
             className={`cm-chip ${noStatusActive ? 'is-active' : ''}`}
             onClick={clearStatus}
           >{t.filter_all}</button>
-          {Object.entries(S).map(([k, v]) => (
+          {quickStatuses.map(([k, v]) => (
             <button
               key={k}
-              className={`cm-chip ${filters.status.has(k) ? 'is-active' : ''}`}
+              className={`cm-chip ${k === 'released' ? 'cm-chip-desktop-extra' : ''} ${filters.status.has(k) ? 'is-active' : ''}`}
               style={filters.status.has(k) ? { '--chip-color': 'var(--amber)' } : {}}
               onClick={() => toggleQuickStatus(k)}
             >{lang === 'en' ? v.en : v.ar}</button>
           ))}
           <button
-            className={`cm-chip ${filters.picksOnly ? 'is-active' : ''}`}
+            className={`cm-chip cm-chip-desktop-extra ${filters.picksOnly ? 'is-active' : ''}`}
             style={filters.picksOnly ? { '--chip-color': 'var(--gold)' } : {}}
             onClick={togglePicks}
           >★ {t.filter_picks}</button>
@@ -269,6 +313,9 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
   // If the release date has passed → show "I watched it" instead of "Notify me"
   const isReleased = days < 0;
   const title = window.movieTitle(movie, lang);
+  const statusLabel = isReleased
+    ? (movie.status === 'released' ? t.status_released : t.status_now)
+    : t.status_upcoming;
 
   return (
     <article className="cm-movie">
@@ -281,6 +328,9 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
         <div className="cm-movie-info" onClick={() => onOpenMovie(movie)}>
           <h3 className="cm-movie-title">{title}</h3>
           <div className="cm-movie-meta">
+            <span className={`cm-status-chip ${isReleased ? 'is-released' : 'is-upcoming'}`}>
+              {statusLabel}
+            </span>
             <DateChip iso={movie.date} lang={lang} />
             <span className="cm-pill" style={{ '--accent': g?.color }}>
               <span className="cm-chip-dot" style={{ background: g?.color }} />
@@ -313,28 +363,38 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
         </div>
 
         <div className="cm-movie-actions">
-          <button
-            className={`cm-action ${isSaved ? 'is-on' : ''}`}
-            onClick={() => onToggleSave(movie)}
-            aria-label={t.save}
-            title={isSaved ? t.saved : t.save}
-          >
-            <span className="cm-action-icon">{isSaved ? '✓' : '＋'}</span>
-            <span className="cm-action-lbl">{isSaved ? t.saved : t.save}</span>
-          </button>
-
           {isReleased ? (
-            <button
-              className={`cm-action cm-action-watched ${isWatched ? 'is-on' : ''}`}
-              onClick={() => onToggleWatched(movie)}
-              aria-label={t.watched}
-              title={isWatched ? t.watched_done : t.watched}
-            >
-              <span className="cm-action-icon">{isWatched ? '✓' : '⭐'}</span>
-              <span className="cm-action-lbl">{isWatched ? t.watched_done : t.watched}</span>
-            </button>
+            <>
+              <button
+                className={`cm-action cm-action-primary cm-action-watched ${isWatched ? 'is-on' : ''}`}
+                onClick={() => (isWatched ? onRateMovie?.(movie) : onToggleWatched(movie))}
+                aria-label={isWatched ? t.rate_it : t.watched_question}
+                title={isWatched ? t.rate_it : t.watched_question}
+              >
+                <span className="cm-action-icon">{isWatched ? '⭐' : '✓'}</span>
+                <span className="cm-action-lbl">{isWatched ? t.rate_it : t.watched_question}</span>
+              </button>
+              <button
+                className={`cm-action ${isSaved ? 'is-on' : ''}`}
+                onClick={() => onToggleSave(movie)}
+                aria-label={t.save_primary}
+                title={isSaved ? t.saved : t.save_primary}
+              >
+                <span className="cm-action-icon">{isSaved ? '✓' : '＋'}</span>
+                <span className="cm-action-lbl">{isSaved ? t.saved : t.save_primary}</span>
+              </button>
+            </>
           ) : (
             <>
+              <button
+                className={`cm-action cm-action-primary ${isSaved ? 'is-on' : ''}`}
+                onClick={() => onToggleSave(movie)}
+                aria-label={t.save_primary}
+                title={isSaved ? t.saved : t.save_primary}
+              >
+                <span className="cm-action-icon">{isSaved ? '✓' : '＋'}</span>
+                <span className="cm-action-lbl">{isSaved ? t.saved : t.save_primary}</span>
+              </button>
               <button
                 className={`cm-action ${isNotified ? 'is-on' : ''}`}
                 onClick={() => onToggleNotify(movie)}

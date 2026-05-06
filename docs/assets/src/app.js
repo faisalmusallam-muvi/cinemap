@@ -66,6 +66,35 @@ function App() {
   window.openModal = setModalMovie;
   window.openTrailer = setModalMovie;
 
+  // ---------- Anonymous page view tracking ----------
+  useEffect(() => {
+    let lastPath = '';
+    const pageKind = () => {
+      const hash = window.location.hash || '';
+      if (hash.startsWith('#/m/')) return 'movie';
+      if (hash === '#watchlist') return 'watchlist';
+      if (hash === '#my-list' || hash === '#my2026') return 'my_list';
+      if (hash === '#calendar' || !hash) return 'calendar';
+      return 'section';
+    };
+    const trackPageView = () => {
+      const path = `${location.pathname}${location.search}${location.hash}`;
+      if (path === lastPath) return;
+      lastPath = path;
+      const kind = pageKind();
+      window.cinemapTrack?.('page_view', { pageKind: kind });
+      if (kind === 'watchlist') window.cinemapTrack?.('watchlist_open', { source: 'route' });
+      if (kind === 'my_list') window.cinemapTrack?.('my_list_open', { source: 'route' });
+    };
+    trackPageView();
+    window.addEventListener('hashchange', trackPageView);
+    window.addEventListener('popstate', trackPageView);
+    return () => {
+      window.removeEventListener('hashchange', trackPageView);
+      window.removeEventListener('popstate', trackPageView);
+    };
+  }, []);
+
   // ---------- Deep-link routing ----------
   // URL format: #/m/<slug>  → opens that movie's modal.
   // Reading the hash on mount + reacting to hashchange opens the modal;
@@ -76,7 +105,10 @@ function App() {
       const m = h.match(/^#\/m\/([^/?#]+)/);
       if (m) {
         const movie = window.findMovieBySlug(decodeURIComponent(m[1]));
-        if (movie) setModalMovie(movie);
+        if (movie) {
+          window.cinemapTrackMovie?.('movie_view', movie, { source: 'deep_link' });
+          setModalMovie(movie);
+        }
         else setModalMovie(null);
       } else {
         setModalMovie(prev => (prev ? null : prev));
@@ -182,7 +214,10 @@ function App() {
     window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - off, behavior: 'smooth' });
   };
   const jumpToCalendar = () => jumpTo('#calendar', 70);
-  const jumpToWatchlist = () => jumpTo('#watchlist', 70);
+  const jumpToWatchlist = () => {
+    window.cinemapTrack?.('watchlist_open', { source: 'jump' });
+    jumpTo('#watchlist', 70);
+  };
   const jumpToMonth = (i) => {
     const el = document.getElementById(`month-${i}`);
     if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - stickyOffset(), behavior: 'smooth' });

@@ -642,7 +642,8 @@ window.CINEMAP_I18N = {
     // hero
     hero_eyebrow:     "سينماب · 2026",
     hero_title:       "أفلام عليها كلام",
-    hero_sub:         "اكتشف الجاي، احفظ قائمتك، وقيّم اللي شفته.",
+    hero_sub:         "احفظ الأفلام الجاية، قيّم اللي شفته، واكتشف وش يستاهل السينما فعلاً.",
+    hero_support:     "وش شفت في 2026؟ ووش باقي متحمس له؟",
     hero_cta:         "شوف الأفلام",
     hero_cta_2:       "ابدأ قائمتك",
     hero_chip:        "بنذكّرك أول ما تفتح التذاكر",
@@ -696,11 +697,17 @@ window.CINEMAP_I18N = {
 
     // movie card actions
     save:             "احفظ",
+    save_primary:     "احفظه",
     saved:            "محفوظ",
     notify:           "ذكّرني",
     notified:         "مفعّل",
     watched:          "شفته",
+    watched_question: "شفته؟",
     watched_done:     "شفته",
+    rate_it:          "قيّمه",
+    status_upcoming:  "قريبًا",
+    status_now:       "يعرض الآن",
+    status_released:  "تم عرضه",
     toast_watched:    "حفظنا إنك شفته. كيف كان؟",
     toast_unwatched:  "ألغينا التعليم",
     cal_quick:        "تقويم",
@@ -840,7 +847,7 @@ window.CINEMAP_I18N = {
     notify_quick:     "بنذكّرك على هذا الفيلم 🔔",
 
     // search
-    search_ph:        "ابحث عن فيلم...",
+    search_ph:        "ابحث عن فيلم",
     search_open:      "ابحث",
     search_no_results:"ما لقينا أي فيلم بهذا الاسم",
     search_results:   "نتائج",
@@ -871,9 +878,10 @@ window.CINEMAP_I18N = {
     nav_vision:       "Vision",
     nav_cta:          "Build My Watchlist",
 
-    hero_eyebrow:     "Your movie companion · 2026",
-    hero_title:       "Your movie year starts here.",
-    hero_sub:         "Discover the biggest upcoming movies, save your favorites, and get notified when they're ready to watch.",
+    hero_eyebrow:     "Cinemap · 2026",
+    hero_title:       "Movies worth talking about",
+    hero_sub:         "Save upcoming movies, rate what you watched, and discover what actually deserves the cinema.",
+    hero_support:     "What did you watch in 2026, and what are you still waiting for?",
     hero_cta:         "Explore 2026 Movies",
     hero_cta_2:       "Build My Watchlist",
     hero_chip:        "Notify me when tickets open",
@@ -923,11 +931,17 @@ window.CINEMAP_I18N = {
     movies_count:     "films",
 
     save:             "Save",
+    save_primary:     "Save",
     saved:            "Saved",
     notify:           "Notify Me",
     notified:         "Notified",
     watched:          "Watched",
+    watched_question: "Watched?",
     watched_done:     "Watched",
+    rate_it:          "Rate it",
+    status_upcoming:  "Coming soon",
+    status_now:       "Now showing",
+    status_released:  "Released",
     toast_watched:    "Saved as watched. How was it?",
     toast_unwatched:  "Removed from watched",
     cal_quick:        "Calendar",
@@ -1060,7 +1074,7 @@ window.CINEMAP_I18N = {
     notify_quick:     "Reminder set for this movie 🔔",
 
     // search
-    search_ph:        "Search a movie...",
+    search_ph:        "Search for a movie",
     search_open:      "Search",
     search_no_results:"No movies match",
     search_results:   "results",
