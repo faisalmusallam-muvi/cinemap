@@ -67,6 +67,19 @@ function CinemapLogo({ height = 32, variant = 'vertical', label = 'Cinemap' }) {
   );
 }
 
+function normalizeSearchText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+    .replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
+    .replace(/[أإآ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/ى/g, 'ي')
+    .replace(/[\u064B-\u065F]/g, '')
+    .replace(/[^a-z0-9\u0600-\u06FF]+/g, ' ')
+    .trim();
+}
+
 // ---------- Search ----------
 function SearchBar({ lang, onOpenMovie }) {
   const t = window.CINEMAP_I18N[lang];
@@ -77,24 +90,26 @@ function SearchBar({ lang, onOpenMovie }) {
   const containerRef = useRef(null);
   const lastSearchTrackRef = useRef('');
 
-  // Filter movies — match either Arabic or English title (case-insensitive)
+  // Filter movies — match Arabic, English, and local aliases.
   const matches = React.useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = normalizeSearchText(query);
     if (!q) return [];
     const allMovies = window.CINEMAP_MOVIES;
     const scored = [];
     for (const m of allMovies) {
-      const en = (m.en || '').toLowerCase();
-      const ar = (m.ar || '');
-      const enHit = en.includes(q);
-      const arHit = ar.includes(query.trim());
-      if (enHit || arHit) {
+      const titles = [m.en, m.ar, ...(m.aliases || [])].filter(Boolean);
+      const normalizedTitles = titles.map(normalizeSearchText);
+      const compactQuery = q.replace(/\s+/g, '');
+      const hitIndex = normalizedTitles.findIndex(title => (
+        title.includes(q) || title.replace(/\s+/g, '').includes(compactQuery)
+      ));
+      if (hitIndex !== -1) {
         // Score: starts-with > contains; then by date proximity
         let score = 0;
-        if (en.startsWith(q)) score += 10;
-        if (ar.startsWith(query.trim())) score += 10;
-        if (enHit) score += 1;
-        if (arHit) score += 1;
+        const matched = normalizedTitles[hitIndex];
+        if (matched.startsWith(q)) score += 10;
+        if (hitIndex <= 1) score += 2;
+        score += 1;
         scored.push({ m, score });
       }
     }

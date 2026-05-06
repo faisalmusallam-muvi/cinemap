@@ -242,13 +242,13 @@ function FilterBar({ lang, filters, setFilters, totalCount }) {
           {quickStatuses.map(([k, v]) => (
             <button
               key={k}
-              className={`cm-chip ${k === 'released' ? 'cm-chip-desktop-extra' : ''} ${filters.status.has(k) ? 'is-active' : ''}`}
+              className={`cm-chip ${filters.status.has(k) ? 'is-active' : ''}`}
               style={filters.status.has(k) ? { '--chip-color': 'var(--amber)' } : {}}
               onClick={() => toggleQuickStatus(k)}
             >{lang === 'en' ? v.en : v.ar}</button>
           ))}
           <button
-            className={`cm-chip cm-chip-desktop-extra ${filters.picksOnly ? 'is-active' : ''}`}
+            className={`cm-chip ${filters.picksOnly ? 'is-active' : ''}`}
             style={filters.picksOnly ? { '--chip-color': 'var(--gold)' } : {}}
             onClick={togglePicks}
           >★ {t.filter_picks}</button>

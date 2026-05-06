@@ -353,6 +353,7 @@
       /* Mobile: search is opened by the top-nav search button. */
       .cm-nav-inner > .cm-search { display: none; }
       .cm-nav-search-btn { display: grid; }
+      .cm-search-input { font-size: 16px; line-height: 1.35; }
     }
     .cm-mobile-search-panel {
       display: none;
@@ -806,25 +807,43 @@
     .cm-monthbar { top: 134px; }
     @media (max-width: 720px) {
       .cm-fbar { top: 60px; }
-      .cm-monthbar { display: none; }
+      .cm-monthbar { display: block; top: 150px; }
       .cm-fbar .cm-container { gap: 10px; }
       .cm-fbar-top { gap: 10px; }
       .cm-fbar-count { font-size: 12px; }
       .cm-fbar-active { display: none; }
       .cm-fbar-quick {
         width: 100%;
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+        display: flex;
         gap: 7px;
+        justify-content: center;
         align-items: center;
+        overflow-x: auto;
+        padding-inline: 18px;
+        scrollbar-width: none;
       }
+      .cm-fbar-quick::-webkit-scrollbar { display: none; }
       .cm-fbar-quick .cm-chip,
       .cm-fbar-open {
         justify-content: center;
         min-height: 38px;
         padding-inline: 10px;
+        flex: 0 0 auto;
       }
-      .cm-chip-desktop-extra { display: none !important; }
+      .cm-monthbar-inner {
+        padding: 8px 18px;
+        gap: 6px;
+      }
+      .cm-monthbar-btn {
+        padding: 7px 11px;
+        font-size: 12px;
+        gap: 6px;
+      }
+      .cm-monthbar-count {
+        min-width: 20px;
+        height: 17px;
+        font-size: 10px;
+      }
     }
 
     /* Month panel */
@@ -2560,7 +2579,7 @@
     @media (max-width: 720px) { .cm-fbar-quick { padding: 0 18px 4px; } }
 
     .cm-monthbar { top: 122px; }
-    @media (max-width: 720px) { .cm-monthbar { top: 118px; } }
+    @media (max-width: 720px) { .cm-monthbar { top: 150px; } }
 
     /* =========================================================
        22) Filter Bottom Sheet
@@ -2835,17 +2854,17 @@
   <script src="assets/vendor/babel.min.js"></script>
 
   <!-- Source -->
-  <script src="assets/src/utils.js?v=41"></script>
-  <script src="assets/src/analytics.js?v=41"></script>
-  <script type="text/babel" src="assets/src/tmdb-client.js?v=41"></script>
-  <script type="text/babel" src="assets/src/ui.js?v=41"></script>
-  <script type="text/babel" src="assets/src/calendar.js?v=41"></script>
-  <script type="text/babel" src="assets/src/featured.js?v=41"></script>
-  <script type="text/babel" src="assets/src/notify.js?v=41"></script>
-  <script type="text/babel" src="assets/src/rating.js?v=41"></script>
-  <script type="text/babel" src="assets/src/calpicker.js?v=41"></script>
-  <script type="text/babel" src="assets/src/sections.js?v=41"></script>
-  <script type="text/babel" src="assets/src/app.js?v=41"></script>
+  <script src="assets/src/utils.js?v=42"></script>
+  <script src="assets/src/analytics.js?v=42"></script>
+  <script type="text/babel" src="assets/src/tmdb-client.js?v=42"></script>
+  <script type="text/babel" src="assets/src/ui.js?v=42"></script>
+  <script type="text/babel" src="assets/src/calendar.js?v=42"></script>
+  <script type="text/babel" src="assets/src/featured.js?v=42"></script>
+  <script type="text/babel" src="assets/src/notify.js?v=42"></script>
+  <script type="text/babel" src="assets/src/rating.js?v=42"></script>
+  <script type="text/babel" src="assets/src/calpicker.js?v=42"></script>
+  <script type="text/babel" src="assets/src/sections.js?v=42"></script>
+  <script type="text/babel" src="assets/src/app.js?v=42"></script>
 
   <script>
     // Register the PWA service worker on hosted HTTP(S) origins, but skip

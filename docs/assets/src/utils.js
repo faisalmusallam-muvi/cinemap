@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.36',
-  releaseNoteAr: 'آخر تحديث: أضفنا دفعة أفلام مهمة لباقي 2026.',
-  releaseNoteEn: 'Latest update: added a priority batch for the rest of 2026.',
+  releaseVersion: 'v1.42',
+  releaseNoteAr: 'آخر تحديث: حسّنا البحث والفلترة على الجوال.',
+  releaseNoteEn: 'Latest update: improved mobile search and filters.',
 };
 
 // ============================================================
@@ -115,7 +115,7 @@ const RAW_MOVIES = [
     runtime: 95, rating: "PG" },
 
   // MAY
-  { month: 4, ar: "Mortal Kombat 2", en: "Mortal Kombat 2", genre: "action", date: "2026-05-07",
+  { month: 4, ar: "Mortal Kombat 2", en: "Mortal Kombat 2", aliases: ["مورتال كومبات 2", "مورتال كومبات٢", "مورتال كومبات"], genre: "action", date: "2026-05-07",
     exp: ['screenx', '4dx'], language: 'en', mood: 'thrill',
     overview: "الجزء الثاني من فيلم القتال الأيقوني — عوالم جديدة ومعارك أضخم.",
     overviewEn: "The iconic fighting franchise — new realms, bigger battles.",
@@ -595,7 +595,7 @@ window.CINEMAP_LANGUAGES = {
 window.CINEMAP_STATUSES = {
   soon:     { ar: "قريبًا",   en: "Coming Soon" },
   now:      { ar: "يعرض الآن", en: "Now Showing" },
-  released: { ar: "تم الإصدار", en: "Released" },
+  released: { ar: "تم عرضه", en: "Released" },
 };
 
 window.CINEMAP_EXPERIENCES = {
