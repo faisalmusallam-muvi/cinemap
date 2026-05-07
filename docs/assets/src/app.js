@@ -66,6 +66,28 @@ function App() {
   window.openModal = setModalMovie;
   window.openTrailer = setModalMovie;
 
+  // ---------- Inbound share banner ----------
+  // When someone lands here from a friend's share, the URL carries
+  // ?p=<personalityKey>&n=<count>. Show a one-time prompt that turns
+  // the inbound visit into a fast onboarding into building their own list.
+  const [inbound, setInbound] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const p = params.get('p');
+      const n = parseInt(params.get('n') || '', 10);
+      if (!p) return null;
+      return { personalityKey: p, count: Number.isFinite(n) && n > 0 ? n : null };
+    } catch { return null; }
+  });
+  useEffect(() => {
+    if (!inbound) return;
+    window.cinemapTrack?.('inbound_landed', { personalityKey: inbound.personalityKey, count: inbound.count || 0 });
+  }, [!!inbound]);
+  const dismissInbound = () => {
+    if (inbound) window.cinemapTrack?.('inbound_dismissed', { personalityKey: inbound.personalityKey });
+    setInbound(null);
+  };
+
   // ---------- Anonymous page view tracking ----------
   useEffect(() => {
     let lastPath = '';
@@ -722,12 +744,22 @@ function App() {
     return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 0.95));
   };
 
+  const buildShareUrl = (profile) => {
+    const params = new URLSearchParams();
+    if (profile?.personalityKey) params.set('p', profile.personalityKey);
+    if (profile?.watchedCount) params.set('n', String(profile.watchedCount));
+    const qs = params.toString();
+    return `${location.origin}${location.pathname}${qs ? `?${qs}` : ''}`;
+  };
+
   const handleShareList = async () => {
     if (savedMovies.length === 0) {
       window.cinemapTrack?.('watchlist_share_empty');
       pushToast(t.toast_wl_empty, 'info', '🎬');
       return;
     }
+    const shareProfile = window.cinemapBuildMy2026Profile?.({ lang, movies, watched, ratings }) || {};
+    const shareUrl = buildShareUrl(shareProfile);
     try {
       const blob = await makeWatchlistShareImage();
       if (!blob) throw new Error('no-blob');
@@ -736,6 +768,7 @@ function App() {
         await navigator.share({
           title: lang === 'en' ? 'My Cinemap 2026' : 'قائمتي في سينماب 2026',
           text: lang === 'en' ? 'My 2026 movie list on Cinemap' : 'قائمتي السينمائية في سينماب',
+          url: shareUrl,
           files: [file],
         });
         window.cinemapTrack?.('watchlist_share_image', { method: 'web_share', count: savedMovies.length });
@@ -768,7 +801,7 @@ function App() {
     const header = lang === 'en'
       ? `My 2026 Cinemap watchlist (${savedMovies.length}):`
       : `قائمة سينماب الخاصة بي لـ 2026 (${savedMovies.length}):`;
-    const text = `${header}\n${lines.join('\n')}\n\n${location.origin}${location.pathname}`;
+    const text = `${header}\n${lines.join('\n')}\n\n${shareUrl}`;
     if (navigator.share) {
       try {
         await navigator.share({ title: 'Cinemap Watchlist', text });
@@ -805,6 +838,40 @@ function App() {
         onJumpMy2026={jumpToMy2026}
         onOpenMovie={(m) => openMovie(m, 'search')}
       />
+
+      {inbound && (
+        <div className="cm-inbound" role="region" aria-label={t.inbound_eyebrow}>
+          <div className="cm-container cm-inbound-row">
+            <div className="cm-inbound-text">
+              <span className="cm-inbound-eyebrow">{t.inbound_eyebrow}</span>
+              <strong className="cm-inbound-title">
+                {t.inbound_title}{' '}
+                <span className="cm-inbound-personality">
+                  {t[`my2026_${inbound.personalityKey}`] || t.my2026_p1}
+                </span>
+              </strong>
+              <p className="cm-inbound-sub">{t.inbound_sub}</p>
+            </div>
+            <div className="cm-inbound-actions">
+              <button
+                type="button"
+                className="cm-btn cm-btn-primary cm-inbound-cta"
+                onClick={() => {
+                  window.cinemapTrack?.('inbound_cta', { personalityKey: inbound.personalityKey });
+                  jumpToCalendar();
+                }}
+              >{t.inbound_cta}</button>
+              <button
+                type="button"
+                className="cm-inbound-x"
+                onClick={dismissInbound}
+                aria-label={t.inbound_dismiss}
+                title={t.inbound_dismiss}
+              >×</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <window.Hero
         lang={lang}

@@ -53,14 +53,15 @@ function buildMy2026Profile({ lang, movies, watched, ratings }) {
 
   const topGenre = dominant(countValues(watchedMovies.map(m => m.genre)));
   let personality = t.my2026_p0;
-  if (watchedCount >= 26) personality = t.my2026_p26;
-  else if (watchedCount >= 11) personality = t.my2026_p11;
-  else if (watchedCount >= 4) personality = t.my2026_p4;
-  else if (watchedCount >= 1) personality = t.my2026_p1;
+  let personalityKey = 'p0';
+  if (watchedCount >= 26) { personality = t.my2026_p26; personalityKey = 'p26'; }
+  else if (watchedCount >= 11) { personality = t.my2026_p11; personalityKey = 'p11'; }
+  else if (watchedCount >= 4) { personality = t.my2026_p4; personalityKey = 'p4'; }
+  else if (watchedCount >= 1) { personality = t.my2026_p1; personalityKey = 'p1'; }
 
-  if (topVibe === 'bigscreen') personality = t.my2026_bigscreen;
-  else if (topGenre === 'horror') personality = t.my2026_horror;
-  else if (topGenre === 'arabic') personality = t.my2026_arabic;
+  if (topVibe === 'bigscreen') { personality = t.my2026_bigscreen; personalityKey = 'bigscreen'; }
+  else if (topGenre === 'horror') { personality = t.my2026_horror; personalityKey = 'horror'; }
+  else if (topGenre === 'arabic') { personality = t.my2026_arabic; personalityKey = 'arabic'; }
 
   return {
     watchedCount,
@@ -72,6 +73,7 @@ function buildMy2026Profile({ lang, movies, watched, ratings }) {
     topVibeLabel,
     topGenre,
     personality,
+    personalityKey,
   };
 }
 

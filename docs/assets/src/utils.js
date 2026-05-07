@@ -823,6 +823,13 @@ window.CINEMAP_I18N = {
     my2026_horror:         "ملك الرعب",
     my2026_arabic:         "داعم السينما العربية",
 
+    // inbound from a friend's share
+    inbound_eyebrow:       "وصلتك من صديق",
+    inbound_title:         "صديقك",
+    inbound_sub:           "وش شخصيتك السينمائية في 2026؟ ابدأ قائمتك في أقل من دقيقة.",
+    inbound_cta:           "ابدأ قائمتي ⬇",
+    inbound_dismiss:       "إغلاق",
+
     // investor proof
     ip_eyebrow:       "الإشارات",
     ip_title:         "من الاكتشاف إلى معرفة الطلب.",
@@ -1081,6 +1088,12 @@ window.CINEMAP_I18N = {
     my2026_bigscreen:      "Big Screen Lover",
     my2026_horror:         "Horror Head",
     my2026_arabic:         "Arabic Cinema Supporter",
+
+    inbound_eyebrow:       "From a friend",
+    inbound_title:         "Your friend is a",
+    inbound_sub:           "What's your taste in 2026 cinema? Build your list in under a minute.",
+    inbound_cta:           "Start my list ⬇",
+    inbound_dismiss:       "Dismiss",
 
     ip_eyebrow:       "Signals",
     ip_title:         "From discovery to demand.",
