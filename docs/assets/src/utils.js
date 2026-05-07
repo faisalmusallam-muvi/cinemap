@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.44',
-  releaseNoteAr: 'آخر تحديث: أصلحنا ظهور تقويم الشهور على الجوال.',
-  releaseNoteEn: 'Latest update: fixed the mobile month calendar visibility.',
+  releaseVersion: 'v1.45',
+  releaseNoteAr: 'آخر تحديث: ثبتنا شريط الشهور ونظفنا أرقام التقويم.',
+  releaseNoteEn: 'Latest update: pinned the month strip and cleaned calendar counts.',
 };
 
 // ============================================================

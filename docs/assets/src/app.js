@@ -198,6 +198,55 @@ function App() {
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
+  useEffect(() => {
+    let frame = null;
+    const root = document.documentElement;
+    const setMonthbarOffset = () => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const fbar = document.querySelector('.cm-fbar');
+        const nav = document.querySelector('.cm-nav');
+        const isMobile = window.matchMedia('(max-width: 720px)').matches;
+        const fallback = isMobile ? 206 : 122;
+        if (!fbar) {
+          root.style.setProperty('--cm-monthbar-sticky-top', `${fallback}px`);
+          return;
+        }
+        const fbarRect = fbar.getBoundingClientRect();
+        if (fbarRect.top > window.innerHeight) {
+          root.style.setProperty('--cm-monthbar-sticky-top', `${fallback}px`);
+          return;
+        }
+        const navRect = nav?.getBoundingClientRect();
+        const navBottom = navRect ? Math.max(0, navRect.bottom) : 0;
+        const top = Math.max(navBottom, fbarRect.bottom);
+        root.style.setProperty('--cm-monthbar-sticky-top', `${Math.round(top)}px`);
+      });
+    };
+
+    const resizeObserver = typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(setMonthbarOffset)
+      : null;
+    ['.cm-nav', '.cm-fbar'].forEach(sel => {
+      const el = document.querySelector(sel);
+      if (el) resizeObserver?.observe(el);
+    });
+    window.addEventListener('scroll', setMonthbarOffset, { passive: true });
+    window.addEventListener('resize', setMonthbarOffset);
+    window.visualViewport?.addEventListener('resize', setMonthbarOffset);
+    window.visualViewport?.addEventListener('scroll', setMonthbarOffset);
+    setMonthbarOffset();
+
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      resizeObserver?.disconnect();
+      window.removeEventListener('scroll', setMonthbarOffset);
+      window.removeEventListener('resize', setMonthbarOffset);
+      window.visualViewport?.removeEventListener('resize', setMonthbarOffset);
+      window.visualViewport?.removeEventListener('scroll', setMonthbarOffset);
+    };
+  }, []);
+
   // ---------- Jump helpers ----------
   const stickyOffset = () => {
     let h = 0;

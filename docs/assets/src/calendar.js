@@ -281,7 +281,6 @@ function MonthBar({ activeMonth, onJumpMonth, lang, monthCounts }) {
             onClick={() => onJumpMonth(i)}
           >
             <span className="cm-monthbar-name">{m}</span>
-            <span className="cm-monthbar-count">{monthCounts?.[i] ?? 0}</span>
           </button>
         ))}
       </div>
@@ -443,7 +442,6 @@ function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, wat
         <h3 className="cm-month-name">
           <span className="cm-month-num">{String(index + 1).padStart(2, '0')}</span>
           {months[index]}
-          <span className="cm-month-tally">{movs.length}</span>
         </h3>
       </header>
       <div className="cm-month-list">
