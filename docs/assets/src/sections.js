@@ -1,5 +1,5 @@
 /* global React */
-const { useEffect, useState, useMemo } = window.React;
+const { useEffect, useState, useMemo, useRef } = window.React;
 
 // ---------- Journey 0 explainer ----------
 function Journey0({ lang, onJumpCalendar }) {
@@ -33,7 +33,163 @@ function Journey0({ lang, onJumpCalendar }) {
 }
 
 // ---------- Watchlist Section ----------
-function WatchlistSection({ lang, watchlist, savedMovies, ratings, onRemove, onShareList, onClear, onJumpCalendar, onOpenMovie }) {
+function My2026Lite({ lang, movies, watched, ratings, onJumpCalendar }) {
+  const t = window.CINEMAP_I18N[lang];
+  const cardRef = useRef(null);
+  const trackedRef = useRef(false);
+  const watchedMovies = useMemo(
+    () => movies.filter(m => watched?.has(`${m.en}|${m.date}`)),
+    [movies, watched]
+  );
+  const watchedKeys = useMemo(
+    () => new Set(watchedMovies.map(m => `${m.en}|${m.date}`)),
+    [watchedMovies]
+  );
+  const watchedCount = watchedMovies.length;
+
+  const profile = useMemo(() => {
+    const ratedEntries = Object.entries(ratings || {}).filter(([key, r]) => (
+      watchedKeys.has(key) && r && Number(r.rating) > 0
+    ));
+
+    const totalRuntime = watchedMovies.reduce((sum, m) => (
+      sum + (Number(m.runtime) > 0 ? Number(m.runtime) : 0)
+    ), 0);
+    const hasRuntime = totalRuntime > 0;
+    const hours = totalRuntime / 60;
+    const hoursText = hasRuntime
+      ? `${Number.isInteger(hours) ? hours : hours.toFixed(1)} ${lang === 'en' ? (hours === 1 ? 'hour' : 'hours') : 'ساعة'}`
+      : (watchedCount > 0 ? t.my2026_soon : '0');
+
+    const average = ratedEntries.length
+      ? ratedEntries.reduce((sum, [, r]) => sum + Number(r.rating), 0) / ratedEntries.length
+      : 0;
+
+    const countValues = (values) => values.reduce((acc, val) => {
+      if (val) acc[val] = (acc[val] || 0) + 1;
+      return acc;
+    }, {});
+    const dominant = (counts) => {
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      if (!sorted.length) return null;
+      if (sorted.length === 1) return sorted[0][0];
+      return sorted[0][1] > sorted[1][1] ? sorted[0][0] : null;
+    };
+
+    const vibeCounts = {};
+    ratedEntries.forEach(([, r]) => {
+      (Array.isArray(r.vibes) ? r.vibes : []).forEach(v => {
+        if (v) vibeCounts[v] = (vibeCounts[v] || 0) + 1;
+      });
+    });
+    const topVibe = dominant(vibeCounts);
+    const topVibeLabel = topVibe
+      ? ({
+          bigscreen: t.rate_v_bigscreen,
+          stream: t.rate_v_stream,
+          friends: t.rate_v_friends,
+          date: t.rate_v_date,
+          alone: t.rate_v_alone,
+          skip: t.rate_v_skip,
+        }[topVibe] || topVibe)
+      : t.my2026_not_enough;
+
+    const topGenre = dominant(countValues(watchedMovies.map(m => m.genre)));
+    let personality = t.my2026_p0;
+    if (watchedCount >= 26) personality = t.my2026_p26;
+    else if (watchedCount >= 11) personality = t.my2026_p11;
+    else if (watchedCount >= 4) personality = t.my2026_p4;
+    else if (watchedCount >= 1) personality = t.my2026_p1;
+
+    if (topVibe === 'bigscreen') personality = t.my2026_bigscreen;
+    else if (topGenre === 'horror') personality = t.my2026_horror;
+    else if (topGenre === 'arabic') personality = t.my2026_arabic;
+
+    return {
+      watchedCount,
+      hoursText,
+      averageText: average ? `${average.toFixed(1)}/5` : t.my2026_not_yet,
+      topVibeLabel,
+      personality,
+    };
+  }, [lang, ratings, t, watchedCount, watchedKeys, watchedMovies]);
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el || trackedRef.current) return;
+    const track = () => {
+      if (trackedRef.current) return;
+      trackedRef.current = true;
+      window.cinemapTrack?.('my2026_lite_view', { watchedCount });
+    };
+    if (typeof IntersectionObserver === 'undefined') {
+      track();
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        track();
+        observer.disconnect();
+      }
+    }, { threshold: 0.35 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [watchedCount]);
+
+  const empty = watchedCount === 0;
+  const clickEmptyCta = () => {
+    window.cinemapTrack?.('my2026_lite_empty_cta_click');
+    onJumpCalendar();
+  };
+
+  return (
+    <div ref={cardRef} className={`cm-my2026 ${empty ? 'is-empty' : ''}`}>
+      <div className="cm-my2026-head">
+        <span className="cm-eyebrow">{t.my2026_eyebrow}</span>
+        <h3 className="cm-my2026-title">{t.my2026_title}</h3>
+        <p className="cm-my2026-sub">{t.my2026_sub}</p>
+      </div>
+
+      {empty ? (
+        <div className="cm-my2026-empty">
+          <div className="cm-my2026-empty-icon" aria-hidden="true">⭐</div>
+          <div>
+            <h4>{t.my2026_empty_title}</h4>
+            <p>{t.my2026_empty_body}</p>
+          </div>
+          <button className="cm-btn cm-btn-primary cm-btn-sm" onClick={clickEmptyCta}>
+            {t.my2026_empty_cta}
+          </button>
+        </div>
+      ) : (
+        <div className="cm-my2026-grid">
+          <div className="cm-my2026-tile">
+            <span>{t.my2026_watched}</span>
+            <strong>{profile.watchedCount}</strong>
+          </div>
+          <div className="cm-my2026-tile">
+            <span>{t.my2026_time}</span>
+            <strong>{profile.hoursText}</strong>
+          </div>
+          <div className="cm-my2026-tile">
+            <span>{t.my2026_avg}</span>
+            <strong>{profile.averageText}</strong>
+          </div>
+          <div className="cm-my2026-tile">
+            <span>{t.my2026_vibe}</span>
+            <strong>{profile.topVibeLabel}</strong>
+          </div>
+          <div className="cm-my2026-tile is-personality">
+            <span>{t.my2026_personality}</span>
+            <strong>{profile.personality}</strong>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function WatchlistSection({ lang, watchlist, watched, movies, savedMovies, ratings, onRemove, onShareList, onClear, onJumpCalendar, onOpenMovie }) {
   const t = window.CINEMAP_I18N[lang];
   const count = savedMovies.length;
   const renderRating = (m) => {
@@ -58,6 +214,14 @@ function WatchlistSection({ lang, watchlist, savedMovies, ratings, onRemove, onS
           <h2 className="cm-h2">{t.wl_title}</h2>
           <p className="cm-section-sub">{t.wl_sub}</p>
         </header>
+
+        <My2026Lite
+          lang={lang}
+          movies={movies}
+          watched={watched}
+          ratings={ratings}
+          onJumpCalendar={onJumpCalendar}
+        />
 
         {count === 0 ? (
           <div className="cm-watchlist-empty">

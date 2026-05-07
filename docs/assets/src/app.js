@@ -586,6 +586,8 @@ function App() {
       <window.WatchlistSection
         lang={lang}
         watchlist={watchlist}
+        watched={watched}
+        movies={movies}
         savedMovies={savedMovies}
         ratings={ratings}
         onRemove={toggleSave}
