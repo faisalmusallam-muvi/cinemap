@@ -807,7 +807,12 @@
     .cm-monthbar { top: 134px; }
     @media (max-width: 720px) {
       .cm-fbar { top: 60px; }
-      .cm-monthbar { display: block; top: 150px; }
+      .cm-monthbar {
+        display: block;
+        position: relative;
+        top: auto;
+        z-index: 40;
+      }
       .cm-fbar .cm-container { gap: 10px; }
       .cm-fbar-top { gap: 10px; }
       .cm-fbar-count { font-size: 12px; }
@@ -2599,7 +2604,13 @@
     @media (max-width: 720px) { .cm-fbar-quick { padding: 0 18px 4px; } }
 
     .cm-monthbar { top: 122px; }
-    @media (max-width: 720px) { .cm-monthbar { top: 150px; } }
+    @media (max-width: 720px) {
+      .cm-monthbar {
+        position: relative;
+        top: auto;
+        z-index: 40;
+      }
+    }
 
     /* =========================================================
        22) Filter Bottom Sheet
@@ -2874,17 +2885,17 @@
   <script src="assets/vendor/babel.min.js"></script>
 
   <!-- Source -->
-  <script src="assets/src/utils.js?v=43"></script>
-  <script src="assets/src/analytics.js?v=43"></script>
-  <script type="text/babel" src="assets/src/tmdb-client.js?v=43"></script>
-  <script type="text/babel" src="assets/src/ui.js?v=43"></script>
-  <script type="text/babel" src="assets/src/calendar.js?v=43"></script>
-  <script type="text/babel" src="assets/src/featured.js?v=43"></script>
-  <script type="text/babel" src="assets/src/notify.js?v=43"></script>
-  <script type="text/babel" src="assets/src/rating.js?v=43"></script>
-  <script type="text/babel" src="assets/src/calpicker.js?v=43"></script>
-  <script type="text/babel" src="assets/src/sections.js?v=43"></script>
-  <script type="text/babel" src="assets/src/app.js?v=43"></script>
+  <script src="assets/src/utils.js?v=44"></script>
+  <script src="assets/src/analytics.js?v=44"></script>
+  <script type="text/babel" src="assets/src/tmdb-client.js?v=44"></script>
+  <script type="text/babel" src="assets/src/ui.js?v=44"></script>
+  <script type="text/babel" src="assets/src/calendar.js?v=44"></script>
+  <script type="text/babel" src="assets/src/featured.js?v=44"></script>
+  <script type="text/babel" src="assets/src/notify.js?v=44"></script>
+  <script type="text/babel" src="assets/src/rating.js?v=44"></script>
+  <script type="text/babel" src="assets/src/calpicker.js?v=44"></script>
+  <script type="text/babel" src="assets/src/sections.js?v=44"></script>
+  <script type="text/babel" src="assets/src/app.js?v=44"></script>
 
   <script>
     // Register the PWA service worker on hosted HTTP(S) origins, but skip
