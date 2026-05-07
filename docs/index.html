@@ -494,6 +494,25 @@
     }
 
     .cm-hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+    @media (max-width: 540px) {
+      .cm-hero-ctas {
+        display: grid;
+        grid-template-columns: 1.12fr 0.9fr 0.9fr;
+        gap: 8px;
+      }
+      .cm-hero-ctas .cm-btn-lg {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 8px;
+        font-size: 13px;
+        white-space: nowrap;
+      }
+      .cm-hero-ctas .cm-btn-count {
+        min-width: 22px;
+        height: 22px;
+        font-size: 11px;
+      }
+    }
     .cm-hero-guide {
       display: flex;
       flex-wrap: wrap;
@@ -1524,6 +1543,7 @@
       position: relative;
       width: 100%; max-width: 980px;
       max-height: 90vh;
+      max-height: 90dvh;
       background: linear-gradient(180deg, var(--charcoal), var(--midnight));
       border-radius: var(--radius-lg);
       border: 1px solid var(--line-strong);
@@ -1786,8 +1806,36 @@
     }
 
     @media (max-width: 720px) {
-      .mmodal-overlay { padding: 0; align-items: flex-end; }
-      .mmodal-box { border-radius: 22px 22px 0 0; max-height: 94vh; }
+      .mmodal-overlay {
+        height: 100dvh;
+        min-height: 100dvh;
+        padding: max(8px, env(safe-area-inset-top, 8px)) 0 0;
+        align-items: flex-end;
+      }
+      .mmodal-box {
+        width: 100%;
+        border-radius: 22px 22px 0 0;
+        max-height: calc(100dvh - max(8px, env(safe-area-inset-top, 8px)));
+      }
+      .mmodal-close {
+        position: fixed;
+        top: max(12px, env(safe-area-inset-top, 12px));
+        inset-inline-start: 12px;
+        right: auto;
+        left: auto;
+        width: 44px;
+        height: 44px;
+        z-index: 360;
+        background: rgba(10,19,32,0.86);
+      }
+      [dir="rtl"] .mmodal-close {
+        right: auto;
+        left: 12px;
+      }
+      [dir="ltr"] .mmodal-close {
+        left: 12px;
+        right: auto;
+      }
       .mmodal-inner { grid-template-columns: 1fr; gap: 16px; padding: 20px; }
       .mmodal-poster-col { display: flex; gap: 12px; }
       .mmodal-poster-button { width: 100px; flex: 0 0 100px; }
@@ -2984,17 +3032,17 @@
   <script src="assets/vendor/babel.min.js"></script>
 
   <!-- Source -->
-  <script src="assets/src/utils.js?v=47"></script>
-  <script src="assets/src/analytics.js?v=47"></script>
-  <script type="text/babel" src="assets/src/tmdb-client.js?v=47"></script>
-  <script type="text/babel" src="assets/src/ui.js?v=47"></script>
-  <script type="text/babel" src="assets/src/calendar.js?v=47"></script>
-  <script type="text/babel" src="assets/src/featured.js?v=47"></script>
-  <script type="text/babel" src="assets/src/notify.js?v=47"></script>
-  <script type="text/babel" src="assets/src/rating.js?v=47"></script>
-  <script type="text/babel" src="assets/src/calpicker.js?v=47"></script>
-  <script type="text/babel" src="assets/src/sections.js?v=47"></script>
-  <script type="text/babel" src="assets/src/app.js?v=47"></script>
+  <script src="assets/src/utils.js?v=48"></script>
+  <script src="assets/src/analytics.js?v=48"></script>
+  <script type="text/babel" src="assets/src/tmdb-client.js?v=48"></script>
+  <script type="text/babel" src="assets/src/ui.js?v=48"></script>
+  <script type="text/babel" src="assets/src/calendar.js?v=48"></script>
+  <script type="text/babel" src="assets/src/featured.js?v=48"></script>
+  <script type="text/babel" src="assets/src/notify.js?v=48"></script>
+  <script type="text/babel" src="assets/src/rating.js?v=48"></script>
+  <script type="text/babel" src="assets/src/calpicker.js?v=48"></script>
+  <script type="text/babel" src="assets/src/sections.js?v=48"></script>
+  <script type="text/babel" src="assets/src/app.js?v=48"></script>
 
   <script>
     // Register the PWA service worker on hosted HTTP(S) origins, but skip

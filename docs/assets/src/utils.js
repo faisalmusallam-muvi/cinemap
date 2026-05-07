@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.47',
-  releaseNoteAr: 'آخر تحديث: صار ملخصك 2026 قسم مستقل في الموقع.',
-  releaseNoteEn: 'Latest update: My 2026 is now its own section.',
+  releaseVersion: 'v1.48',
+  releaseNoteAr: 'آخر تحديث: أصلحنا عرض الأزرار والمودال على كروم الجوال.',
+  releaseNoteEn: 'Latest update: fixed mobile Chrome hero buttons and movie modal.',
 };
 
 // ============================================================
