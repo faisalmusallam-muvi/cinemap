@@ -32,7 +32,7 @@ function Journey0({ lang, onJumpCalendar }) {
   );
 }
 
-// ---------- Watchlist Section ----------
+// ---------- My 2026 Lite ----------
 function My2026Lite({ lang, movies, watched, ratings, onJumpCalendar }) {
   const t = window.CINEMAP_I18N[lang];
   const cardRef = useRef(null);
@@ -143,53 +143,57 @@ function My2026Lite({ lang, movies, watched, ratings, onJumpCalendar }) {
   };
 
   return (
-    <div ref={cardRef} className={`cm-my2026 ${empty ? 'is-empty' : ''}`}>
-      <div className="cm-my2026-head">
-        <span className="cm-eyebrow">{t.my2026_eyebrow}</span>
-        <h3 className="cm-my2026-title">{t.my2026_title}</h3>
-        <p className="cm-my2026-sub">{t.my2026_sub}</p>
-      </div>
+    <section id="my2026" className="cm-section cm-my2026-section">
+      <div className="cm-container">
+        <div ref={cardRef} className={`cm-my2026 ${empty ? 'is-empty' : ''}`}>
+          <div className="cm-my2026-head">
+            <span className="cm-eyebrow">{t.my2026_eyebrow}</span>
+            <h3 className="cm-my2026-title">{t.my2026_title}</h3>
+            <p className="cm-my2026-sub">{t.my2026_sub}</p>
+          </div>
 
-      {empty ? (
-        <div className="cm-my2026-empty">
-          <div className="cm-my2026-empty-icon" aria-hidden="true">⭐</div>
-          <div>
-            <h4>{t.my2026_empty_title}</h4>
-            <p>{t.my2026_empty_body}</p>
-          </div>
-          <button className="cm-btn cm-btn-primary cm-btn-sm" onClick={clickEmptyCta}>
-            {t.my2026_empty_cta}
-          </button>
+          {empty ? (
+            <div className="cm-my2026-empty">
+              <div className="cm-my2026-empty-icon" aria-hidden="true">⭐</div>
+              <div>
+                <h4>{t.my2026_empty_title}</h4>
+                <p>{t.my2026_empty_body}</p>
+              </div>
+              <button className="cm-btn cm-btn-primary cm-btn-sm" onClick={clickEmptyCta}>
+                {t.my2026_empty_cta}
+              </button>
+            </div>
+          ) : (
+            <div className="cm-my2026-grid">
+              <div className="cm-my2026-tile">
+                <span>{t.my2026_watched}</span>
+                <strong>{profile.watchedCount}</strong>
+              </div>
+              <div className="cm-my2026-tile">
+                <span>{t.my2026_time}</span>
+                <strong>{profile.hoursText}</strong>
+              </div>
+              <div className="cm-my2026-tile">
+                <span>{t.my2026_avg}</span>
+                <strong>{profile.averageText}</strong>
+              </div>
+              <div className="cm-my2026-tile">
+                <span>{t.my2026_vibe}</span>
+                <strong>{profile.topVibeLabel}</strong>
+              </div>
+              <div className="cm-my2026-tile is-personality">
+                <span>{t.my2026_personality}</span>
+                <strong>{profile.personality}</strong>
+              </div>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="cm-my2026-grid">
-          <div className="cm-my2026-tile">
-            <span>{t.my2026_watched}</span>
-            <strong>{profile.watchedCount}</strong>
-          </div>
-          <div className="cm-my2026-tile">
-            <span>{t.my2026_time}</span>
-            <strong>{profile.hoursText}</strong>
-          </div>
-          <div className="cm-my2026-tile">
-            <span>{t.my2026_avg}</span>
-            <strong>{profile.averageText}</strong>
-          </div>
-          <div className="cm-my2026-tile">
-            <span>{t.my2026_vibe}</span>
-            <strong>{profile.topVibeLabel}</strong>
-          </div>
-          <div className="cm-my2026-tile is-personality">
-            <span>{t.my2026_personality}</span>
-            <strong>{profile.personality}</strong>
-          </div>
-        </div>
-      )}
-    </div>
+      </div>
+    </section>
   );
 }
 
-function WatchlistSection({ lang, watchlist, watched, movies, savedMovies, ratings, onRemove, onShareList, onClear, onJumpCalendar, onOpenMovie }) {
+function WatchlistSection({ lang, watchlist, savedMovies, ratings, onRemove, onShareList, onClear, onJumpCalendar, onOpenMovie }) {
   const t = window.CINEMAP_I18N[lang];
   const count = savedMovies.length;
   const renderRating = (m) => {
@@ -214,14 +218,6 @@ function WatchlistSection({ lang, watchlist, watched, movies, savedMovies, ratin
           <h2 className="cm-h2">{t.wl_title}</h2>
           <p className="cm-section-sub">{t.wl_sub}</p>
         </header>
-
-        <My2026Lite
-          lang={lang}
-          movies={movies}
-          watched={watched}
-          ratings={ratings}
-          onJumpCalendar={onJumpCalendar}
-        />
 
         {count === 0 ? (
           <div className="cm-watchlist-empty">
@@ -468,4 +464,4 @@ function Toaster({ toasts, onDismiss }) {
   );
 }
 
-Object.assign(window, { Journey0, WatchlistSection, InvestorProof, Roadmap, FinalCTA, Footer, Toaster });
+Object.assign(window, { Journey0, My2026Lite, WatchlistSection, InvestorProof, Roadmap, FinalCTA, Footer, Toaster });

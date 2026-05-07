@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.46',
-  releaseNoteAr: 'آخر تحديث: أضفنا ملخصك السينمائي الخاص فيك.',
-  releaseNoteEn: 'Latest update: added your private 2026 movie profile.',
+  releaseVersion: 'v1.47',
+  releaseNoteAr: 'آخر تحديث: صار ملخصك 2026 قسم مستقل في الموقع.',
+  releaseNoteEn: 'Latest update: My 2026 is now its own section.',
 };
 
 // ============================================================
@@ -672,9 +672,10 @@ window.CINEMAP_I18N = {
     // nav
     nav_movies:       "الأفلام",
     nav_watchlist:    "قائمتي",
+    nav_my2026:       "ملخصي",
     nav_how:          "كيف يعمل",
     nav_vision:       "الرؤية",
-    nav_cta:          "ابدأ قائمتك",
+    nav_cta:          "قائمتي",
 
     // hero
     hero_eyebrow:     "سينماب · 2026",
@@ -682,7 +683,8 @@ window.CINEMAP_I18N = {
     hero_sub:         "احفظ الأفلام الجاية، قيّم اللي شفته، واكتشف وش يستاهل السينما فعلاً.",
     hero_support:     "وش شفت في 2026؟ ووش باقي متحمس له؟",
     hero_cta:         "شوف الأفلام",
-    hero_cta_2:       "ابدأ قائمتك",
+    hero_cta_2:       "قائمتي",
+    hero_cta_3:       "ملخصي",
     hero_chip:        "بنذكّرك أول ما تفتح التذاكر",
     hero_guide_label: "شرح أزرار سينماب",
     hero_guide_save:  "احفظ",
@@ -935,16 +937,18 @@ window.CINEMAP_I18N = {
   en: {
     nav_movies:       "Movies",
     nav_watchlist:    "Watchlist",
+    nav_my2026:       "My 2026",
     nav_how:          "How It Works",
     nav_vision:       "Vision",
-    nav_cta:          "Build My Watchlist",
+    nav_cta:          "My list",
 
     hero_eyebrow:     "Cinemap · 2026",
     hero_title:       "Movies worth talking about",
     hero_sub:         "Save upcoming movies, rate what you watched, and discover what actually deserves the cinema.",
     hero_support:     "What did you watch in 2026, and what are you still waiting for?",
     hero_cta:         "Explore 2026 Movies",
-    hero_cta_2:       "Build My Watchlist",
+    hero_cta_2:       "My list",
+    hero_cta_3:       "My 2026",
     hero_chip:        "Notify me when tickets open",
     hero_guide_label: "Cinemap button guide",
     hero_guide_save:  "Save",

@@ -230,7 +230,7 @@ function SearchBar({ lang, onOpenMovie }) {
 }
 
 // ---------- Nav ----------
-function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onOpenMovie }) {
+function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpMy2026, onOpenMovie }) {
   const t = window.CINEMAP_I18N[lang];
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -257,6 +257,7 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onOpenMovie }) {
         <div className="cm-nav-links">
           <a href="#calendar" onClick={(e) => { e.preventDefault(); onJumpCalendar(); }}>{t.nav_movies}</a>
           <a href="#watchlist" onClick={(e) => { e.preventDefault(); onJumpWatchlist(); }}>{t.nav_watchlist}</a>
+          <a href="#my2026" onClick={(e) => { e.preventDefault(); onJumpMy2026(); }}>{t.nav_my2026}</a>
         </div>
 
         <SearchBar lang={lang} onOpenMovie={onOpenMovie} />
@@ -305,6 +306,7 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onOpenMovie }) {
         <div className="cm-mobile-menu" onClick={(e) => e.stopPropagation()}>
           <a href="#calendar" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpCalendar(); }}>{t.nav_movies}</a>
           <a href="#watchlist" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpWatchlist(); }}>{t.nav_watchlist}</a>
+          <a href="#my2026" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpMy2026(); }}>{t.nav_my2026}</a>
         </div>
       )}
     </nav>
@@ -312,7 +314,7 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onOpenMovie }) {
 }
 
 // ---------- Hero ----------
-function Hero({ lang, onJumpCalendar, onJumpWatchlist, watchlistCount, featured }) {
+function Hero({ lang, onJumpCalendar, onJumpWatchlist, onJumpMy2026, watchlistCount, featured }) {
   const t = window.CINEMAP_I18N[lang];
   const ref = useRef(null);
 
@@ -354,6 +356,9 @@ function Hero({ lang, onJumpCalendar, onJumpWatchlist, watchlistCount, featured 
             <button className="cm-btn cm-btn-ghost cm-btn-lg" onClick={() => { window.cinemapTrack?.('homepage_cta_click', { cta: 'watchlist' }); onJumpWatchlist(); }}>
               {t.hero_cta_2}
               {watchlistCount > 0 && <span className="cm-btn-count">{watchlistCount}</span>}
+            </button>
+            <button className="cm-btn cm-btn-ghost cm-btn-lg" onClick={() => { window.cinemapTrack?.('homepage_cta_click', { cta: 'my2026' }); onJumpMy2026(); }}>
+              {t.hero_cta_3}
             </button>
           </div>
 

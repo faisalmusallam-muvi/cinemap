@@ -267,6 +267,10 @@ function App() {
     window.cinemapTrack?.('watchlist_open', { source: 'jump' });
     jumpTo('#watchlist', 70);
   };
+  const jumpToMy2026 = () => {
+    window.cinemapTrack?.('my2026_nav_click', { source: 'jump' });
+    jumpTo('#my2026', 70);
+  };
   const jumpToMonth = (i) => {
     const el = document.getElementById(`month-${i}`);
     if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - stickyOffset(), behavior: 'smooth' });
@@ -504,6 +508,7 @@ function App() {
         setLang={setLang}
         onJumpCalendar={jumpToCalendar}
         onJumpWatchlist={jumpToWatchlist}
+        onJumpMy2026={jumpToMy2026}
         onOpenMovie={(m) => openMovie(m, 'search')}
       />
 
@@ -511,6 +516,7 @@ function App() {
         lang={lang}
         onJumpCalendar={jumpToCalendar}
         onJumpWatchlist={jumpToWatchlist}
+        onJumpMy2026={jumpToMy2026}
         watchlistCount={watchlist.size}
         featured={featured}
       />
@@ -586,8 +592,6 @@ function App() {
       <window.WatchlistSection
         lang={lang}
         watchlist={watchlist}
-        watched={watched}
-        movies={movies}
         savedMovies={savedMovies}
         ratings={ratings}
         onRemove={toggleSave}
@@ -595,6 +599,14 @@ function App() {
         onClear={handleClearList}
         onJumpCalendar={jumpToCalendar}
         onOpenMovie={(m) => openMovie(m, 'watchlist')}
+      />
+
+      <window.My2026Lite
+        lang={lang}
+        movies={movies}
+        watched={watched}
+        ratings={ratings}
+        onJumpCalendar={jumpToCalendar}
       />
 
       <window.Footer lang={lang} />
