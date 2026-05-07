@@ -25,6 +25,7 @@ const SUPABASE_EVENT_TYPES = {
   watched_on: 'watched_movie',
   rating_submitted: 'rating_submitted',
   movie_share: 'share_movie',
+  watchlist_share_image: 'share_movie',
   calendar_picker_open: 'calendar_click',
 };
 

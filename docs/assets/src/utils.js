@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.48',
-  releaseNoteAr: 'آخر تحديث: أصلحنا عرض الأزرار والمودال على كروم الجوال.',
-  releaseNoteEn: 'Latest update: fixed mobile Chrome hero buttons and movie modal.',
+  releaseVersion: 'v1.49',
+  releaseNoteAr: 'آخر تحديث: قائمتك صارت تشارك كصورة مع ملخصك.',
+  releaseNoteEn: 'Latest update: share your list as an image with your profile.',
 };
 
 // ============================================================
@@ -794,7 +794,7 @@ window.CINEMAP_I18N = {
     wl_sub:           "كل فيلم تحفظه يبقى معك — من الحماس الأول لين التقييم بعد المشاهدة.",
     wl_empty:         "قائمتك تنتظر أول فيلم.",
     wl_empty_cta:     "ابدأ من التقويم",
-    wl_share:         "شارك القائمة",
+    wl_share:         "شارك كصورة",
     wl_clear:         "مسح القائمة",
     wl_count:         "فيلم محفوظ",
     wl_count_pl:      "أفلام محفوظة",
@@ -872,6 +872,7 @@ window.CINEMAP_I18N = {
     toast_trailer:    "الإعلان قريب.",
     toast_copied:     "نسخنا الرابط.",
     toast_wl_copied:  "نسخنا قائمتك — شاركها مع أصحابك.",
+    toast_wl_image:   "جهزنا صورة قائمتك.",
     toast_wl_empty:   "قائمتك فاضية — ضيف فيلم أول.",
     toast_wl_clear:   "مسحنا القائمة.",
     toast_waitlist:   "بنبلّغك أول ما يفتح المنتج.",
@@ -1053,7 +1054,7 @@ window.CINEMAP_I18N = {
     wl_sub:           "Every film you save is here — until tickets open.",
     wl_empty:         "Your watchlist is waiting for its first movie.",
     wl_empty_cta:     "Browse the calendar",
-    wl_share:         "Share watchlist",
+    wl_share:         "Share image",
     wl_clear:         "Clear list",
     wl_count:         "saved",
     wl_count_pl:      "saved",
@@ -1125,6 +1126,7 @@ window.CINEMAP_I18N = {
     toast_trailer:    "Trailer coming soon.",
     toast_copied:     "Link copied.",
     toast_wl_copied:  "Your list is copied — share it with friends.",
+    toast_wl_image:   "Your list image is ready.",
     toast_wl_empty:   "Your list is empty — save a movie first.",
     toast_wl_clear:   "Watchlist cleared.",
     toast_waitlist:   "We'll let you know when it's ready.",

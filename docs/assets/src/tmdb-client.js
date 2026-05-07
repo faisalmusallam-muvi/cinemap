@@ -213,6 +213,8 @@ async function tmdbFetch(movie) {
   }
 }
 
+window.cinemapFetchMovieMedia = tmdbFetch;
+
 function modalOverview(movie, posterData, lang) {
   if (lang === 'en') {
     return posterData?.overviewEn

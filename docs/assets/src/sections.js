@@ -1,6 +1,82 @@
 /* global React */
 const { useEffect, useState, useMemo, useRef } = window.React;
 
+function buildMy2026Profile({ lang, movies, watched, ratings }) {
+  const t = window.CINEMAP_I18N[lang];
+  const watchedMovies = movies.filter(m => watched?.has(`${m.en}|${m.date}`));
+  const watchedKeys = new Set(watchedMovies.map(m => `${m.en}|${m.date}`));
+  const watchedCount = watchedMovies.length;
+  const ratedEntries = Object.entries(ratings || {}).filter(([key, r]) => (
+    watchedKeys.has(key) && r && Number(r.rating) > 0
+  ));
+
+  const totalRuntime = watchedMovies.reduce((sum, m) => (
+    sum + (Number(m.runtime) > 0 ? Number(m.runtime) : 0)
+  ), 0);
+  const hours = totalRuntime / 60;
+  const hoursText = totalRuntime > 0
+    ? `${Number.isInteger(hours) ? hours : hours.toFixed(1)} ${lang === 'en' ? (hours === 1 ? 'hour' : 'hours') : 'ساعة'}`
+    : (watchedCount > 0 ? t.my2026_soon : '0');
+
+  const average = ratedEntries.length
+    ? ratedEntries.reduce((sum, [, r]) => sum + Number(r.rating), 0) / ratedEntries.length
+    : 0;
+
+  const countValues = (values) => values.reduce((acc, val) => {
+    if (val) acc[val] = (acc[val] || 0) + 1;
+    return acc;
+  }, {});
+  const dominant = (counts) => {
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    if (!sorted.length) return null;
+    if (sorted.length === 1) return sorted[0][0];
+    return sorted[0][1] > sorted[1][1] ? sorted[0][0] : null;
+  };
+
+  const vibeCounts = {};
+  ratedEntries.forEach(([, r]) => {
+    (Array.isArray(r.vibes) ? r.vibes : []).forEach(v => {
+      if (v) vibeCounts[v] = (vibeCounts[v] || 0) + 1;
+    });
+  });
+  const topVibe = dominant(vibeCounts);
+  const topVibeLabel = topVibe
+    ? ({
+        bigscreen: t.rate_v_bigscreen,
+        stream: t.rate_v_stream,
+        friends: t.rate_v_friends,
+        date: t.rate_v_date,
+        alone: t.rate_v_alone,
+        skip: t.rate_v_skip,
+      }[topVibe] || topVibe)
+    : t.my2026_not_enough;
+
+  const topGenre = dominant(countValues(watchedMovies.map(m => m.genre)));
+  let personality = t.my2026_p0;
+  if (watchedCount >= 26) personality = t.my2026_p26;
+  else if (watchedCount >= 11) personality = t.my2026_p11;
+  else if (watchedCount >= 4) personality = t.my2026_p4;
+  else if (watchedCount >= 1) personality = t.my2026_p1;
+
+  if (topVibe === 'bigscreen') personality = t.my2026_bigscreen;
+  else if (topGenre === 'horror') personality = t.my2026_horror;
+  else if (topGenre === 'arabic') personality = t.my2026_arabic;
+
+  return {
+    watchedCount,
+    watchedMovies,
+    ratedCount: ratedEntries.length,
+    hoursText,
+    averageText: average ? `${average.toFixed(1)}/5` : t.my2026_not_yet,
+    topVibe,
+    topVibeLabel,
+    topGenre,
+    personality,
+  };
+}
+
+window.cinemapBuildMy2026Profile = buildMy2026Profile;
+
 // ---------- Journey 0 explainer ----------
 function Journey0({ lang, onJumpCalendar }) {
   const t = window.CINEMAP_I18N[lang];
@@ -37,82 +113,11 @@ function My2026Lite({ lang, movies, watched, ratings, onJumpCalendar }) {
   const t = window.CINEMAP_I18N[lang];
   const cardRef = useRef(null);
   const trackedRef = useRef(false);
-  const watchedMovies = useMemo(
-    () => movies.filter(m => watched?.has(`${m.en}|${m.date}`)),
-    [movies, watched]
+  const profile = useMemo(
+    () => buildMy2026Profile({ lang, movies, watched, ratings }),
+    [lang, movies, watched, ratings]
   );
-  const watchedKeys = useMemo(
-    () => new Set(watchedMovies.map(m => `${m.en}|${m.date}`)),
-    [watchedMovies]
-  );
-  const watchedCount = watchedMovies.length;
-
-  const profile = useMemo(() => {
-    const ratedEntries = Object.entries(ratings || {}).filter(([key, r]) => (
-      watchedKeys.has(key) && r && Number(r.rating) > 0
-    ));
-
-    const totalRuntime = watchedMovies.reduce((sum, m) => (
-      sum + (Number(m.runtime) > 0 ? Number(m.runtime) : 0)
-    ), 0);
-    const hasRuntime = totalRuntime > 0;
-    const hours = totalRuntime / 60;
-    const hoursText = hasRuntime
-      ? `${Number.isInteger(hours) ? hours : hours.toFixed(1)} ${lang === 'en' ? (hours === 1 ? 'hour' : 'hours') : 'ساعة'}`
-      : (watchedCount > 0 ? t.my2026_soon : '0');
-
-    const average = ratedEntries.length
-      ? ratedEntries.reduce((sum, [, r]) => sum + Number(r.rating), 0) / ratedEntries.length
-      : 0;
-
-    const countValues = (values) => values.reduce((acc, val) => {
-      if (val) acc[val] = (acc[val] || 0) + 1;
-      return acc;
-    }, {});
-    const dominant = (counts) => {
-      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-      if (!sorted.length) return null;
-      if (sorted.length === 1) return sorted[0][0];
-      return sorted[0][1] > sorted[1][1] ? sorted[0][0] : null;
-    };
-
-    const vibeCounts = {};
-    ratedEntries.forEach(([, r]) => {
-      (Array.isArray(r.vibes) ? r.vibes : []).forEach(v => {
-        if (v) vibeCounts[v] = (vibeCounts[v] || 0) + 1;
-      });
-    });
-    const topVibe = dominant(vibeCounts);
-    const topVibeLabel = topVibe
-      ? ({
-          bigscreen: t.rate_v_bigscreen,
-          stream: t.rate_v_stream,
-          friends: t.rate_v_friends,
-          date: t.rate_v_date,
-          alone: t.rate_v_alone,
-          skip: t.rate_v_skip,
-        }[topVibe] || topVibe)
-      : t.my2026_not_enough;
-
-    const topGenre = dominant(countValues(watchedMovies.map(m => m.genre)));
-    let personality = t.my2026_p0;
-    if (watchedCount >= 26) personality = t.my2026_p26;
-    else if (watchedCount >= 11) personality = t.my2026_p11;
-    else if (watchedCount >= 4) personality = t.my2026_p4;
-    else if (watchedCount >= 1) personality = t.my2026_p1;
-
-    if (topVibe === 'bigscreen') personality = t.my2026_bigscreen;
-    else if (topGenre === 'horror') personality = t.my2026_horror;
-    else if (topGenre === 'arabic') personality = t.my2026_arabic;
-
-    return {
-      watchedCount,
-      hoursText,
-      averageText: average ? `${average.toFixed(1)}/5` : t.my2026_not_yet,
-      topVibeLabel,
-      personality,
-    };
-  }, [lang, ratings, t, watchedCount, watchedKeys, watchedMovies]);
+  const watchedCount = profile.watchedCount;
 
   useEffect(() => {
     const el = cardRef.current;
