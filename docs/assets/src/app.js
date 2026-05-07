@@ -622,13 +622,14 @@ function App() {
     const media = await Promise.all(shareMovies.map(async (m) => {
       const data = await window.cinemapFetchMovieMedia?.(m);
       const src = data?.poster || m.localPoster || null;
-      return { movie: m, img: await loadShareImage(src) };
+      const rating = ratings?.[movieKey(m)]?.rating || 0;
+      return { movie: m, img: await loadShareImage(src), rating: Number(rating) || 0 };
     }));
 
     const startY = 560;
     const cardW = 280, posterH = 420, gap = 40;
     const startX = 80;
-    media.forEach(({ movie, img }, i) => {
+    media.forEach(({ movie, img, rating }, i) => {
       const row = Math.floor(i / 3);
       const col = i % 3;
       const x = startX + col * (cardW + gap);
@@ -642,9 +643,15 @@ function App() {
       ctx.fillStyle = '#fff7ed';
       ctx.font = '900 28px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
       drawWrappedText(ctx, window.movieTitle(movie, lang), isEn ? x : x + cardW, y + posterH + 22, cardW, 34, 2);
+      const ratingLabel = rating > 0
+        ? (isEn ? `⭐ My rating ${rating}/5` : `⭐ تقييمي ${rating}/5`)
+        : (isEn ? 'In my list' : 'في قائمتي');
+      ctx.fillStyle = rating > 0 ? '#ffc857' : '#aab4c2';
+      ctx.font = '800 23px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      ctx.fillText(ratingLabel, isEn ? x : x + cardW, y + posterH + 96);
       ctx.fillStyle = '#aab4c2';
-      ctx.font = '700 22px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-      ctx.fillText(window.fmtDate(movie.date, lang), isEn ? x : x + cardW, y + posterH + 96);
+      ctx.font = '700 20px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      ctx.fillText(window.fmtDate(movie.date, lang), isEn ? x : x + cardW, y + posterH + 128);
     });
 
     ctx.textAlign = 'center';
