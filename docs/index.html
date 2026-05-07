@@ -1048,6 +1048,12 @@
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 16px;
     }
+    @media (max-width: 540px) {
+      .cm-watchlist-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+    }
     .cm-wl-card {
       position: relative;
       padding: 10px;
@@ -1093,6 +1099,20 @@
     .cm-wl-rating .is-on {
       color: var(--gold);
       text-shadow: 0 0 14px rgba(255,200,87,0.18);
+    }
+    @media (max-width: 540px) {
+      .cm-wl-card { padding: 8px; }
+      .cm-wl-title { font-size: 13px; }
+      .cm-wl-rating {
+        flex-wrap: wrap;
+        gap: 2px;
+        font-size: 12px;
+      }
+      .cm-wl-rating-label {
+        width: 100%;
+        margin-inline-end: 0;
+        text-align: center;
+      }
     }
     .cm-wl-remove {
       position: absolute; top: 8px; right: 8px;
