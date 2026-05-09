@@ -468,7 +468,7 @@ const KSA_BOX_OFFICE_IMPORTS = [
   { ar: "Dolphin Boy 2", en: "Dolphin Boy 2", genre: "family", date: "2026-01-08", language: "ru", mood: "family",
     overview: "أنيميشن عائلي روسي للأطفال.",
     overviewEn: "A Russian animated family film for younger audiences." },
-  { ar: "هجرة", en: "Hijra", aliases: ["هجرة", "هجرا"], genre: "arabic", date: "2026-01-08", language: "ar", mood: "deep", rating: "R15",
+  { ar: "هجرة", en: "Hijra", tmdbId: 1466927, aliases: ["هجرة", "هجرا"], genre: "arabic", date: "2026-01-08", language: "ar", mood: "deep", rating: "R15",
     overview: "رحلة سعودية شاقة تبحث فيها فتاة وجدتها عن أخت اختفت في طريق الحج، وتنكشف معها أسرار العائلة.",
     overviewEn: "A Saudi drama about a girl and her grandmother searching for a missing sister along old pilgrimage routes." },
   { ar: "فلسطين 36", en: "Palestine 36", aliases: ["فلسطين 36", "فلسطين٣٦", "فلسطين ٣٦"], genre: "arabic", date: "2026-01-08", language: "ar", mood: "deep", rating: "R15",
