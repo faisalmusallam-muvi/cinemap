@@ -1026,6 +1026,7 @@ function App() {
         watched={watched}
         ratings={ratings}
         onJumpCalendar={jumpToCalendar}
+        onMarkWatched={(m) => ensureWatched(m, 'my2026_empty_quick')}
       />
 
       <window.Footer lang={lang} />

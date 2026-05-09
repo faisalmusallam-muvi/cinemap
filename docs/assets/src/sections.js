@@ -111,7 +111,7 @@ function Journey0({ lang, onJumpCalendar }) {
 }
 
 // ---------- My 2026 Lite ----------
-function My2026Lite({ lang, movies, watched, ratings, onJumpCalendar }) {
+function My2026Lite({ lang, movies, watched, ratings, onJumpCalendar, onMarkWatched }) {
   const t = window.CINEMAP_I18N[lang];
   const cardRef = useRef(null);
   const trackedRef = useRef(false);
@@ -149,6 +149,24 @@ function My2026Lite({ lang, movies, watched, ratings, onJumpCalendar }) {
     onJumpCalendar();
   };
 
+  // Released films the user hasn't watched yet — surfaced inline in the empty
+  // state with a one-tap "شفته" so the first interaction takes seconds.
+  const emptyReleasedSuggestions = useMemo(() => {
+    if (!empty || !Array.isArray(movies)) return [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const watchedSet = watched instanceof Set ? watched : new Set();
+    return movies
+      .filter(m => {
+        const isReleased = m.status === 'released' || (m.date && new Date(m.date) < today);
+        if (!isReleased) return false;
+        const k = `${m.en}|${m.date}`;
+        return !watchedSet.has(k);
+      })
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 3);
+  }, [empty, movies, watched]);
+
   return (
     <section id="my2026" className="cm-section cm-my2026-section">
       <div className="cm-container">
@@ -161,13 +179,32 @@ function My2026Lite({ lang, movies, watched, ratings, onJumpCalendar }) {
 
           {empty ? (
             <div className="cm-my2026-empty">
-              <div className="cm-my2026-empty-icon" aria-hidden="true">⭐</div>
               <div>
                 <h4>{t.my2026_empty_title}</h4>
                 <p>{t.my2026_empty_body}</p>
               </div>
-              <button className="cm-btn cm-btn-primary cm-btn-sm" onClick={clickEmptyCta}>
-                {t.my2026_empty_cta}
+              {emptyReleasedSuggestions.length > 0 && (
+                <ul className="cm-my2026-quick" role="list">
+                  {emptyReleasedSuggestions.map(m => (
+                    <li key={`${m.en}|${m.date}`} className="cm-my2026-quick-row">
+                      <div className="cm-my2026-quick-poster">
+                        <window.CinePoster movie={m} compact />
+                      </div>
+                      <div className="cm-my2026-quick-meta">
+                        <span className="cm-my2026-quick-title">{window.movieTitle(m, lang)}</span>
+                      </div>
+                      <button
+                        className="cm-btn cm-btn-primary cm-btn-sm cm-my2026-quick-btn"
+                        onClick={() => onMarkWatched?.(m)}
+                      >
+                        ✓ {t.watched}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <button className="cm-link-cta cm-my2026-alt-cta" onClick={clickEmptyCta}>
+                {t.my2026_empty_alt_cta}
               </button>
             </div>
           ) : (
