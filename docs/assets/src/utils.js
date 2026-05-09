@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.50',
-  releaseNoteAr: 'آخر تحديث: أضفنا تقييمي تحت الأفلام في صورة المشاركة.',
-  releaseNoteEn: 'Latest update: share image now shows my rating under each movie.',
+  releaseVersion: 'v1.51',
+  releaseNoteAr: 'آخر تحديث: التحديثات تنزل تلقائيًا — لا حاجة للتحديث اليدوي.',
+  releaseNoteEn: 'Latest update: new versions install automatically — no more manual refresh.',
 };
 
 // ============================================================
