@@ -307,6 +307,7 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpMy2026, onO
           <a href="#calendar" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpCalendar(); }}>{t.nav_movies}</a>
           <a href="#watchlist" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpWatchlist(); }}>{t.nav_watchlist}</a>
           <a href="#my2026" onClick={(e) => { e.preventDefault(); setOpen(false); onJumpMy2026(); }}>{t.nav_my2026}</a>
+          <UpdateMenuFooter lang={lang} />
         </div>
       )}
     </nav>
@@ -373,7 +374,6 @@ function Hero({ lang, onJumpCalendar, onJumpWatchlist, onJumpMy2026, watchlistCo
         </div>
       </div>
 
-      <UpdateStrip lang={lang} />
     </section>
   );
 }
@@ -447,6 +447,9 @@ function CinePoster({ movie, compact = false }) {
 }
 
 // ---------- Update strip ----------
+// Legacy in-page banner. The active surface is now UpdateMenuFooter inside
+// the burger menu (Item 3 — moved out of the hero so it doesn't eat
+// above-the-fold real estate). Kept exported for backwards compatibility.
 function UpdateStrip({ lang }) {
   const cfg = window.CINEMAP_CONFIG || {};
   const note = lang === 'en' ? cfg.releaseNoteEn : cfg.releaseNoteAr;
@@ -458,4 +461,24 @@ function UpdateStrip({ lang }) {
   );
 }
 
-Object.assign(window, { CinemapLogo, Nav, Hero, UpdateStrip, CinePoster });
+// Compact build label rendered at the bottom of the burger menu — secondary
+// metadata, not navigation. Sits below a thin divider so it doesn't read
+// as another menu item.
+function UpdateMenuFooter({ lang }) {
+  const cfg = window.CINEMAP_CONFIG || {};
+  const raw = lang === 'en' ? cfg.releaseNoteEn : cfg.releaseNoteAr;
+  // Strip any legacy "آخر تحديث:" / "Latest update:" prefix — the chrome
+  // owns the label now, so the data only needs the note itself.
+  const note = (raw || '').replace(/^(?:آخر تحديث:|Latest update:)\s*/i, '');
+  const prefix = lang === 'en' ? 'Latest update:' : 'آخر تحديث:';
+  return (
+    <div className="cm-update-menu-footer" aria-hidden="false">
+      <span className="cm-update-pill cm-update-pill-sm">{cfg.releaseVersion || 'v1'}</span>
+      <span className="cm-update-copy cm-update-copy-sm">
+        {prefix} {note}
+      </span>
+    </div>
+  );
+}
+
+Object.assign(window, { CinemapLogo, Nav, Hero, UpdateStrip, UpdateMenuFooter, CinePoster });

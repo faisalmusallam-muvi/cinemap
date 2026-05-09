@@ -474,7 +474,7 @@
       font-weight: 600;
       color: var(--ink-1);
     }
-    .cm-mobile-menu a:last-child { border-bottom: none; }
+    .cm-mobile-menu a:last-of-type { border-bottom: none; }
     @keyframes slide-down { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
     @media (max-width: 880px) {
@@ -743,6 +743,27 @@
     .cm-update-copy {
       color: var(--cream);
       font-weight: 700;
+    }
+    /* Smaller siblings used inside the burger menu (Item 3). */
+    .cm-update-pill-sm {
+      min-width: 38px;
+      padding: 3px 8px;
+      font-size: 11px;
+    }
+    .cm-update-copy-sm {
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .cm-update-menu-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      opacity: 0.7;
+      color: var(--ink-2);
     }
 
     /* =========================================================
