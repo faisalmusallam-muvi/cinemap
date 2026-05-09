@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.52',
-  releaseNoteAr: 'آخر تحديث: موبايل أوسع — نقلنا فلتر الحالة جوا زر الفلترة.',
-  releaseNoteEn: 'Latest update: more room on mobile — status filter moved inside the filter sheet.',
+  releaseVersion: 'v1.53',
+  releaseNoteAr: 'تنظيف الواجهة، حالات فاضية صارت بداية، وتتبّع أعمق للمشاركة.',
+  releaseNoteEn: 'Cleaner home, empty states that start your journey, deeper sharing analytics.',
 };
 
 // ============================================================
