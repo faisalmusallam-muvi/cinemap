@@ -170,10 +170,13 @@ function App() {
   // ---------- Toast system ----------
   const [toasts, setToasts] = useState([]);
   const toastIdRef = useRef(1);
-  const pushToast = useCallback((msg, kind = 'info', icon = null) => {
+  const pushToast = useCallback((msg, kind = 'info', icon = null, options = {}) => {
     const id = toastIdRef.current++;
-    setToasts(prev => [...prev, { id, msg, kind, icon }]);
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 2800);
+    const { persistent = false, onTap = null } = options;
+    setToasts(prev => [...prev, { id, msg, kind, icon, onTap }]);
+    if (!persistent) {
+      setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 2800);
+    }
   }, []);
   const dismissToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
 
@@ -300,6 +303,19 @@ function App() {
 
   // ---------- Actions ----------
   const t = window.CINEMAP_I18N[lang];
+
+  // Show a tap-to-update toast when a new service worker is ready.
+  useEffect(() => {
+    const onUpdate = (e) => {
+      const sw = e.detail?.sw;
+      pushToast(t.toast_update_available, 'info', '↻', {
+        persistent: true,
+        onTap: () => sw?.postMessage({ type: 'SKIP_WAITING' }),
+      });
+    };
+    window.addEventListener('cinemap:update-available', onUpdate);
+    return () => window.removeEventListener('cinemap:update-available', onUpdate);
+  }, [pushToast, t]);
 
   const ensureInWatchlist = useCallback((m, source = 'auto') => {
     if (!m) return;

@@ -1,5 +1,5 @@
-/* Cinemap service worker — minimal cache-first shell with network fallback */
-const CACHE = 'cinemap-shell-v50';
+/* Cinemap service worker — network-first for app shell, cache-first for static assets */
+const CACHE = 'cinemap-shell-v51';
 const SHELL = [
   './',
   './index.html',
@@ -41,6 +41,11 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
+// Allow the page to tell a waiting worker to take over immediately.
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
@@ -50,16 +55,41 @@ self.addEventListener('fetch', (e) => {
   // Don't cache cross-origin (TMDB images, Formspree, Google Fonts CSS, YouTube)
   if (url.origin !== self.location.origin) return;
 
-  // Stale-while-revalidate for shell + assets
+  const path = url.pathname;
+  const isNetworkFirst =
+    req.mode === 'navigate' ||
+    path.endsWith('.html') ||
+    path.endsWith('.js') ||
+    path.endsWith('.json') ||
+    path.endsWith('.webmanifest');
+
+  if (isNetworkFirst) {
+    // Network-first: always try fresh, fall back to cache when offline.
+    e.respondWith((async () => {
+      const cache = await caches.open(CACHE);
+      try {
+        const res = await fetch(req);
+        if (res && res.ok) cache.put(req, res.clone()).catch(() => {});
+        return res;
+      } catch (_) {
+        const cached = await cache.match(req);
+        return cached || new Response('', { status: 504 });
+      }
+    })());
+    return;
+  }
+
+  // Cache-first for everything else same-origin (SVG, CSS, fonts, png/jpg, vendor JS).
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const cached = await cache.match(req);
-    const network = fetch(req)
-      .then((res) => {
-        if (res && res.ok) cache.put(req, res.clone()).catch(() => {});
-        return res;
-      })
-      .catch(() => null);
-    return cached || (await network) || new Response('', { status: 504 });
+    if (cached) return cached;
+    try {
+      const res = await fetch(req);
+      if (res && res.ok) cache.put(req, res.clone()).catch(() => {});
+      return res;
+    } catch (_) {
+      return new Response('', { status: 504 });
+    }
   })());
 });

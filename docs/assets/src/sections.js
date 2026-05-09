@@ -461,12 +461,15 @@ function Footer({ lang }) {
 function Toaster({ toasts, onDismiss }) {
   return (
     <div className="cm-toasts">
-      {toasts.map(t => (
-        <div key={t.id} className={`cm-toast cm-toast-${t.kind || 'info'}`} onClick={() => onDismiss(t.id)}>
-          {t.icon && <span className="cm-toast-icon">{t.icon}</span>}
-          <span className="cm-toast-msg">{t.msg}</span>
-        </div>
-      ))}
+      {toasts.map(t => {
+        const cls = `cm-toast cm-toast-${t.kind || 'info'}${t.onTap ? ' cm-toast-action' : ''}`;
+        return (
+          <div key={t.id} className={cls} onClick={() => { t.onTap?.(); onDismiss(t.id); }}>
+            {t.icon && <span className="cm-toast-icon">{t.icon}</span>}
+            <span className="cm-toast-msg">{t.msg}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }

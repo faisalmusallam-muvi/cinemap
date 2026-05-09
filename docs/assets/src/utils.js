@@ -883,6 +883,7 @@ window.CINEMAP_I18N = {
     toast_wl_empty:   "قائمتك فاضية — ضيف فيلم أول.",
     toast_wl_clear:   "مسحنا القائمة.",
     toast_waitlist:   "بنبلّغك أول ما يفتح المنتج.",
+    toast_update_available: "نسخة جديدة متاحة — اضغط للتحديث",
 
     // misc
     open:             "افتح",
@@ -1143,6 +1144,7 @@ window.CINEMAP_I18N = {
     toast_wl_empty:   "Your list is empty — save a movie first.",
     toast_wl_clear:   "Watchlist cleared.",
     toast_waitlist:   "We'll let you know when it's ready.",
+    toast_update_available: "New version available — tap to update",
 
     open:             "Open",
     close:            "Close",
