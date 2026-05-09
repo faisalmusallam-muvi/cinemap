@@ -2811,13 +2811,27 @@
     }
     .cm-fbar-quick::-webkit-scrollbar { display: none; }
     .cm-fbar-quick .cm-chip { flex-shrink: 0; }
-    @media (max-width: 720px) { .cm-fbar-quick { padding: 0 18px 4px; } }
+    @media (max-width: 720px) {
+      /* On phones the quick row hides — the same chips live inside the
+         filter sheet, and the sticky chrome shrinks so more cards fit
+         above the fold. */
+      .cm-fbar-quick { display: none; }
+    }
+
+    /* Small inline row inside the filter sheet (e.g. picks toggle). */
+    .cm-sheet-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: -4px 0 12px;
+    }
 
     .cm-monthbar { top: var(--cm-monthbar-sticky-top, 122px); }
     @media (max-width: 720px) {
       .cm-monthbar {
         position: sticky;
-        top: var(--cm-monthbar-sticky-top, 206px);
+        /* Was 206px — quick row no longer takes vertical space on mobile. */
+        top: var(--cm-monthbar-sticky-top, 158px);
         z-index: 49;
       }
     }

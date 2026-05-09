@@ -82,6 +82,13 @@ function FilterSheet({ open, onClose, lang, draft, setDraft, onApply, onReset })
             lang={lang}
             allLabel={t.filter_all}
           />
+          <div className="cm-sheet-row">
+            <button
+              className={`cm-chip ${draft.picksOnly ? 'is-active' : ''}`}
+              style={draft.picksOnly ? { '--chip-color': 'var(--gold)' } : {}}
+              onClick={() => setDraft(prev => ({ ...prev, picksOnly: !prev.picksOnly }))}
+            >★ {t.filter_picks}</button>
+          </div>
           <ChipGroup
             label={t.filter_genre}
             items={Object.entries(G)}

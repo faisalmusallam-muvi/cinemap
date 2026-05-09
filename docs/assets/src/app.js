@@ -232,7 +232,9 @@ function App() {
         const fbar = document.querySelector('.cm-fbar');
         const nav = document.querySelector('.cm-nav');
         const isMobile = window.matchMedia('(max-width: 720px)').matches;
-        const fallback = isMobile ? 206 : 122;
+        // Mobile no longer renders the quick filter chips row (saves ~48px),
+        // so the fallback monthbar offset shrinks accordingly.
+        const fallback = isMobile ? 158 : 122;
         if (!fbar) {
           root.style.setProperty('--cm-monthbar-sticky-top', `${fallback}px`);
           return;
