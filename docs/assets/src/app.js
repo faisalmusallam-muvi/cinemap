@@ -1011,6 +1011,8 @@ function App() {
         watchlist={watchlist}
         savedMovies={savedMovies}
         ratings={ratings}
+        movies={movies}
+        onSave={toggleSave}
         onRemove={toggleSave}
         onShareList={handleShareList}
         onClear={handleClearList}

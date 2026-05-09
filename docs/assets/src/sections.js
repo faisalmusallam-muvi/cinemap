@@ -200,7 +200,64 @@ function My2026Lite({ lang, movies, watched, ratings, onJumpCalendar }) {
   );
 }
 
-function WatchlistSection({ lang, watchlist, savedMovies, ratings, onRemove, onShareList, onClear, onJumpCalendar, onOpenMovie }) {
+// Empty-watchlist nudge: shows up to 5 films currently trending across all
+// Cinemap users. Pulls from the weekly_top_saves materialized view via
+// window.cinemapFetchTopSaves. ANY failure (no data, view missing, network)
+// hides the section silently — the original empty state must keep working.
+function WatchlistTopSaves({ lang, movies, onSave, onOpenMovie }) {
+  const t = window.CINEMAP_I18N[lang];
+  const [items, setItems] = useState(null); // null = loading/no-render, [] = empty/no-render
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const fetcher = window.cinemapFetchTopSaves;
+      if (!fetcher || !Array.isArray(movies) || movies.length === 0) return;
+      const rows = await fetcher(5);
+      if (cancelled || !rows) return;
+      // Match each top-save row against the local catalog. Try tmdb id first,
+      // fall back to en|date. Drop films we don't have locally.
+      const catalogByTmdb = new Map();
+      const catalogByKey = new Map();
+      movies.forEach(m => {
+        if (m.tmdbId) catalogByTmdb.set(`tmdb:${m.tmdbId}`, m);
+        catalogByKey.set(`${m.en}|${m.date}`, m);
+      });
+      const matched = rows
+        .map(r => catalogByTmdb.get(r.movie_id) || catalogByKey.get(r.movie_id))
+        .filter(Boolean);
+      setItems(matched);
+    })();
+    return () => { cancelled = true; };
+  }, [movies]);
+
+  if (!items || items.length === 0) return null;
+
+  return (
+    <div className="cm-wl-top">
+      <div className="cm-wl-top-head">
+        <span className="cm-eyebrow">{t.wl_top_eyebrow}</span>
+      </div>
+      <div className="cm-wl-top-rail">
+        {items.map(m => (
+          <div key={`${m.en}|${m.date}`} className="cm-wl-top-card">
+            <button className="cm-wl-top-poster" onClick={() => onOpenMovie?.(m)} aria-label={window.movieTitle(m, lang)}>
+              <window.CinePoster movie={m} compact />
+            </button>
+            <div className="cm-wl-top-meta">
+              <h4 className="cm-wl-top-title">{window.movieTitle(m, lang)}</h4>
+              <button className="cm-btn cm-btn-primary cm-btn-sm cm-wl-top-save" onClick={() => onSave?.(m)}>
+                + {t.wl_top_save}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function WatchlistSection({ lang, watchlist, savedMovies, ratings, onRemove, onShareList, onClear, onJumpCalendar, onOpenMovie, movies, onSave }) {
   const t = window.CINEMAP_I18N[lang];
   const count = savedMovies.length;
   const renderRating = (m) => {
@@ -227,13 +284,16 @@ function WatchlistSection({ lang, watchlist, savedMovies, ratings, onRemove, onS
         </header>
 
         {count === 0 ? (
-          <div className="cm-watchlist-empty">
-            <div className="cm-watchlist-empty-icon">🎬</div>
-            <p className="cm-watchlist-empty-text">{t.wl_empty}</p>
-            <button className="cm-btn cm-btn-primary" onClick={onJumpCalendar}>
-              {t.wl_empty_cta}
-            </button>
-          </div>
+          <>
+            <WatchlistTopSaves lang={lang} movies={movies} onSave={onSave} onOpenMovie={onOpenMovie} />
+            <div className="cm-watchlist-empty">
+              <div className="cm-watchlist-empty-icon">🎬</div>
+              <p className="cm-watchlist-empty-text">{t.wl_empty}</p>
+              <button className="cm-btn cm-btn-primary" onClick={onJumpCalendar}>
+                {t.wl_empty_cta}
+              </button>
+            </div>
+          </>
         ) : (
           <>
             <div className="cm-watchlist-actions">

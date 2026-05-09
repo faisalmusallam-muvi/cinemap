@@ -203,6 +203,32 @@ window.cinemapTrackMovie = function cinemapTrackMovie(action, movie, payload = {
   return window.cinemapTrack?.(action, { ...moviePayload(movie), ...payload });
 };
 
+// Fetches the weekly_top_saves materialized view from Supabase. Returns
+// an array of { movie_id, title_en, title_ar, save_count } or null on any
+// failure (network, missing view, RLS denial). Callers MUST treat null
+// as "hide the section" — never as an error to surface.
+window.cinemapFetchTopSaves = async function cinemapFetchTopSaves(limit = 5) {
+  const cfg = window.CINEMAP_CONFIG || {};
+  const eventsEndpoint = cfg.supabaseEventsEndpoint;
+  const key = cfg.supabasePublishableKey;
+  if (!eventsEndpoint || !key) return null;
+  const endpoint = eventsEndpoint.replace('/cinemap_events', '/weekly_top_saves');
+  const url = `${endpoint}?select=*&order=save_count.desc&limit=${encodeURIComponent(limit)}`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+      },
+    });
+    if (!res.ok) return null;
+    const rows = await res.json();
+    return Array.isArray(rows) ? rows : null;
+  } catch {
+    return null;
+  }
+};
+
 window.cinemapReadEvents = readEvents;
 window.cinemapClearEvents = function cinemapClearEvents() {
   try { localStorage.removeItem(LS_EVENTS); } catch {}

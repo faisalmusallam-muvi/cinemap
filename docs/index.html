@@ -1240,6 +1240,56 @@
     .cm-watchlist-empty-icon { font-size: 56px; }
     .cm-watchlist-empty-text { color: var(--ink-1); font-size: 17px; }
 
+    /* Top-saved-this-week rail shown above the empty state (Item 4). */
+    .cm-wl-top { margin-bottom: 24px; }
+    .cm-wl-top-head { margin-bottom: 12px; }
+    .cm-wl-top-rail {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .cm-wl-top-rail::-webkit-scrollbar { display: none; }
+    .cm-wl-top-card {
+      flex: 0 0 140px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .cm-wl-top-poster {
+      display: block;
+      width: 100%;
+      padding: 0;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .cm-wl-top-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .cm-wl-top-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink-1);
+      margin: 0;
+      line-height: 1.25;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .cm-wl-top-save {
+      align-self: stretch;
+      justify-content: center;
+      font-size: 12px;
+    }
+
     .cm-watchlist-actions {
       display: flex; align-items: center; justify-content: space-between;
       gap: 12px; flex-wrap: wrap;
