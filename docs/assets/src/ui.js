@@ -315,7 +315,7 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpMy2026, onO
 }
 
 // ---------- Hero ----------
-function Hero({ lang, onJumpCalendar, onJumpWatchlist, onJumpMy2026, watchlistCount, featured }) {
+function Hero({ lang, onJumpCalendar, onJumpWatchlist, onJumpMy2026, watchlistCount, featured, isFirstTime = false }) {
   const t = window.CINEMAP_I18N[lang];
   const ref = useRef(null);
 
@@ -354,13 +354,21 @@ function Hero({ lang, onJumpCalendar, onJumpWatchlist, onJumpMy2026, watchlistCo
             <button className="cm-btn cm-btn-primary cm-btn-lg" onClick={() => { window.cinemapTrack?.('homepage_cta_click', { cta: 'calendar' }); onJumpCalendar(); }}>
               {t.hero_cta}
             </button>
-            <button className="cm-btn cm-btn-ghost cm-btn-lg" onClick={() => { window.cinemapTrack?.('homepage_cta_click', { cta: 'watchlist' }); onJumpWatchlist(); }}>
-              {t.hero_cta_2}
-              {watchlistCount > 0 && <span className="cm-btn-count">{watchlistCount}</span>}
-            </button>
-            <button className="cm-btn cm-btn-ghost cm-btn-lg" onClick={() => { window.cinemapTrack?.('homepage_cta_click', { cta: 'my2026' }); onJumpMy2026(); }}>
-              {t.hero_cta_3}
-            </button>
+            {/* Hide قائمتي and ملخصي for true first-time visitors — there's
+                nothing to show in either yet, and the simpler hero converts
+                better. The buttons reappear the moment the user saves their
+                first film. (Item 6) */}
+            {!isFirstTime && (
+              <>
+                <button className="cm-btn cm-btn-ghost cm-btn-lg" onClick={() => { window.cinemapTrack?.('homepage_cta_click', { cta: 'watchlist' }); onJumpWatchlist(); }}>
+                  {t.hero_cta_2}
+                  {watchlistCount > 0 && <span className="cm-btn-count">{watchlistCount}</span>}
+                </button>
+                <button className="cm-btn cm-btn-ghost cm-btn-lg" onClick={() => { window.cinemapTrack?.('homepage_cta_click', { cta: 'my2026' }); onJumpMy2026(); }}>
+                  {t.hero_cta_3}
+                </button>
+              </>
+            )}
           </div>
 
           {t.hero_support && <p className="cm-hero-support">{t.hero_support}</p>}

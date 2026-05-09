@@ -936,6 +936,7 @@ function App() {
         onJumpMy2026={jumpToMy2026}
         watchlistCount={watchlist.size}
         featured={featured}
+        isFirstTime={watchlist.size === 0 && watched.size === 0 && Object.keys(ratings).length === 0}
       />
 
       <window.FeaturedCarousel
