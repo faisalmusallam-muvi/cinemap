@@ -594,6 +594,14 @@ function App() {
     });
   };
 
+  // Prefix Latin-leading titles with U+200E so the Arabic-context canvas
+  // doesn't flip neutral characters like ":" to the wrong side.
+  // Example: "Greenland 2: Migration" was rendering as ":Migration".
+  const withLtrIfLatin = (title) => {
+    if (!title) return title;
+    return /^[A-Za-z]/.test(title.trim()) ? '‎' + title : title;
+  };
+
   const makeWatchlistShareImage = async () => {
     try {
       if (document.fonts?.ready) await document.fonts.ready;
@@ -740,7 +748,7 @@ function App() {
       ctx.textAlign = isEn ? 'left' : 'right';
       ctx.fillStyle = '#fff7ed';
       ctx.font = '900 28px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-      drawWrappedText(ctx, window.movieTitle(movie, lang), isEn ? x : x + cardW, y + posterH + 22, cardW, 34, 2);
+      drawWrappedText(ctx, withLtrIfLatin(window.movieTitle(movie, lang)), isEn ? x : x + cardW, y + posterH + 22, cardW, 34, 2);
       const ratingLabel = rating > 0
         ? (isEn ? `⭐ My rating ${rating}/5` : `⭐ تقييمي ${rating}/5`)
         : (isEn ? 'In my list' : 'في قائمتي');
