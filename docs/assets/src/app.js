@@ -306,6 +306,21 @@ function App() {
   // ---------- Actions ----------
   const t = window.CINEMAP_I18N[lang];
 
+  // Fires once per session when an inbound visitor (?p=…) saves their first
+  // film. Lets us measure share→save conversion without adding any new
+  // identifier — reuses the existing inbound state and a sessionStorage flag.
+  const maybeFireInboundFirstSave = useCallback((m) => {
+    if (!inbound) return;
+    try {
+      const KEY = 'cinemap-inbound-first-save-fired';
+      if (sessionStorage.getItem(KEY)) return;
+      sessionStorage.setItem(KEY, '1');
+      window.cinemapTrackMovie?.('inbound_to_first_save', m, {
+        personalityKey: inbound.personalityKey,
+      });
+    } catch {}
+  }, [inbound]);
+
   // Show a tap-to-update toast when a new service worker is ready.
   useEffect(() => {
     const onUpdate = (e) => {
@@ -331,7 +346,8 @@ function App() {
       return next;
     });
     window.cinemapTrackMovie?.('movie_save', m, { source });
-  }, [watchlist]);
+    maybeFireInboundFirstSave(m);
+  }, [watchlist, maybeFireInboundFirstSave]);
 
   const ensureWatched = useCallback((m, source = 'rating') => {
     if (!m) return;
@@ -363,6 +379,7 @@ function App() {
       } else {
         next.add(k);
         window.cinemapTrackMovie?.('movie_save', m, { source: 'action' });
+        maybeFireInboundFirstSave(m);
         pushToast(t.toast_saved, 'success', '💛');
       }
       saveSet(LS.watchlist, next);
@@ -790,6 +807,13 @@ function App() {
       const blob = await makeWatchlistShareImage();
       if (!blob) throw new Error('no-blob');
       const file = new File([blob], 'cinemap-my-2026.png', { type: 'image/png' });
+      // Funnel step 1: image bytes ready, BEFORE any share sheet opens.
+      const sharePayload = {
+        count: savedMovies.length,
+        personalityKey: shareProfile.personalityKey || null,
+        topVibe: shareProfile.topVibeKey || null,
+      };
+      window.cinemapTrack?.('share_card_generated', sharePayload);
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           title: lang === 'en' ? 'My Cinemap 2026' : 'قائمتي في سينماب 2026',
@@ -798,11 +822,14 @@ function App() {
           files: [file],
         });
         window.cinemapTrack?.('watchlist_share_image', { method: 'web_share', count: savedMovies.length });
+        // Funnel step 2: the system share sheet returned success.
+        window.cinemapTrack?.('share_card_downloaded', { ...sharePayload, method: 'web_share' });
         return;
       }
       if (navigator.clipboard && window.ClipboardItem) {
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
         window.cinemapTrack?.('watchlist_share_image', { method: 'clipboard_image', count: savedMovies.length });
+        window.cinemapTrack?.('share_card_downloaded', { ...sharePayload, method: 'clipboard_image' });
         pushToast(t.toast_wl_image, 'success', '🖼');
         return;
       }
@@ -810,6 +837,9 @@ function App() {
       const a = document.createElement('a');
       a.href = url;
       a.download = 'cinemap-my-2026.png';
+      a.addEventListener('click', () => {
+        window.cinemapTrack?.('share_card_downloaded', { ...sharePayload, method: 'download' });
+      }, { once: true });
       document.body.appendChild(a);
       a.click();
       a.remove();

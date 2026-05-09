@@ -26,6 +26,11 @@ const SUPABASE_EVENT_TYPES = {
   rating_submitted: 'rating_submitted',
   movie_share: 'share_movie',
   watchlist_share_image: 'share_movie',
+  // Share-funnel breakdown: image generated, then actually shared/downloaded,
+  // and the conversion of an inbound visitor into their first save.
+  share_card_generated: 'share_card_generated',
+  share_card_downloaded: 'share_card_downloaded',
+  inbound_to_first_save: 'inbound_to_first_save',
   calendar_picker_open: 'calendar_click',
 };
 
