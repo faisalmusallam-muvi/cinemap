@@ -378,7 +378,12 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
           </div>
         </div>
 
-        <div className="cm-movie-actions" onClick={stop}>
+        {/* No onClick={stop} on the container — empty space between
+            buttons (notably the left/RTL-end corner) used to swallow taps,
+            preventing the card-level click from opening the modal. Buttons
+            still stop propagation individually so the actions don't
+            double-fire as a card open. */}
+        <div className="cm-movie-actions">
           {isReleased ? (
             <>
               <button

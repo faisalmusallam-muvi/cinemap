@@ -234,56 +234,12 @@ function App() {
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
-  useEffect(() => {
-    let frame = null;
-    const root = document.documentElement;
-    const setMonthbarOffset = () => {
-      if (frame) cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const fbar = document.querySelector('.cm-fbar');
-        const nav = document.querySelector('.cm-nav');
-        const isMobile = window.matchMedia('(max-width: 720px)').matches;
-        // Mobile no longer renders the quick filter chips row (saves ~48px),
-        // so the fallback monthbar offset shrinks accordingly.
-        const fallback = isMobile ? 158 : 122;
-        if (!fbar) {
-          root.style.setProperty('--cm-monthbar-sticky-top', `${fallback}px`);
-          return;
-        }
-        const fbarRect = fbar.getBoundingClientRect();
-        if (fbarRect.top > window.innerHeight) {
-          root.style.setProperty('--cm-monthbar-sticky-top', `${fallback}px`);
-          return;
-        }
-        const navRect = nav?.getBoundingClientRect();
-        const navBottom = navRect ? Math.max(0, navRect.bottom) : 0;
-        const top = Math.max(navBottom, fbarRect.bottom);
-        root.style.setProperty('--cm-monthbar-sticky-top', `${Math.round(top)}px`);
-      });
-    };
-
-    const resizeObserver = typeof ResizeObserver !== 'undefined'
-      ? new ResizeObserver(setMonthbarOffset)
-      : null;
-    ['.cm-nav', '.cm-fbar'].forEach(sel => {
-      const el = document.querySelector(sel);
-      if (el) resizeObserver?.observe(el);
-    });
-    window.addEventListener('scroll', setMonthbarOffset, { passive: true });
-    window.addEventListener('resize', setMonthbarOffset);
-    window.visualViewport?.addEventListener('resize', setMonthbarOffset);
-    window.visualViewport?.addEventListener('scroll', setMonthbarOffset);
-    setMonthbarOffset();
-
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      resizeObserver?.disconnect();
-      window.removeEventListener('scroll', setMonthbarOffset);
-      window.removeEventListener('resize', setMonthbarOffset);
-      window.visualViewport?.removeEventListener('resize', setMonthbarOffset);
-      window.visualViewport?.removeEventListener('scroll', setMonthbarOffset);
-    };
-  }, []);
+  // (Removed dynamic monthbar-offset useEffect.) The previous version
+  // recalculated the monthbar's sticky `top` on every scroll event by
+  // measuring the filter bar's current rect. Because the filter bar is
+  // itself sticky, those measurements changed mid-scroll and the
+  // monthbar visibly jittered before settling. Static CSS values now
+  // pin it at fbar-bottom (60+60=120 mobile, 64+70=134 desktop).
 
   // ---------- Jump helpers ----------
   const stickyOffset = () => {
@@ -638,7 +594,7 @@ function App() {
     try {
       if (document.fonts?.ready) await document.fonts.ready;
     } catch {}
-    const profile = window.cinemapBuildMy2026Profile?.({ lang, movies, watched, ratings }) || {};
+    const profile = window.cinemapBuildMy2026Profile?.({ lang, movies, watched, ratings, watchlist }) || {};
     const isEn = lang === 'en';
     const W = 1080, H = 1920;
     const canvas = document.createElement('canvas');
@@ -785,19 +741,37 @@ function App() {
       ctx.direction = isArabicLeading(title) ? 'rtl' : 'ltr';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#fff7ed';
-      ctx.font = '900 28px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-      drawWrappedText(ctx, title, x + cardW / 2, y + posterH + 22, cardW, 34, 2);
-      // Only render a subtitle when the user has rated the film. The old
-      // "في قائمتي" placeholder was repetitive — every card was already
-      // visibly in their list.
-      if (rating > 0) {
-        const ratingLabel = isEn ? `⭐ My rating ${rating}/5` : `⭐ تقييمي ${rating}/5`;
-        ctx.fillStyle = '#ffc857';
-        ctx.font = '800 24px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-        ctx.fillText(ratingLabel, x + cardW / 2, y + posterH + 100);
+      ctx.font = '900 26px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      drawWrappedText(ctx, title, x + cardW / 2, y + posterH + 18, cardW, 32, 2);
+
+      // Date under the title — same compact info pattern as the watchlist
+      // cards in the app (title → date → stars).
+      ctx.direction = isEn ? 'ltr' : 'rtl';
+      ctx.fillStyle = '#aab4c2';
+      ctx.font = '700 22px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      const dateText = window.fmtDate(movie.date, lang);
+      ctx.fillText(dateText, x + cardW / 2, y + posterH + 88);
+
+      // Rating row — always render 5 stars (gold for rated, dim for empty)
+      // so every card carries the rating affordance, matching the watchlist
+      // visual where stars speak for themselves without a "تقييمك" label.
+      const goldCount = Math.max(0, Math.min(5, Math.round(rating)));
+      const starSize = 24;
+      const starGap = 6;
+      const totalStarWidth = 5 * starSize + 4 * starGap;
+      let cursor = x + cardW / 2 - totalStarWidth / 2;
+      ctx.font = '800 ' + starSize + 'px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.direction = 'ltr';
+      for (let s = 0; s < 5; s++) {
+        ctx.fillStyle = s < goldCount ? '#ffc857' : 'rgba(245,242,235,0.18)';
+        ctx.fillText('★', cursor, y + posterH + 124);
+        cursor += starSize + starGap;
       }
+
       // Reset direction back to the canvas default so other elements
       // (footer, etc.) continue to use the Arabic-context direction.
+      ctx.textAlign = 'center';
       ctx.direction = isEn ? 'ltr' : 'rtl';
     });
 
@@ -828,7 +802,7 @@ function App() {
       pushToast(t.toast_wl_empty, 'info', '🎬');
       return;
     }
-    const shareProfile = window.cinemapBuildMy2026Profile?.({ lang, movies, watched, ratings }) || {};
+    const shareProfile = window.cinemapBuildMy2026Profile?.({ lang, movies, watched, ratings, watchlist }) || {};
     const shareUrl = buildShareUrl(shareProfile);
     try {
       const blob = await makeWatchlistShareImage();
@@ -1053,6 +1027,7 @@ function App() {
         movies={movies}
         watched={watched}
         ratings={ratings}
+        watchlist={watchlist}
         onJumpCalendar={jumpToCalendar}
         onMarkWatched={(m) => ensureWatched(m, 'my2026_empty_quick')}
       />

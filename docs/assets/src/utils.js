@@ -301,10 +301,6 @@ const RAW_MOVIES = [
     overview: "فيلم عن الجانب المظلم لوسائل التواصل الاجتماعي.",
     overviewEn: "A film about the dark side of social media.",
     runtime: 125, rating: "R" },
-  { month: 9, ar: "Remain", en: "Remain", genre: "thriller", date: "2026-10-22", language: 'en', mood: 'romance',
-    overview: "إثارة نفسية مقتبسة عن رواية نيكولاس سباركس.",
-    overviewEn: "A psychological romance adapted from Nicholas Sparks.",
-    runtime: 110, rating: "PG-13" },
 
   // NOVEMBER
   { month: 10, ar: "Wild Horse Nine", en: "Wild Horse Nine", genre: "comedy", date: "2026-11-05", language: 'en', mood: 'fun',
@@ -352,7 +348,7 @@ const RAW_MOVIES = [
     overview: "الجزء الثالث من ملحمة ديون — بول أتريديس إمبراطور الكون.",
     overviewEn: "The third chapter of Dune — Paul Atreides, emperor of the universe.",
     runtime: 170, rating: "PG-13" },
-  { month: 11, ar: "Jumanji: Open World", en: "Jumanji: Open World", aliases: ["جومانجي", "جومانجي أوبن وورلد", "جومانجي اوبن وورلد"], genre: "comedy", date: "2026-12-24", pick: true, language: 'en', mood: 'fun',
+  { month: 11, ar: "Jumanji: Open World", en: "Jumanji: Open World", tmdbId: 1260649, aliases: ["جومانجي", "جومانجي أوبن وورلد", "جومانجي اوبن وورلد"], genre: "comedy", date: "2026-12-24", pick: true, language: 'en', mood: 'fun',
     featuredRank: 3, projectedAdmissions: 750000, badge: "Group Night", badgeAr: "اختيار للجماعة",
     overview: "عودة الأبطال إلى العالم الأكثر خطورة في ألعاب الفيديو.",
     overviewEn: "The crew returns to gaming's most dangerous world.",
@@ -806,9 +802,9 @@ window.CINEMAP_I18N = {
     my2026_eyebrow:        "خاص فيك",
     my2026_title:          "ملخصك السينمائي في 2026",
     my2026_sub:            "كل ما تقيّم أفلام أكثر، نعرف ذوقك أكثر.",
-    my2026_watched:        "شفته",
-    my2026_time:           "وقتك مع الأفلام",
-    my2026_avg:            "متوسط تقييمك",
+    my2026_watched:        "كم فيلم",
+    my2026_time:           "كم ساعة",
+    my2026_avg:            "متوسط التقييم",
     my2026_vibe:           "أكثر فئة أفلام تعجبك",
     my2026_personality:    "شخصيتك",
     my2026_soon:           "قريبًا",
@@ -818,11 +814,19 @@ window.CINEMAP_I18N = {
     my2026_empty_body:     "علّمنا أول فيلم شفته عشان نبدأ نبني ملخصك السينمائي.",
     my2026_empty_cta:      "استكشف الأفلام",
     my2026_empty_alt_cta:  "أو استكشف كل الأفلام",
-    my2026_p0:             "ابدأ رحلتك",
-    my2026_p1:             "مبتدئ سينمائي",
+    // 6-tier personality based on rated count (UX redesign).
+    // Saudi-colloquial naming.
+    my2026_p0:             "لسه في البداية",          // 0 rated
+    my2026_p1:             "الكنبة قبل السينما",      // 1-4 rated
+    my2026_p5:             "مشاهد ويكند",             // 5-9 rated
+    my2026_p10:            "محب أفلام",                // 10-19 rated
+    my2026_p20:            "وفي السينما",              // 20-29 rated
+    my2026_p30:            "الناقد",                   // 30+ rated
+    // Legacy aliases — keep so old shared inbound URLs still resolve to a
+    // sensible label instead of falling back to the default tier.
     my2026_p4:             "محب أفلام",
-    my2026_p11:            "عاشق سينما",
-    my2026_p26:            "مدمن أفلام",
+    my2026_p11:            "وفي السينما",
+    my2026_p26:            "الناقد",
     my2026_bigscreen:      "عاشق الشاشة الكبيرة",
     my2026_horror:         "ملك الرعب",
     my2026_arabic:         "داعم السينما العربية",
@@ -1080,8 +1084,8 @@ window.CINEMAP_I18N = {
     my2026_eyebrow:        "Private to you",
     my2026_title:          "My 2026 Movie Profile",
     my2026_sub:            "The more you rate, the more Cinemap understands your movie taste.",
-    my2026_watched:        "Watched",
-    my2026_time:           "Time with movies",
+    my2026_watched:        "Films",
+    my2026_time:           "Hours",
     my2026_avg:            "Average rating",
     my2026_vibe:           "Top movie category",
     my2026_personality:    "Your personality",
@@ -1092,11 +1096,17 @@ window.CINEMAP_I18N = {
     my2026_empty_body:     "Mark your first watched movie and we’ll start building your movie profile.",
     my2026_empty_cta:      "Explore movies",
     my2026_empty_alt_cta:  "or explore all movies",
-    my2026_p0:             "Start your journey",
-    my2026_p1:             "Movie Starter",
+    // 6-tier personality based on rated count.
+    my2026_p0:             "Just Getting Started",
+    my2026_p1:             "Couch Before Cinema",
+    my2026_p5:             "Weekend Watcher",
+    my2026_p10:            "Movie Lover",
+    my2026_p20:            "Cinema Loyalist",
+    my2026_p30:            "The Critic",
+    // Legacy aliases for old shared URLs.
     my2026_p4:             "Movie Lover",
-    my2026_p11:            "Cinema Fan",
-    my2026_p26:            "Cinema Addict",
+    my2026_p11:            "Cinema Loyalist",
+    my2026_p26:            "The Critic",
     my2026_bigscreen:      "Big Screen Lover",
     my2026_horror:         "Horror Head",
     my2026_arabic:         "Arabic Cinema Supporter",

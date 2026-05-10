@@ -1,77 +1,95 @@
 /* global React */
 const { useEffect, useState, useMemo, useRef } = window.React;
 
-function buildMy2026Profile({ lang, movies, watched, ratings }) {
+function buildMy2026Profile({ lang, movies, watched, ratings, watchlist }) {
   const t = window.CINEMAP_I18N[lang];
-  const watchedMovies = movies.filter(m => watched?.has(`${m.en}|${m.date}`));
-  const watchedKeys = new Set(watchedMovies.map(m => `${m.en}|${m.date}`));
-  const watchedCount = watchedMovies.length;
-  const ratedEntries = Object.entries(ratings || {}).filter(([key, r]) => (
-    watchedKeys.has(key) && r && Number(r.rating) > 0
-  ));
+  const G = window.CINEMAP_GENRES || {};
+  const keyOf = (m) => `${m.en}|${m.date}`;
 
+  const watchedMovies = movies.filter(m => watched?.has(keyOf(m)));
+  const watchedKeys = new Set(watchedMovies.map(keyOf));
+  const watchedCount = watchedMovies.length;
+
+  // Rated entries — anywhere in the catalog, not just watched. (Faisal's
+  // call: rating count is the truth source for the personality tier.)
+  const ratedEntries = Object.entries(ratings || {}).filter(([, r]) => (
+    r && Number(r.rating) > 0
+  ));
+  const ratedCount = ratedEntries.length;
+
+  // ---------- Hours from watched runtime ----------
   const totalRuntime = watchedMovies.reduce((sum, m) => (
     sum + (Number(m.runtime) > 0 ? Number(m.runtime) : 0)
   ), 0);
   const hours = totalRuntime / 60;
+  // Just the number — the label ("كم ساعة" / "Hours") carries the unit,
+  // so the value stays compact like the other support stats.
   const hoursText = totalRuntime > 0
-    ? `${Number.isInteger(hours) ? hours : hours.toFixed(1)} ${lang === 'en' ? (hours === 1 ? 'hour' : 'hours') : 'ساعة'}`
+    ? `${Number.isInteger(hours) ? hours : hours.toFixed(1)}`
     : (watchedCount > 0 ? t.my2026_soon : '0');
 
-  const average = ratedEntries.length
-    ? ratedEntries.reduce((sum, [, r]) => sum + Number(r.rating), 0) / ratedEntries.length
+  const average = ratedCount
+    ? ratedEntries.reduce((sum, [, r]) => sum + Number(r.rating), 0) / ratedCount
     : 0;
 
-  const countValues = (values) => values.reduce((acc, val) => {
-    if (val) acc[val] = (acc[val] || 0) + 1;
-    return acc;
-  }, {});
-  const dominant = (counts) => {
-    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-    if (!sorted.length) return null;
-    if (sorted.length === 1) return sorted[0][0];
-    return sorted[0][1] > sorted[1][1] ? sorted[0][0] : null;
+  // ---------- Top genre — mixed engagement signal ----------
+  // Per Faisal: include saved (future films), watched (no rating), and
+  // rated movies. Rated movies weight by their score so 5★ on a drama
+  // beats 1 save of an action.
+  //   - in watchlist (any movie):           +1
+  //   - watched (no rating):                +1
+  //   - rated (replaces the +1 for watched): +rating (1-5)
+  const genreScores = {};
+  const bumpGenre = (m, points) => {
+    const g = m && m.genre;
+    if (!g) return;
+    genreScores[g] = (genreScores[g] || 0) + points;
   };
 
-  const vibeCounts = {};
-  ratedEntries.forEach(([, r]) => {
-    (Array.isArray(r.vibes) ? r.vibes : []).forEach(v => {
-      if (v) vibeCounts[v] = (vibeCounts[v] || 0) + 1;
-    });
+  const ratingByKey = {};
+  ratedEntries.forEach(([k, r]) => { ratingByKey[k] = Number(r.rating); });
+
+  movies.forEach((m) => {
+    const k = keyOf(m);
+    if (watchlist && watchlist.has(k)) bumpGenre(m, 1);
+    if (watchedKeys.has(k)) {
+      // Rated movies bring their own score; unrated-but-watched contribute 1.
+      const r = ratingByKey[k];
+      if (r > 0) bumpGenre(m, r);
+      else bumpGenre(m, 1);
+    } else if (ratingByKey[k] > 0) {
+      // Edge case: rated but not watched (rare but possible). Still counts.
+      bumpGenre(m, ratingByKey[k]);
+    }
   });
-  const topVibe = dominant(vibeCounts);
-  const topVibeLabel = topVibe
-    ? ({
-        bigscreen: t.rate_v_bigscreen,
-        stream: t.rate_v_stream,
-        friends: t.rate_v_friends,
-        date: t.rate_v_date,
-        alone: t.rate_v_alone,
-        skip: t.rate_v_skip,
-      }[topVibe] || topVibe)
+
+  const sortedGenres = Object.entries(genreScores).sort((a, b) => b[1] - a[1]);
+  const topGenre = sortedGenres.length ? sortedGenres[0][0] : null;
+  const topGenreLabel = topGenre
+    ? (lang === 'en' ? (G[topGenre]?.en || topGenre) : (G[topGenre]?.ar || topGenre))
     : t.my2026_not_enough;
 
-  const topGenre = dominant(countValues(watchedMovies.map(m => m.genre)));
+  // ---------- Personality tier — purely by rated count ----------
   let personality = t.my2026_p0;
   let personalityKey = 'p0';
-  if (watchedCount >= 26) { personality = t.my2026_p26; personalityKey = 'p26'; }
-  else if (watchedCount >= 11) { personality = t.my2026_p11; personalityKey = 'p11'; }
-  else if (watchedCount >= 4) { personality = t.my2026_p4; personalityKey = 'p4'; }
-  else if (watchedCount >= 1) { personality = t.my2026_p1; personalityKey = 'p1'; }
-
-  if (topVibe === 'bigscreen') { personality = t.my2026_bigscreen; personalityKey = 'bigscreen'; }
-  else if (topGenre === 'horror') { personality = t.my2026_horror; personalityKey = 'horror'; }
-  else if (topGenre === 'arabic') { personality = t.my2026_arabic; personalityKey = 'arabic'; }
+  if (ratedCount >= 30)      { personality = t.my2026_p30; personalityKey = 'p30'; }
+  else if (ratedCount >= 20) { personality = t.my2026_p20; personalityKey = 'p20'; }
+  else if (ratedCount >= 10) { personality = t.my2026_p10; personalityKey = 'p10'; }
+  else if (ratedCount >= 5)  { personality = t.my2026_p5;  personalityKey = 'p5';  }
+  else if (ratedCount >= 1)  { personality = t.my2026_p1;  personalityKey = 'p1';  }
 
   return {
     watchedCount,
     watchedMovies,
-    ratedCount: ratedEntries.length,
+    ratedCount,
     hoursText,
     averageText: average ? `${average.toFixed(1)}/5` : t.my2026_not_yet,
-    topVibe,
-    topVibeLabel,
     topGenre,
+    topGenreLabel,
+    // Kept for backward compat with the share image / inbound URL code that
+    // may still read these fields. topVibeKey is no longer surfaced in UI.
+    topVibe: null,
+    topVibeLabel: topGenreLabel,
     personality,
     personalityKey,
   };
@@ -111,13 +129,13 @@ function Journey0({ lang, onJumpCalendar }) {
 }
 
 // ---------- My 2026 Lite ----------
-function My2026Lite({ lang, movies, watched, ratings, onJumpCalendar, onMarkWatched }) {
+function My2026Lite({ lang, movies, watched, ratings, watchlist, onJumpCalendar, onMarkWatched }) {
   const t = window.CINEMAP_I18N[lang];
   const cardRef = useRef(null);
   const trackedRef = useRef(false);
   const profile = useMemo(
-    () => buildMy2026Profile({ lang, movies, watched, ratings }),
-    [lang, movies, watched, ratings]
+    () => buildMy2026Profile({ lang, movies, watched, ratings, watchlist }),
+    [lang, movies, watched, ratings, watchlist]
   );
   const watchedCount = profile.watchedCount;
 
@@ -209,25 +227,29 @@ function My2026Lite({ lang, movies, watched, ratings, onJumpCalendar, onMarkWatc
             </div>
           ) : (
             <div className="cm-my2026-grid">
+              {/* Hero row: identity first, taste second. The two questions
+                  the user actually wants answered when they open this
+                  section: "what tier am I?" then "what type do I love?". */}
+              <div className="cm-my2026-tile is-personality">
+                <span>{t.my2026_personality}</span>
+                <strong>{profile.personality}</strong>
+              </div>
+              <div className="cm-my2026-tile is-taste">
+                <span>{t.my2026_vibe}</span>
+                <strong>{profile.topGenreLabel}</strong>
+              </div>
+              {/* Support stats — supporting evidence below the headline. */}
               <div className="cm-my2026-tile">
                 <span>{t.my2026_watched}</span>
                 <strong>{profile.watchedCount}</strong>
-              </div>
-              <div className="cm-my2026-tile">
-                <span>{t.my2026_time}</span>
-                <strong>{profile.hoursText}</strong>
               </div>
               <div className="cm-my2026-tile">
                 <span>{t.my2026_avg}</span>
                 <strong>{profile.averageText}</strong>
               </div>
               <div className="cm-my2026-tile">
-                <span>{t.my2026_vibe}</span>
-                <strong>{profile.topVibeLabel}</strong>
-              </div>
-              <div className="cm-my2026-tile is-personality">
-                <span>{t.my2026_personality}</span>
-                <strong>{profile.personality}</strong>
+                <span>{t.my2026_time}</span>
+                <strong>{profile.hoursText}</strong>
               </div>
             </div>
           )}
@@ -303,7 +325,8 @@ function WatchlistSection({ lang, watchlist, savedMovies, ratings, onRemove, onS
     const score = Math.max(0, Math.min(5, Number(r.rating) || 0));
     return (
       <div className="cm-wl-rating" title={`${t.score_your} ${score}/5`} aria-label={`${t.score_your} ${score}/5`}>
-        <span className="cm-wl-rating-label">{t.score_your}</span>
+        {/* Label removed per UX feedback — the stars speak for themselves
+            on a "your list" surface. The aria-label keeps it accessible. */}
         {Array.from({ length: 5 }, (_, i) => (
           <span key={i} className={i < score ? 'is-on' : ''}>★</span>
         ))}

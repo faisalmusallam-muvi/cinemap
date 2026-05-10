@@ -122,14 +122,8 @@ function FeaturedCarousel({ lang, watchlist, notified, watched, ratings, onToggl
                     </>
                   )}
                 </div>
-                <div className="cm-fc-projected">
-                  <span className="cm-fc-flame">🔥</span>
-                  <span>
-                    {lang === 'en'
-                      ? <><strong>Projected {projected}</strong> {t.feat_admissions}</>
-                      : <><strong>{t.feat_projected} {projected}</strong> {t.feat_admissions}</>}
-                  </span>
-                </div>
+                {/* Projected-admissions badge removed — internal data
+                    not meant for the public surface. */}
 
                 <div className="cm-fc-actions">
                   <button

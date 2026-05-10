@@ -38,7 +38,7 @@ const TMDB_BG_BASE  = 'https://image.tmdb.org/t/p/w1280';
 // (e.g. when posters change across the board, or when TMDB structure shifts).
 // Each entry also has its own TTL so caches roll over automatically without
 // requiring a deploy.
-const CACHE_VERSION = 8;
+const CACHE_VERSION = 9; // bumped: posterData now carries `runtime` from TMDB
 const TTL_POSTER_DAYS  = 7;   // posters change ~weekly as marketing rolls out
 const TTL_TRAILER_DAYS = 3;   // trailers drop late, re-check more often
 const TTL_CAST_DAYS    = 30;  // cast is stable once announced
@@ -109,6 +109,9 @@ async function tmdbFetchMovieDetails(tmdbId) {
     overviewEn: en?.overview || null,
     overviewAr: ar?.overview || null,
     releaseDate: base.release_date || null,
+    // TMDB returns runtime in minutes for released films. Surfaced so the
+    // modal can show "96 دقيقة" without us hardcoding it per movie.
+    runtime: Number.isFinite(base.runtime) && base.runtime > 0 ? base.runtime : null,
   };
 }
 
@@ -495,6 +498,7 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
   const [cast, setCast] = useState([]);
   const [ytKey, setYtKey] = useState(null);
   const [trailerVisible, setTrailerVisible] = useState(false);
+  const [overviewExpanded, setOverviewExpanded] = useState(false);
   const [posterZoom, setPosterZoom] = useState(false);
   const trailerRef = useRef(null);
   const t = window.MUVI_I18N?.[lang] || window.MUVI_I18N?.ar;
@@ -506,6 +510,7 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
     if (!movie) return;
     setPosterData(null); setCast([]); setYtKey(null);
     setTrailerVisible(false);
+    setOverviewExpanded(false);
     tmdbFetch(movie).then(setPosterData);
     fetchCast(movie).then(setCast);
     fetchTrailerKey(movie).then(k => setYtKey(k || null));
@@ -582,16 +587,74 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
               {(movie.exp || []).map(e => <ExpBadge key={e} exp={e} />)}
             </div>
 
-            {/* Title */}
+            {/* Title + inline info row right beneath it. Hierarchy: title
+                first, then the at-a-glance facts (date · runtime · age ·
+                rating). Replaces the old 2×2 meta tile grid that used to
+                live at the bottom and got overlooked. */}
             <div>
               <h2 className="mmodal-title">{title}</h2>
               {subTitle && subTitle !== title && (
                 <div className="mmodal-en-title">{subTitle}</div>
               )}
+              {(() => {
+                const runtime = movie.runtime || posterData?.runtime || null;
+                const items = [];
+                items.push({ key: 'date', text: dateStr, empty: false });
+                items.push({
+                  key: 'runtime',
+                  text: runtime ? `${runtime} ${t.min}` : '—',
+                  empty: !runtime,
+                });
+                items.push({
+                  key: 'age',
+                  text: movie.rating || '—',
+                  empty: !movie.rating,
+                });
+                if (rating && rating.rating > 0) {
+                  items.push({
+                    key: 'myrating',
+                    text: <><span className="star">⭐</span><strong>{rating.rating}</strong>/5</>,
+                    empty: false,
+                  });
+                } else if (!past) {
+                  items.push({
+                    key: 'countdown',
+                    text: `${days} ${t.days}`,
+                    empty: false,
+                  });
+                }
+                return (
+                  <div className="mmodal-info-row">
+                    {items.map((it, i) => (
+                      <React.Fragment key={it.key}>
+                        {i > 0 && <span className="sep">·</span>}
+                        <span className={`item ${it.empty ? 'is-empty' : ''}`}>{it.text}</span>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
 
-            {/* Overview */}
-            {overview && <p className="mmodal-overview">{overview}</p>}
+            {/* Overview — clamped to 3 lines on mobile with a tap-to-expand
+                toggle. Saves ~30-50px when the synopsis is long without
+                losing the full text. */}
+            {overview && (
+              <div>
+                <p className={`mmodal-overview ${overviewExpanded ? '' : 'is-clamped'}`}>{overview}</p>
+                {overview.length > 140 && (
+                  <button
+                    type="button"
+                    className="mmodal-overview-toggle"
+                    onClick={(e) => { e.stopPropagation(); setOverviewExpanded(v => !v); }}
+                  >
+                    {overviewExpanded
+                      ? (lang === 'en' ? 'Show less' : 'إخفاء')
+                      : (lang === 'en' ? 'Read more' : 'اقرأ المزيد')}
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Inline trailer — appears between synopsis and cast when active */}
             {trailerVisible && ytKey && (
@@ -628,43 +691,8 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
               )}
             </div>
 
-            {/* Meta grid */}
-            <div className="mmodal-meta">
-              <div className="mmodal-meta-item">
-                <span className="mmodal-meta-lbl">{t.release_date}</span>
-                <span className="mmodal-meta-val">{dateStr}</span>
-              </div>
-              {movie.runtime && (
-                <div className="mmodal-meta-item">
-                  <span className="mmodal-meta-lbl">{t.duration}</span>
-                  <span className="mmodal-meta-val">{movie.runtime} {t.min}</span>
-                </div>
-              )}
-              {movie.rating && (
-                <div className="mmodal-meta-item">
-                  <span className="mmodal-meta-lbl">{t.age_rating}</span>
-                  <span className="mmodal-meta-val">{movie.rating}</span>
-                </div>
-              )}
-              {rating && rating.rating > 0 ? (
-                // User has rated this movie — show their rating instead of the countdown
-                <div className="mmodal-meta-item mmodal-meta-rating">
-                  <span className="mmodal-meta-lbl">{t.score_modal_lbl}</span>
-                  <span className="mmodal-meta-val">
-                    <span className="cm-score-star">⭐</span>{' '}
-                    <strong>{rating.rating}</strong>
-                    <span style={{ color: 'var(--ink-2)' }}>/5</span>
-                  </span>
-                </div>
-              ) : (
-                <div className="mmodal-meta-item">
-                  <span className="mmodal-meta-lbl">{t.countdown}</span>
-                  <span className="mmodal-meta-val" style={past ? { color: 'var(--ink-3)' } : null}>
-                    {past ? t.released : <><strong>{days}</strong> {t.days}</>}
-                  </span>
-                </div>
-              )}
-            </div>
+            {/* Meta tile grid removed — date / runtime / age / rating now
+                live in the inline info row right under the title. */}
           </div>
         </div>
 
