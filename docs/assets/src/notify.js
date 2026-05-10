@@ -88,13 +88,13 @@ function NotifyCapture({ open, lang, movie, onClose, onSubmitted }) {
     if (!open) return;
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
+    const unlock = window.lockBodyScroll();
     // Focus the first empty field (name first, else email)
     setTimeout(() => {
       if (!name) nameInputRef.current?.focus();
       else if (!email) emailInputRef.current?.focus();
     }, 50);
-    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+    return () => { window.removeEventListener('keydown', onKey); unlock(); };
   }, [open, onClose]);
 
   if (!open || !movie) return null;

@@ -13,8 +13,8 @@ function CalendarPicker({ open, lang, movie, onClose }) {
     if (!open) return;
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
-    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+    const unlock = window.lockBodyScroll();
+    return () => { window.removeEventListener('keydown', onKey); unlock(); };
   }, [open, onClose]);
 
   if (!open || !movie) return null;

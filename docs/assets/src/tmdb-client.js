@@ -1,6 +1,33 @@
 /* global React */
 const { useState, useEffect, useRef, useMemo } = window.React;
 
+// ---------- iOS-safe body scroll lock ----------
+// Used by every modal / bottom sheet (movie, calendar picker, filter sheet,
+// notify capture, rating sheet). `overflow: hidden` alone doesn't stop iOS
+// Safari touch scrolling — the page behind a modal still scrolls when you
+// swipe. The fix is to pin the body in place with position: fixed and
+// restore the scroll position on unmount. Returns an unlock function that
+// React's useEffect cleanup can call directly.
+window.lockBodyScroll = function lockBodyScroll() {
+  const scrollY = window.scrollY;
+  const body = document.body;
+  body.style.position = 'fixed';
+  body.style.top = `-${scrollY}px`;
+  body.style.left = '0';
+  body.style.right = '0';
+  body.style.width = '100%';
+  body.style.overflow = 'hidden';
+  return () => {
+    body.style.position = '';
+    body.style.top = '';
+    body.style.left = '';
+    body.style.right = '';
+    body.style.width = '';
+    body.style.overflow = '';
+    window.scrollTo(0, scrollY);
+  };
+};
+
 // ---------- TMDB client ----------
 const TMDB_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmZWUyZTJjZGJmNzI3YmI2ZjJkMGVhNTMxMWNmNzA2MyIsIm5iZiI6MTc3NjU4NTc4NC4xMDUsInN1YiI6IjY5ZTQ4YzM4NmFjOTI4NDhjZDdhMDgxMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.pVMfFCwClkgrSvqv2Y_ppzwFy9Wu33XVhvlhgJddeTA';
 const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w500';
@@ -491,9 +518,10 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
       else onClose();
     };
     window.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
-    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+    return () => window.removeEventListener('keydown', onKey);
   }, [posterZoom]);
+
+  useEffect(() => window.lockBodyScroll(), []);
 
   // Auto-scroll the inline trailer into view when the user opens it.
   // Without this the user clicks "Watch Trailer" and the iframe pops in
