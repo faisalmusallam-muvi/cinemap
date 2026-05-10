@@ -322,6 +322,7 @@ function engagementOf(movie, engagement) {
 
 // ---------- MovieRow ----------
 function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, rating, engagement,
+                   trendingIds, anticipatedIds,
                    onToggleSave, onToggleNotify, onToggleWatched, onRateMovie, onCalendar, onShare }) {
   const t = window.CINEMAP_I18N[lang];
   const g = window.CINEMAP_GENRES[movie.genre];
@@ -355,6 +356,29 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
         <div className="cm-movie-info">
           <h3 className="cm-movie-title">{title}</h3>
           <div className="cm-movie-meta">
+            {/* Dynamic engagement badges — driven by movie_engagement view.
+                Trending = top by last-7d saves; Anticipated = top upcoming
+                by total saves. Both render before the status chip so the
+                "social proof" lands first when scanning. */}
+            {(() => {
+              const id = movie.tmdbId ? `tmdb:${movie.tmdbId}` : `${movie.en}|${movie.date}`;
+              const isTrending = trendingIds && trendingIds.has(id);
+              const isAnticipated = anticipatedIds && anticipatedIds.has(id);
+              return (
+                <>
+                  {isTrending && (
+                    <span className="cm-pill cm-pill-trending" title={t.badge_trending}>
+                      🔥 {t.badge_trending}
+                    </span>
+                  )}
+                  {isAnticipated && !isTrending && (
+                    <span className="cm-pill cm-pill-anticipated" title={t.badge_anticipated}>
+                      👁 {t.badge_anticipated}
+                    </span>
+                  )}
+                </>
+              );
+            })()}
             <span className={`cm-status-chip ${isReleased ? 'is-released' : 'is-upcoming'}`}>
               {statusLabel}
             </span>
@@ -484,6 +508,7 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
 
 // ---------- MonthPanel ----------
 function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, watched, ratings, engagement,
+                     trendingIds, anticipatedIds,
                      onToggleSave, onToggleNotify, onToggleWatched, onRateMovie, onCalendar, onShare }) {
   const months = lang === 'en' ? window.CINEMAP_MONTHS_EN_FULL : window.CINEMAP_MONTHS_AR;
   const movs = useMemo(
@@ -513,6 +538,8 @@ function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, wat
             isWatched={watched?.has(m.en + '|' + m.date) || false}
             rating={ratings?.[m.en + '|' + m.date]}
             engagement={engagement}
+            trendingIds={trendingIds}
+            anticipatedIds={anticipatedIds}
             onToggleSave={onToggleSave}
             onToggleNotify={onToggleNotify}
             onToggleWatched={onToggleWatched}

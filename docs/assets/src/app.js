@@ -1048,6 +1048,8 @@ function App() {
                 watched={watched}
                 ratings={ratings}
                 engagement={engagement}
+                trendingIds={trendingIds}
+                anticipatedIds={anticipatedIds}
                 onToggleSave={toggleSave}
                 onToggleNotify={toggleNotify}
                 onToggleWatched={toggleWatched}
