@@ -556,11 +556,18 @@
     }
 
     .cm-hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+    /* Center the CTA row on viewports below the desktop layout (item 2 —
+       buttons were aligned to the side, looked off-center under the hero). */
+    @media (max-width: 980px) {
+      .cm-hero-ctas { justify-content: center; }
+      .cm-hero-guide { justify-content: center; }
+    }
     @media (max-width: 540px) {
       .cm-hero-ctas {
         display: grid;
         grid-template-columns: 1.12fr 0.9fr 0.9fr;
         gap: 8px;
+        justify-items: center;
       }
       .cm-hero-ctas .cm-btn-lg {
         width: 100%;

@@ -393,6 +393,9 @@ function HeroActionGuide({ lang }) {
     { icon: '⭐', label: t.hero_guide_rate },
     { icon: '🔔', label: t.hero_guide_notify },
     { icon: '📅', label: t.hero_guide_calendar },
+    // Item 3 — surface the share affordance up front so users learn it
+    // exists; the watchlist share button alone wasn't discoverable.
+    { icon: '↗', label: t.hero_guide_share },
   ];
 
   return (

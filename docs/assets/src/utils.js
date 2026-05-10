@@ -691,6 +691,7 @@ window.CINEMAP_I18N = {
     hero_guide_rate:  "قيّم",
     hero_guide_notify:"نبّهني",
     hero_guide_calendar:"للتقويم",
+    hero_guide_share: "شارك",
 
     // journey 0
     j0_eyebrow:       "المرحلة 0 · الاكتشاف",
@@ -970,6 +971,7 @@ window.CINEMAP_I18N = {
     hero_guide_rate:  "Rate",
     hero_guide_notify:"Notify",
     hero_guide_calendar:"Calendar",
+    hero_guide_share: "Share",
 
     j0_eyebrow:       "Journey 0 · Discovery",
     j0_title:         "Start with what's coming.",
