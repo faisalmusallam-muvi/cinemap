@@ -611,12 +611,16 @@ function App() {
     });
   };
 
-  // Prefix Latin-leading titles with U+200E so the Arabic-context canvas
-  // doesn't flip neutral characters like ":" to the wrong side.
-  // Example: "Greenland 2: Migration" was rendering as ":Migration".
-  const withLtrIfLatin = (title) => {
-    if (!title) return title;
-    return /^[A-Za-z]/.test(title.trim()) ? '‎' + title : title;
+  // Detect titles that should render in Arabic (RTL) script. Used to switch
+  // ctx.direction per-title so that mixed-script titles like "Greenland 2:
+  // Migration" or digit-leading "28 Years Later: The Bone Temple" don't
+  // get reordered by the surrounding RTL canvas direction. The U+200E
+  // embedded mark alone wasn't enough — canvas ctx.direction wins.
+  const isArabicLeading = (title) => {
+    if (!title) return false;
+    const first = title.trim().charAt(0);
+    // Arabic block + supplements + presentation forms.
+    return /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/.test(first);
   };
 
   const makeWatchlistShareImage = async () => {
@@ -762,16 +766,28 @@ function App() {
       ctx.lineWidth = 2;
       roundRect(ctx, x, y, cardW, posterH, 24);
       ctx.stroke();
-      ctx.textAlign = isEn ? 'left' : 'right';
+      // Center titles under each poster — uniform layout that handles both
+      // Arabic and mixed-script titles cleanly. Per-title direction switch
+      // ensures Latin/digit-leading titles render LTR even though the
+      // surrounding canvas direction is RTL.
+      const title = window.movieTitle(movie, lang);
+      ctx.direction = isArabicLeading(title) ? 'rtl' : 'ltr';
+      ctx.textAlign = 'center';
       ctx.fillStyle = '#fff7ed';
       ctx.font = '900 28px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-      drawWrappedText(ctx, withLtrIfLatin(window.movieTitle(movie, lang)), isEn ? x : x + cardW, y + posterH + 22, cardW, 34, 2);
-      const ratingLabel = rating > 0
-        ? (isEn ? `⭐ My rating ${rating}/5` : `⭐ تقييمي ${rating}/5`)
-        : (isEn ? 'In my list' : 'في قائمتي');
-      ctx.fillStyle = rating > 0 ? '#ffc857' : '#aab4c2';
-      ctx.font = '800 24px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-      ctx.fillText(ratingLabel, isEn ? x : x + cardW, y + posterH + 100);
+      drawWrappedText(ctx, title, x + cardW / 2, y + posterH + 22, cardW, 34, 2);
+      // Only render a subtitle when the user has rated the film. The old
+      // "في قائمتي" placeholder was repetitive — every card was already
+      // visibly in their list.
+      if (rating > 0) {
+        const ratingLabel = isEn ? `⭐ My rating ${rating}/5` : `⭐ تقييمي ${rating}/5`;
+        ctx.fillStyle = '#ffc857';
+        ctx.font = '800 24px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+        ctx.fillText(ratingLabel, x + cardW / 2, y + posterH + 100);
+      }
+      // Reset direction back to the canvas default so other elements
+      // (footer, etc.) continue to use the Arabic-context direction.
+      ctx.direction = isEn ? 'ltr' : 'rtl';
     });
 
     const footerY = 1780;
