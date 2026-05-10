@@ -349,8 +349,14 @@ function WatchlistSection({ lang, watchlist, savedMovies, ratings, onRemove, onS
                     <window.CinePoster movie={m} compact />
                   </button>
                   <div className="cm-wl-meta">
-                    <h4 className="cm-wl-title">{window.movieTitle(m, lang)}</h4>
-                    <div className="cm-wl-date">{window.fmtDate(m.date, lang)}</div>
+                    {/* dir="auto" lets the browser detect direction from the
+                        first strong character. Mixed-script titles like
+                        "Greenland 2: Migration" and digit-leading ones like
+                        "28 Years Later: The Bone Temple" pick LTR (first
+                        strong char is the leading Latin letter), Arabic
+                        titles pick RTL. */}
+                    <h4 className="cm-wl-title" dir="auto">{window.movieTitle(m, lang)}</h4>
+                    <div className="cm-wl-date" dir="auto">{window.fmtDate(m.date, lang)}</div>
                     {renderRating(m)}
                   </div>
                   <button className="cm-wl-remove" onClick={() => onRemove(m)} aria-label="remove">×</button>
