@@ -565,6 +565,10 @@ function Footer({ lang }) {
             <a href="about.html">{t.footer_about}</a>
             <a href="privacy.html">{t.footer_privacy}</a>
             <a href="terms.html">{t.footer_terms}</a>
+            <a
+              href="mailto:hello@cinemap.me"
+              aria-label={t.footer_contact}
+            >{t.footer_contact}</a>
             <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>
           </span>
           <span>{t.footer_made}</span>

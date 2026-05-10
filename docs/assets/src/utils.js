@@ -882,6 +882,7 @@ window.CINEMAP_I18N = {
     footer_subtitle:  "© 2026 سينماب — التواريخ قابلة للتغيير.",
     footer_tmdb:      "This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.",
     footer_about:     "عن سينماب",
+    footer_contact:   "تواصل معنا",
     footer_privacy:   "الخصوصية",
     footer_terms:     "الشروط",
 
@@ -1163,6 +1164,7 @@ window.CINEMAP_I18N = {
     footer_subtitle:  "© 2026 Cinemap — dates subject to change.",
     footer_tmdb:      "This website uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.",
     footer_about:     "About",
+    footer_contact:   "Contact",
     footer_privacy:   "Privacy",
     footer_terms:     "Terms",
 
