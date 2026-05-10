@@ -1277,9 +1277,13 @@
         align-items: flex-start;
         flex-direction: column;
       }
-      .cm-my2026-empty .cm-btn {
-        width: 100%;
-        margin-inline-start: 0;
+      /* Quick-watched buttons inside the empty state must hug their content,
+         not stretch full-width like the old single CTA used to. */
+      .cm-my2026-empty .cm-my2026-quick-btn {
+        width: auto;
+        flex: 0 0 auto;
+        padding: 8px 12px;
+        font-size: 13px;
       }
     }
 
