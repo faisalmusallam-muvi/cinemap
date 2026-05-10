@@ -303,7 +303,7 @@ const RAW_MOVIES = [
     runtime: 125, rating: "R" },
 
   // NOVEMBER
-  { month: 10, ar: "Wild Horse Nine", en: "Wild Horse Nine", genre: "comedy", date: "2026-11-05", language: 'en', mood: 'fun',
+  { month: 10, ar: "Wild Horse Nine", en: "Wild Horse Nine", aliases: ["Martin McDonagh", "مارتن مكدونا"], genre: "comedy", date: "2026-11-05", language: 'en', mood: 'fun',
     overview: "كوميديا سوداء من المخرج مارتن مكدونا — عملاء CIA في مغامرة فوضوية.",
     overviewEn: "Martin McDonagh's black comedy — CIA operatives spiral into chaos.",
     runtime: 110, rating: "R" },

@@ -848,7 +848,15 @@ function App() {
       window.cinemapTrack?.('watchlist_share_image', { method: 'download', count: savedMovies.length });
       pushToast(t.toast_wl_image, 'success', '🖼');
       return;
-    } catch {
+    } catch (err) {
+      // User cancelled the system share sheet (AbortError) — respect that
+      // intent: don't fall through to the clipboard/text fallback and don't
+      // surface a misleading "list copied" toast. Funnel still records a
+      // share_card_generated above without a matching share_card_downloaded.
+      if (err && err.name === 'AbortError') {
+        window.cinemapTrack?.('watchlist_share_image', { method: 'cancelled', count: savedMovies.length });
+        return;
+      }
       window.cinemapTrack?.('watchlist_share_image', { method: 'image_failed', count: savedMovies.length });
     }
 
@@ -864,7 +872,13 @@ function App() {
         await navigator.share({ title: 'Cinemap Watchlist', text });
         window.cinemapTrack?.('watchlist_share', { method: 'web_share', count: savedMovies.length });
         return;
-      } catch {}
+      } catch (err) {
+        // Same AbortError handling for the text-only fallback path.
+        if (err && err.name === 'AbortError') {
+          window.cinemapTrack?.('watchlist_share', { method: 'cancelled', count: savedMovies.length });
+          return;
+        }
+      }
     }
     try {
       await navigator.clipboard.writeText(text);
