@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.56',
-  releaseNoteAr: 'جوّة الفيلم: ممثلون وقصة، وشريط الشهور ثابت، وكل البطاقة تفتح الفيلم.',
-  releaseNoteEn: 'Inside the movie: cast and synopsis, sticky month strip, whole card opens the film.',
+  releaseVersion: 'v1.57',
+  releaseNoteAr: 'صفحة الفيلم وملخصك صار أوضح وأقل ازدحامًا، وصورة المشاركة تشبه قائمتك.',
+  releaseNoteEn: 'Movie page and your summary are tidier, and the share image matches your list.',
 };
 
 // ============================================================
