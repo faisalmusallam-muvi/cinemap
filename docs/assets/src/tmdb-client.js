@@ -248,7 +248,7 @@ function modalOverview(movie, posterData, lang) {
       || movie.overviewEn
       || posterData?.overviewAr
       || movie.overview
-      || '';
+      || 'The synopsis isn’t available yet — we’ll add it as soon as the studio shares more.';
   }
 
   return posterData?.overviewAr
@@ -605,9 +605,9 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
             )}
 
             {/* Cast */}
-            {cast.length > 0 && (
-              <div>
-                <div className="mmodal-cast-label">{t.cast}</div>
+            <div>
+              <div className="mmodal-cast-label">{t.cast}</div>
+              {cast.length > 0 ? (
                 <div className="mmodal-cast-scroll">
                   {cast.map(c => (
                     <div key={c.id} className="mmodal-cast-person">
@@ -621,8 +621,12 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                // Future films often have no announced cast yet — show a soft
+                // placeholder instead of leaving the section blank.
+                <div className="mmodal-cast-placeholder">{t.cast_soon}</div>
+              )}
+            </div>
 
             {/* Meta grid */}
             <div className="mmodal-meta">
@@ -666,13 +670,20 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
 
         {/* Sticky action footer — always visible at bottom of modal */}
         <div className="mmodal-footer">
-          {ytKey && (
+          {ytKey ? (
             <button
               className={`mmodal-btn-trailer ${trailerVisible ? 'is-active' : ''}`}
               onClick={e => { e.stopPropagation(); setTrailerVisible(v => !v); }}
             >
               <span className="ltr">{trailerVisible ? '✕' : '▶'}</span>
               {trailerVisible ? t.hide_trailer : t.watch_trailer}
+            </button>
+          ) : (
+            // Future films often have no trailer published yet. Show a
+            // disabled placeholder so the user knows we're not hiding it.
+            <button className="mmodal-btn-trailer is-soon" disabled>
+              <span className="ltr">▶</span>
+              {t.trailer_soon}
             </button>
           )}
 

@@ -1821,6 +1821,16 @@
     .mmodal-cast-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
     .mmodal-cast-scroll::-webkit-scrollbar { height: 4px; }
     .mmodal-cast-scroll::-webkit-scrollbar-thumb { background: rgba(245,242,235,0.18); border-radius: 999px; }
+    .mmodal-cast-placeholder {
+      padding: 14px 12px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius-md);
+      color: var(--ink-3);
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      opacity: 0.85;
+    }
     .mmodal-cast-person { width: 80px; flex-shrink: 0; text-align: center; }
     .mmodal-cast-photo {
       width: 80px; height: 80px;
@@ -1889,6 +1899,13 @@
     }
     .mmodal-btn-cal { background: rgba(245,242,235,0.06); color: var(--cream); border: 1px solid var(--line-strong); }
     .mmodal-btn-trailer.is-active { background: var(--coral); color: var(--cream); }
+    .mmodal-btn-trailer.is-soon {
+      background: rgba(245,242,235,0.04);
+      color: var(--ink-3);
+      border: 1px dashed var(--line-strong);
+      cursor: default;
+      opacity: 0.7;
+    }
 
     /* Modal "Mark as Watched" — gold to match the row's watched state */
     .mmodal-btn-watched {
