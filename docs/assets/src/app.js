@@ -180,6 +180,17 @@ function App() {
   }, []);
   const dismissToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
 
+  // ---------- Back-to-top FAB ----------
+  // Item 7: instead of scrolling endlessly, surface a one-tap shortcut to
+  // the calendar's month bar after the user has scrolled past ~one screen.
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShowBackToTop(window.scrollY > 800);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   // ---------- Filtered movies ----------
   const filteredMovies = useMemo(() => {
     return movies.filter(m => {
@@ -1047,6 +1058,22 @@ function App() {
       />
 
       <window.Footer lang={lang} />
+
+      {/* Back-to-top FAB — appears after the user scrolls past ~one screen */}
+      {showBackToTop && (
+        <button
+          className="cm-back-to-top"
+          onClick={() => {
+            const cal = document.getElementById('calendar');
+            if (cal) cal.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            else window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          aria-label={t.back_to_top}
+          title={t.back_to_top}
+        >
+          ↑
+        </button>
+      )}
 
       <window.Toaster toasts={toasts} onDismiss={dismissToast} />
 
