@@ -229,6 +229,36 @@ window.cinemapFetchTopSaves = async function cinemapFetchTopSaves(limit = 5) {
   }
 };
 
+// Fetches the movie_engagement materialized view (one row per movie with
+// save_count, save_count_7d, rating_count, avg_rating). Same fail-safe
+// contract as cinemapFetchTopSaves: returns null on any failure so callers
+// can render the page exactly as before. The view is the source of truth
+// for visible audience counts and the trending/most-anticipated badges.
+window.cinemapFetchMovieEngagement = async function cinemapFetchMovieEngagement() {
+  const cfg = window.CINEMAP_CONFIG || {};
+  const eventsEndpoint = cfg.supabaseEventsEndpoint;
+  const key = cfg.supabasePublishableKey;
+  if (!eventsEndpoint || !key) return null;
+  const endpoint = eventsEndpoint.replace('/cinemap_events', '/movie_engagement');
+  // Pull every row in one shot — the catalog is ~110 movies and the view
+  // is a daily-refreshed aggregate, so a single fetch on app boot is
+  // cheaper than per-card lookups.
+  const url = `${endpoint}?select=*&limit=500`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+      },
+    });
+    if (!res.ok) return null;
+    const rows = await res.json();
+    return Array.isArray(rows) ? rows : null;
+  } catch {
+    return null;
+  }
+};
+
 window.cinemapReadEvents = readEvents;
 window.cinemapClearEvents = function cinemapClearEvents() {
   try { localStorage.removeItem(LS_EVENTS); } catch {}

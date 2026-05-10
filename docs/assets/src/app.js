@@ -180,6 +180,43 @@ function App() {
   }, []);
   const dismissToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
 
+  // ---------- Audience engagement (Phase A) ----------
+  // Daily-refreshed aggregate from Supabase: per-movie save_count,
+  // save_count_7d, rating_count, avg_rating. Fetched once on boot;
+  // every read goes against this in-memory map. Null until the fetch
+  // resolves — components must guard for that and render gracefully.
+  const [engagement, setEngagement] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    window.cinemapFetchMovieEngagement?.().then(rows => {
+      if (cancelled || !rows) return;
+      const byId = {};
+      rows.forEach(r => { if (r.movie_id) byId[r.movie_id] = r; });
+      setEngagement(byId);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Trending = top 5 by saves in the last 7 days (live signal).
+  // Most anticipated = top 5 future films by total saves (sustained hype).
+  const { trendingIds, anticipatedIds } = useMemo(() => {
+    if (!engagement) return { trendingIds: new Set(), anticipatedIds: new Set() };
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const rows = Object.values(engagement);
+    const trending = [...rows]
+      .filter(r => Number(r.save_count_7d) > 0)
+      .sort((a, b) => (b.save_count_7d || 0) - (a.save_count_7d || 0))
+      .slice(0, 5)
+      .map(r => r.movie_id);
+    const anticipated = [...rows]
+      .filter(r => r.release_date && new Date(r.release_date) >= today && Number(r.save_count) > 0)
+      .sort((a, b) => (b.save_count || 0) - (a.save_count || 0))
+      .slice(0, 5)
+      .map(r => r.movie_id);
+    return { trendingIds: new Set(trending), anticipatedIds: new Set(anticipated) };
+  }, [engagement]);
+
   // ---------- Back-to-top FAB ----------
   // Item 7: instead of scrolling endlessly, surface a one-tap shortcut to
   // the calendar's month bar after the user has scrolled past ~one screen.
