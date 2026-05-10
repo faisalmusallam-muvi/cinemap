@@ -310,8 +310,18 @@ function DateChip({ iso, lang }) {
   );
 }
 
+// Lookup helper for the audience-engagement map. The materialized view is
+// keyed by movie_id following the same convention the analytics events use:
+// "tmdb:<id>" when we have a TMDB id, "<en>|<date>" otherwise.
+function engagementOf(movie, engagement) {
+  if (!engagement || !movie) return null;
+  return (movie.tmdbId && engagement[`tmdb:${movie.tmdbId}`])
+    || engagement[`${movie.en}|${movie.date}`]
+    || null;
+}
+
 // ---------- MovieRow ----------
-function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, rating,
+function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, rating, engagement,
                    onToggleSave, onToggleNotify, onToggleWatched, onRateMovie, onCalendar, onShare }) {
   const t = window.CINEMAP_I18N[lang];
   const g = window.CINEMAP_GENRES[movie.genre];
@@ -375,6 +385,31 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
             ) : null}
 
             {movie.pick && <span className="cm-pill cm-pill-gold">★ {lang === 'en' ? 'Pick' : 'مختار'}</span>}
+
+            {/* Audience signal — public engagement counts from Supabase. Each
+                pill is independently conditional so unrated films still show
+                a save count, and brand-new films stay clean. */}
+            {(() => {
+              const eng = engagementOf(movie, engagement);
+              if (!eng) return null;
+              const saves = Number(eng.save_count) || 0;
+              const ratings = Number(eng.rating_count) || 0;
+              const avg = Number(eng.avg_rating) || 0;
+              return (
+                <>
+                  {saves > 0 && (
+                    <span className="cm-pill cm-pill-audience" title={`${saves} ${t.audience_saves}`}>
+                      👥 {saves}
+                    </span>
+                  )}
+                  {ratings > 0 && avg > 0 && (
+                    <span className="cm-pill cm-pill-audience" title={`${avg.toFixed(1)}/5 — ${ratings} ${t.audience_ratings}`}>
+                      ⭐ {avg.toFixed(1)} · {ratings}
+                    </span>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </div>
 
@@ -448,7 +483,7 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
 }
 
 // ---------- MonthPanel ----------
-function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, watched, ratings,
+function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, watched, ratings, engagement,
                      onToggleSave, onToggleNotify, onToggleWatched, onRateMovie, onCalendar, onShare }) {
   const months = lang === 'en' ? window.CINEMAP_MONTHS_EN_FULL : window.CINEMAP_MONTHS_AR;
   const movs = useMemo(
@@ -477,6 +512,7 @@ function MonthPanel({ index, movies, lang, onOpenMovie, watchlist, notified, wat
             isNotified={notified.has(m.en + '|' + m.date)}
             isWatched={watched?.has(m.en + '|' + m.date) || false}
             rating={ratings?.[m.en + '|' + m.date]}
+            engagement={engagement}
             onToggleSave={onToggleSave}
             onToggleNotify={onToggleNotify}
             onToggleWatched={onToggleWatched}

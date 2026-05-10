@@ -249,6 +249,15 @@
       border-color: rgba(255,200,87,0.35);
       color: var(--gold);
     }
+    /* Public audience signal — saves count, average rating. Quieter than
+       the "your rating" pill so the user's own data still wins the eye. */
+    .cm-pill-audience {
+      background: rgba(245,242,235,0.05);
+      border-color: var(--line);
+      color: var(--ink-1);
+      font-weight: 700;
+      letter-spacing: 0;
+    }
 
     .cm-chip-dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; }
 
@@ -1950,6 +1959,19 @@
     .mmodal-overview-toggle:hover { text-decoration: underline; }
 
     .mmodal-cast-label { font-size: 11px; font-weight: 800; letter-spacing: 0.16em; color: var(--ink-3); text-transform: uppercase; margin-bottom: 8px; }
+    /* Audience block — public engagement counts. Same eyebrow treatment as
+       cast, but the chips below are flat so this section reads as a quiet
+       info strip rather than competing with poster/title hierarchy. */
+    .mmodal-audience { display: flex; flex-direction: column; gap: 6px; }
+    .mmodal-audience-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.16em;
+      color: var(--ink-3); text-transform: uppercase;
+    }
+    .mmodal-audience-row {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      font-size: 14px; font-weight: 700; color: var(--ink-1);
+    }
+    .mmodal-audience-chip strong { color: var(--cream); font-weight: 800; }
     .mmodal-cast-scroll {
       display: flex;
       gap: 12px;

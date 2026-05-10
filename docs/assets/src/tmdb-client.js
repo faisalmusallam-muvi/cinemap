@@ -493,7 +493,7 @@ function ExpBadge({ exp }) {
 }
 
 // ---------- Movie Modal (rich full-screen) ----------
-function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalendar, rating }) {
+function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalendar, rating, engagement }) {
   const [posterData, setPosterData] = useState(null);
   const [cast, setCast] = useState([]);
   const [ytKey, setYtKey] = useState(null);
@@ -655,6 +655,35 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
                 )}
               </div>
             )}
+
+            {/* Audience signal — public engagement counts. Rendered as a
+                quiet info row distinct from the user's "my rating" tile
+                above, so the social signal reads as separate from personal
+                state. Hidden when the movie has no engagement yet. */}
+            {(() => {
+              const engKey = movie.tmdbId
+                ? `tmdb:${movie.tmdbId}`
+                : `${movie.en}|${movie.date}`;
+              const eng = engagement?.[engKey];
+              if (!eng) return null;
+              const saves = Number(eng.save_count) || 0;
+              const ratings = Number(eng.rating_count) || 0;
+              const avg = Number(eng.avg_rating) || 0;
+              if (saves === 0 && ratings === 0) return null;
+              return (
+                <div className="mmodal-audience">
+                  <span className="mmodal-audience-label">{t.audience_modal}</span>
+                  <div className="mmodal-audience-row">
+                    {saves > 0 && (
+                      <span className="mmodal-audience-chip">👥 <strong>{saves}</strong> {t.audience_saves}</span>
+                    )}
+                    {ratings > 0 && avg > 0 && (
+                      <span className="mmodal-audience-chip">⭐ <strong>{avg.toFixed(1)}</strong>/5 · {ratings} {t.audience_ratings}</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Inline trailer — appears between synopsis and cast when active */}
             {trailerVisible && ytKey && (

@@ -1047,6 +1047,7 @@ function App() {
                 notified={notified}
                 watched={watched}
                 ratings={ratings}
+                engagement={engagement}
                 onToggleSave={toggleSave}
                 onToggleNotify={toggleNotify}
                 onToggleWatched={toggleWatched}
@@ -1135,6 +1136,7 @@ function App() {
           onToggleWatched={toggleWatched}
           onCalendar={handleCalendar}
           rating={ratings[movieKey(modalMovie)]}
+          engagement={engagement}
         />
       )}
     </>
