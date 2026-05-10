@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.54',
-  releaseNoteAr: 'صورة المشاركة صارت أنظف، وزر "شفته" مرتب على الجوال.',
-  releaseNoteEn: 'Cleaner share image and a tidier "watched" button on mobile.',
+  releaseVersion: 'v1.55',
+  releaseNoteAr: 'بطاقات قائمتك صارت موسطة، والأرقام في أول العنوان.',
+  releaseNoteEn: 'Watchlist titles are centered and numbers stay at the start.',
 };
 
 // ============================================================
