@@ -1006,6 +1006,13 @@
       border-color: var(--line-strong);
       transform: translateY(-1px);
     }
+    /* Whole-card click target (item 8). Cursor + focus ring; the inner
+       button click handlers use stopPropagation so they keep working. */
+    .cm-movie.is-clickable { cursor: pointer; }
+    .cm-movie.is-clickable:focus-visible {
+      outline: 2px solid var(--amber);
+      outline-offset: 2px;
+    }
     .cm-movie-thumb {
       position: relative;
       z-index: 2;
@@ -3160,10 +3167,15 @@
       font-weight: 700;
       line-height: 1.2;
     }
-    .cm-score-star { font-size: 11px; }
+    .cm-score-star { font-size: 11px; color: var(--ink-3); transition: color .15s ease; }
+    .cm-score-star.is-on { color: var(--gold); }
     .cm-score-num  { color: var(--gold); font-size: 13px; font-weight: 800; }
     .cm-score-sep  { color: var(--ink-2); margin: 0 1px; }
     .cm-score-max  { color: var(--ink-2); font-weight: 600; }
+    /* Visual 5-star variant — used on movie cards (item 6). Clearer at a
+       glance than the "⭐ 4/5" numeric pill. */
+    .cm-score-pill-stars { gap: 1px; padding: 3px 8px; }
+    .cm-score-pill-stars .cm-score-star { font-size: 12px; }
 
     /* "Be the first to rate" inline CTA — only shown when user marked
        watched but skipped the rating sheet. Subtle, link-style. */

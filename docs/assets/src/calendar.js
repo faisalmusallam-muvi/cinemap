@@ -323,15 +323,26 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
     ? (movie.status === 'released' ? t.status_released : t.status_now)
     : t.status_upcoming;
 
+  // The whole card is clickable to open the modal (item 8). Action buttons
+  // inside use stopPropagation so they don't double-fire as a card click.
+  const openCard = () => onOpenMovie(movie);
+  const stop = (e) => e.stopPropagation();
   return (
-    <article className="cm-movie">
+    <article
+      className="cm-movie is-clickable"
+      onClick={openCard}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCard(); } }}
+      aria-label={title}
+    >
       <window.MovieRowBackdrop movie={movie} />
-      <button className="cm-movie-thumb" onClick={() => onOpenMovie(movie)} aria-label={title}>
+      <button className="cm-movie-thumb" onClick={(e) => { stop(e); openCard(); }} aria-label={title}>
         <window.CinePoster movie={movie} compact />
       </button>
 
       <div className="cm-movie-body">
-        <div className="cm-movie-info" onClick={() => onOpenMovie(movie)}>
+        <div className="cm-movie-info">
           <h3 className="cm-movie-title">{title}</h3>
           <div className="cm-movie-meta">
             <span className={`cm-status-chip ${isReleased ? 'is-released' : 'is-upcoming'}`}>
@@ -345,11 +356,10 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
 
             {/* Score pill / first-rater CTA / countdown — mutually exclusive */}
             {rating && rating.rating > 0 ? (
-              <span className="cm-score-pill" title={t.score_your}>
-                <span className="cm-score-star">⭐</span>
-                <strong className="cm-score-num">{rating.rating}</strong>
-                <span className="cm-score-sep">/</span>
-                <span className="cm-score-max">5</span>
+              <span className="cm-score-pill cm-score-pill-stars" title={`${t.score_your} ${rating.rating}/5`} aria-label={`${t.score_your} ${rating.rating}/5`}>
+                {Array.from({ length: 5 }, (_, i) => (
+                  <span key={i} className={`cm-score-star ${i < rating.rating ? 'is-on' : ''}`}>★</span>
+                ))}
               </span>
             ) : isReleased && isWatched ? (
               <span
@@ -368,12 +378,12 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
           </div>
         </div>
 
-        <div className="cm-movie-actions">
+        <div className="cm-movie-actions" onClick={stop}>
           {isReleased ? (
             <>
               <button
                 className={`cm-action cm-action-primary cm-action-watched ${isWatched ? 'is-on' : ''}`}
-                onClick={() => (isWatched ? onRateMovie?.(movie) : onToggleWatched(movie))}
+                onClick={(e) => { stop(e); isWatched ? onRateMovie?.(movie) : onToggleWatched(movie); }}
                 aria-label={isWatched ? t.rate_it : t.watched_question}
                 title={isWatched ? t.rate_it : t.watched_question}
               >
@@ -382,7 +392,7 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
               </button>
               <button
                 className={`cm-action ${isSaved ? 'is-on' : ''}`}
-                onClick={() => onToggleSave(movie)}
+                onClick={(e) => { stop(e); onToggleSave(movie); }}
                 aria-label={t.save_primary}
                 title={isSaved ? t.saved : t.save_primary}
               >
@@ -394,7 +404,7 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
             <>
               <button
                 className={`cm-action cm-action-primary ${isSaved ? 'is-on' : ''}`}
-                onClick={() => onToggleSave(movie)}
+                onClick={(e) => { stop(e); onToggleSave(movie); }}
                 aria-label={t.save_primary}
                 title={isSaved ? t.saved : t.save_primary}
               >
@@ -403,7 +413,7 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
               </button>
               <button
                 className={`cm-action ${isNotified ? 'is-on' : ''}`}
-                onClick={() => onToggleNotify(movie)}
+                onClick={(e) => { stop(e); onToggleNotify(movie); }}
                 aria-label={t.notify}
                 title={isNotified ? t.notified : t.notify}
               >
@@ -412,7 +422,7 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
               </button>
               <button
                 className="cm-action"
-                onClick={() => onCalendar?.(movie)}
+                onClick={(e) => { stop(e); onCalendar?.(movie); }}
                 aria-label={t.cal_quick}
                 title={t.cal_quick}
               >
@@ -422,7 +432,7 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
             </>
           )}
 
-          <button className="cm-action" onClick={() => onShare(movie)} aria-label={t.share} title={t.share}>
+          <button className="cm-action" onClick={(e) => { stop(e); onShare(movie); }} aria-label={t.share} title={t.share}>
             <span className="cm-action-icon">↗</span>
             <span className="cm-action-lbl">{t.share}</span>
           </button>
