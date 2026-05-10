@@ -781,7 +781,7 @@ window.CINEMAP_I18N = {
     audience_ratings: "تقييم",
     audience_avg:     "تقييم سينماب",
     audience_modal:   "الجمهور",
-    badge_trending:   "ترند هذا الأسبوع",
+    badge_trending:   "مولّع",
     badge_anticipated:"الأكثر ترقبًا",
     score_viewer:     "مشاهد",
     score_viewers_pl: "مشاهدين",

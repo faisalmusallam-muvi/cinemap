@@ -379,59 +379,65 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
                 </>
               );
             })()}
-            <span className={`cm-status-chip ${isReleased ? 'is-released' : 'is-upcoming'}`}>
-              {statusLabel}
-            </span>
+            {/* Status chip — only when it adds new info. For released films
+                the date chip already says "this happened", so the chip is
+                noise. For upcoming/now-showing it tells the user the film is
+                live in cinemas. */}
+            {!isReleased && (
+              <span className="cm-status-chip is-upcoming">
+                {statusLabel}
+              </span>
+            )}
             <DateChip iso={movie.date} lang={lang} />
             <span className="cm-pill" style={{ '--accent': g?.color }}>
               <span className="cm-chip-dot" style={{ background: g?.color }} />
               {lang === 'en' ? (g?.en || movie.genre) : (g?.ar || movie.genre)}
             </span>
 
-            {/* Score pill / first-rater CTA / countdown — mutually exclusive */}
-            {rating && rating.rating > 0 ? (
-              <span className="cm-score-pill cm-score-pill-stars" title={`${t.score_your} ${rating.rating}/5`} aria-label={`${t.score_your} ${rating.rating}/5`}>
-                {Array.from({ length: 5 }, (_, i) => (
-                  <span key={i} className={`cm-score-star ${i < rating.rating ? 'is-on' : ''}`}>★</span>
-                ))}
-              </span>
-            ) : isReleased && isWatched ? (
+            {/* Be-first-to-rate / countdown — the user's own rating is now
+                shown inside the action button (see below), so the meta row
+                only carries the call-to-action when there's no rating yet,
+                or the upcoming-film countdown. */}
+            {isReleased && isWatched && (!rating || !rating.rating) ? (
               <span
                 className="cm-score-prompt"
                 onClick={(e) => { e.stopPropagation(); onRateMovie?.(movie); }}
               >
                 ⭐ {t.score_be_first}
               </span>
-            ) : days >= 0 && days <= 60 ? (
+            ) : !isReleased && days >= 0 && days <= 60 ? (
               <span className="cm-movie-days">
                 <strong>{days}</strong> {t.days}
               </span>
             ) : null}
 
-            {movie.pick && <span className="cm-pill cm-pill-gold">★ {lang === 'en' ? 'Pick' : 'مختار'}</span>}
+            {/* Pick badge hidden for now — every film in this curated 2026
+                catalog is editorially selected, so the star pollutes more
+                than it informs. Easy to resurrect by adding the pick badge
+                back here. */}
 
-            {/* Audience signal — public engagement counts from Supabase. Each
-                pill is independently conditional so unrated films still show
-                a save count, and brand-new films stay clean. */}
+            {/* Audience signal — combined into one pill so the meta row
+                stays scannable. Saves first, then average rating after a
+                separator if the film has been rated. Hidden entirely if no
+                engagement yet. */}
             {(() => {
               const eng = engagementOf(movie, engagement);
               if (!eng) return null;
               const saves = Number(eng.save_count) || 0;
               const ratings = Number(eng.rating_count) || 0;
               const avg = Number(eng.avg_rating) || 0;
+              const hasRating = ratings > 0 && avg > 0;
+              if (saves === 0 && !hasRating) return null;
+              const tooltip = [
+                saves > 0 ? `${saves} ${t.audience_saves}` : '',
+                hasRating ? `${avg.toFixed(1)}/5 — ${ratings} ${t.audience_ratings}` : '',
+              ].filter(Boolean).join(' · ');
               return (
-                <>
-                  {saves > 0 && (
-                    <span className="cm-pill cm-pill-audience" title={`${saves} ${t.audience_saves}`}>
-                      👥 {saves}
-                    </span>
-                  )}
-                  {ratings > 0 && avg > 0 && (
-                    <span className="cm-pill cm-pill-audience" title={`${avg.toFixed(1)}/5 — ${ratings} ${t.audience_ratings}`}>
-                      ⭐ {avg.toFixed(1)} · {ratings}
-                    </span>
-                  )}
-                </>
+                <span className="cm-pill cm-pill-audience" title={tooltip}>
+                  {saves > 0 && <>👥 {saves}</>}
+                  {saves > 0 && hasRating && ' · '}
+                  {hasRating && <>⭐ {avg.toFixed(1)}</>}
+                </span>
               );
             })()}
           </div>
@@ -445,15 +451,49 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
         <div className="cm-movie-actions">
           {isReleased ? (
             <>
-              <button
-                className={`cm-action cm-action-primary cm-action-watched ${isWatched ? 'is-on' : ''}`}
-                onClick={(e) => { stop(e); isWatched ? onRateMovie?.(movie) : onToggleWatched(movie); }}
-                aria-label={isWatched ? t.rate_it : t.watched_question}
-                title={isWatched ? t.rate_it : t.watched_question}
-              >
-                <span className="cm-action-icon">{isWatched ? '⭐' : '✓'}</span>
-                <span className="cm-action-lbl">{isWatched ? t.rate_it : t.watched_question}</span>
-              </button>
+              {/* Primary action — three states:
+                  - not watched yet → "✓ شفته؟" toggles to watched
+                  - watched, no rating → "⭐ قيّمه" opens rating sheet
+                  - watched + rated → renders the user's rating (★★★★☆ N/5)
+                    in place of the button content; tap reopens the rating
+                    sheet so they can revise. */}
+              {(() => {
+                const hasRating = isWatched && rating && rating.rating > 0;
+                const onPress = (e) => {
+                  stop(e);
+                  if (isWatched) onRateMovie?.(movie);
+                  else onToggleWatched(movie);
+                };
+                const cls = `cm-action cm-action-primary cm-action-watched ${isWatched ? 'is-on' : ''} ${hasRating ? 'has-rating' : ''}`;
+                if (hasRating) {
+                  return (
+                    <button
+                      className={cls}
+                      onClick={onPress}
+                      aria-label={`${t.score_your} ${rating.rating}/5`}
+                      title={`${t.score_your} ${rating.rating}/5`}
+                    >
+                      <span className="cm-action-rating">
+                        {Array.from({ length: 5 }, (_, i) => (
+                          <span key={i} className={`cm-action-star ${i < rating.rating ? 'is-on' : ''}`}>★</span>
+                        ))}
+                      </span>
+                      <span className="cm-action-lbl cm-action-rating-num">{rating.rating}/5</span>
+                    </button>
+                  );
+                }
+                return (
+                  <button
+                    className={cls}
+                    onClick={onPress}
+                    aria-label={isWatched ? t.rate_it : t.watched_question}
+                    title={isWatched ? t.rate_it : t.watched_question}
+                  >
+                    <span className="cm-action-icon">{isWatched ? '⭐' : '✓'}</span>
+                    <span className="cm-action-lbl">{isWatched ? t.rate_it : t.watched_question}</span>
+                  </button>
+                );
+              })()}
               <button
                 className={`cm-action ${isSaved ? 'is-on' : ''}`}
                 onClick={(e) => { stop(e); onToggleSave(movie); }}

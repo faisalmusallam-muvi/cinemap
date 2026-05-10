@@ -1169,11 +1169,25 @@
       color: var(--gold);
     }
     .cm-action-icon { font-size: 13px; line-height: 1; }
+    /* Rated state — the action button shows the user's stars + N/5 instead
+       of the "rate it" prompt. Tap still reopens the rating sheet so they
+       can revise. Slightly tighter padding so the longer label fits. */
+    .cm-action-watched.has-rating {
+      gap: 6px;
+      padding-inline: 10px;
+    }
+    .cm-action-rating { display: inline-flex; gap: 1px; }
+    .cm-action-star { font-size: 11px; color: rgba(245,242,235,0.18); line-height: 1; }
+    .cm-action-star.is-on { color: var(--gold); }
+    .cm-action-rating-num { font-size: 12px; font-weight: 800; color: var(--gold); }
     @media (max-width: 540px) {
       .cm-action-lbl { display: none; }
       .cm-action-primary .cm-action-lbl { display: inline; }
       .cm-action { padding: 8px 10px; }
       .cm-action-primary { padding-inline: 12px; }
+      /* Keep the rating digit visible on mobile (label-hide rule above
+         would also nuke the "4/5" — so opt it back in). */
+      .cm-action-watched.has-rating .cm-action-rating-num { display: inline; }
     }
 
     .cm-empty {
