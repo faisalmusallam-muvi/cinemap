@@ -37,6 +37,33 @@ When you DO bump CACHE, also bump the `?v=NN` query strings on the
 precache URLs in both `sw.js` and `index.html` if you want to force a
 fresh fetch of vendor/legacy assets.
 
+## Catalog rule — every movie MUST have a pinned tmdbId
+
+In [docs/assets/src/utils.js](docs/assets/src/utils.js), every movie
+entry must include a `tmdbId: <number>` field. No exceptions.
+
+Why: without it, the TMDB client falls back to title-search, which is
+**non-deterministic across time**. A film that resolves correctly today
+can silently switch to a different film tomorrow when TMDB adds a new
+entry with a similar title — the user gets the wrong poster, wrong
+synopsis, wrong cast, with no error to surface. We've been bitten by
+this for Family Business, Housemaid, Asad, El Gawahergy, How to Rob a
+Bank, 28 Years Later, Hijra, and Jumanji.
+
+When adding a new movie:
+1. Find it on https://www.themoviedb.org and copy the numeric id from
+   the URL (e.g. `https://www.themoviedb.org/movie/1272837` → `1272837`)
+2. Add `tmdbId: 1272837` to the entry
+3. If you can't find it on TMDB, leave a comment `// no tmdb match yet`
+   and tell Faisal — don't ship without one. The title search is a
+   trap.
+
+When updating: if a poster suddenly looks wrong, the cause is almost
+always title-search drift. The fix is pinning the correct tmdbId, then
+bumping `CACHE_VERSION` in `docs/assets/src/tmdb-client.js` so existing
+users' stale caches re-fetch immediately instead of waiting for the
+per-key TTL to roll over.
+
 ## What's out of scope without explicit ask
 
 Don't touch movie data, search/filters, watchlist, My 2026, ratings,
