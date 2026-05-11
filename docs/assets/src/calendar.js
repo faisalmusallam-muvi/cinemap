@@ -354,12 +354,12 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
 
       <div className="cm-movie-body">
         <div className="cm-movie-info">
-          {/* dir="auto" picks LTR/RTL from the first strong character —
-              keeps "28 Years Later: The Bone Temple" in correct order
-              (the leading "28" is a weak digit, so the algorithm uses
-              the next strong char "Y" → LTR). Arabic titles still
-              resolve to RTL via their leading Arabic letter. */}
-          <h3 className="cm-movie-title" dir="auto">{title}</h3>
+          {/* The h3 stays in the document direction (RTL → right-aligned).
+              <bdi> isolates internal bidi so "28 Years Later" reads left-
+              to-right inside it (number stays at start) without flipping
+              the h3's overall right-anchor. Arabic titles render right-to-
+              left inside the bdi as expected. */}
+          <h3 className="cm-movie-title"><bdi>{title}</bdi></h3>
           <div className="cm-movie-meta">
             {/* Dynamic engagement badges — driven by movie_engagement view.
                 Trending = top by last-7d saves; Anticipated = top upcoming

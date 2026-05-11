@@ -1844,6 +1844,20 @@
       display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
     }
     .poster-fallback-date { font-size: 10px; color: var(--ink-2); }
+    /* "قريبًا" placeholder — used when TMDB has no poster yet. Centered
+       icon + label so the slot reads as a placeholder, not a broken card. */
+    .poster-fallback-soon .poster-fallback-inner {
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-align: center;
+    }
+    .poster-fallback-soon-icon { font-size: 28px; opacity: 0.7; }
+    .poster-fallback-soon-label {
+      font-size: 14px; font-weight: 800;
+      color: var(--accent, var(--amber));
+      letter-spacing: 0.04em;
+    }
 
     /* =========================================================
        17) Movie Modal (tmdb-client MovieModal) — restyled

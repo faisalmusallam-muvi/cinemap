@@ -38,7 +38,7 @@ const TMDB_BG_BASE  = 'https://image.tmdb.org/t/p/w1280';
 // (e.g. when posters change across the board, or when TMDB structure shifts).
 // Each entry also has its own TTL so caches roll over automatically without
 // requiring a deploy.
-const CACHE_VERSION = 10; // bumped: pinned correct tmdbIds for several films whose title-search was matching the wrong movie (Family Business, Housemaid, Asad, El Gawahergy, How to Rob a Bank, 28 Years Later)
+const CACHE_VERSION = 11; // bumped: pinned tmdbIds for جوازة ولا جنازة + سفاح التجمع (were resolving to no-poster fallback because title-search couldn't find them on TMDB)
 const TTL_POSTER_DAYS  = 7;   // posters change ~weekly as marketing rolls out
 const TTL_TRAILER_DAYS = 3;   // trailers drop late, re-check more often
 const TTL_CAST_DAYS    = 30;  // cast is stable once announced
@@ -433,12 +433,18 @@ function MoviePoster({ movie, className = '' }) {
 
   const g = window.MUVI_GENRES[movie.genre];
   if (!loading && (!src || error)) {
+    // Faisal's call: when TMDB has no poster yet (most often a future
+    // release that hasn't published key art), show a clean "قريبًا"
+    // placeholder instead of the genre/title/date plate. The film's
+    // name still appears in the card title outside this slot, so the
+    // user knows which film they're looking at.
+    const docLang = document.documentElement.getAttribute('lang') || 'ar';
+    const label = docLang === 'en' ? 'Coming soon' : 'قريبًا';
     return (
-      <div className={`poster-fallback ${className}`} style={{ '--accent': g.color }}>
+      <div className={`poster-fallback poster-fallback-soon ${className}`} style={{ '--accent': g.color }}>
         <div className="poster-fallback-inner">
-          <div className="poster-fallback-genre">{g.ar.toUpperCase()}</div>
-          <div className="poster-fallback-title">{movie.ar}</div>
-          <div className="poster-fallback-date ltr">{String(new Date(movie.date).getDate()).padStart(2,'0')} · 2026</div>
+          <div className="poster-fallback-soon-icon">🎬</div>
+          <div className="poster-fallback-soon-label">{label}</div>
         </div>
       </div>
     );
