@@ -354,7 +354,12 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
 
       <div className="cm-movie-body">
         <div className="cm-movie-info">
-          <h3 className="cm-movie-title">{title}</h3>
+          {/* dir="auto" picks LTR/RTL from the first strong character —
+              keeps "28 Years Later: The Bone Temple" in correct order
+              (the leading "28" is a weak digit, so the algorithm uses
+              the next strong char "Y" → LTR). Arabic titles still
+              resolve to RTL via their leading Arabic letter. */}
+          <h3 className="cm-movie-title" dir="auto">{title}</h3>
           <div className="cm-movie-meta">
             {/* Dynamic engagement badges — driven by movie_engagement view.
                 Trending = top by last-7d saves; Anticipated = top upcoming
@@ -379,11 +384,11 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
                 </>
               );
             })()}
-            {/* Status chip — only when it adds new info. For released films
-                the date chip already says "this happened", so the chip is
-                noise. For upcoming/now-showing it tells the user the film is
-                live in cinemas. */}
-            {!isReleased && (
+            {/* Status chip — only when it adds new info. Suppressed for:
+                - released films (date already says it's past)
+                - upcoming films that ALSO have the "الأكثر ترقبًا" badge,
+                  since both signals say "future" — don't double up. */}
+            {!isReleased && !(anticipatedIds && anticipatedIds.has(movie.tmdbId ? `tmdb:${movie.tmdbId}` : `${movie.en}|${movie.date}`)) && (
               <span className="cm-status-chip is-upcoming">
                 {statusLabel}
               </span>
@@ -413,33 +418,11 @@ function MovieRow({ movie, lang, onOpenMovie, isSaved, isNotified, isWatched, ra
 
             {/* Pick badge hidden for now — every film in this curated 2026
                 catalog is editorially selected, so the star pollutes more
-                than it informs. Easy to resurrect by adding the pick badge
-                back here. */}
+                than it informs. */}
 
-            {/* Audience signal — combined into one pill so the meta row
-                stays scannable. Saves first, then average rating after a
-                separator if the film has been rated. Hidden entirely if no
-                engagement yet. */}
-            {(() => {
-              const eng = engagementOf(movie, engagement);
-              if (!eng) return null;
-              const saves = Number(eng.save_count) || 0;
-              const ratings = Number(eng.rating_count) || 0;
-              const avg = Number(eng.avg_rating) || 0;
-              const hasRating = ratings > 0 && avg > 0;
-              if (saves === 0 && !hasRating) return null;
-              const tooltip = [
-                saves > 0 ? `${saves} ${t.audience_saves}` : '',
-                hasRating ? `${avg.toFixed(1)}/5 — ${ratings} ${t.audience_ratings}` : '',
-              ].filter(Boolean).join(' · ');
-              return (
-                <span className="cm-pill cm-pill-audience" title={tooltip}>
-                  {saves > 0 && <>👥 {saves}</>}
-                  {saves > 0 && hasRating && ' · '}
-                  {hasRating && <>⭐ {avg.toFixed(1)}</>}
-                </span>
-              );
-            })()}
+            {/* Audience signal lives inside the movie modal now (not on
+                the card list). Keeps the calendar scannable; the user
+                sees the engagement detail when they tap into the film. */}
           </div>
         </div>
 
