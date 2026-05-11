@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.59',
-  releaseNoteAr: 'أرقام الجمهور صارت ظاهرة على كل فيلم، والبطاقات صارت مرتبة وأقل ازدحامًا.',
-  releaseNoteEn: 'Audience counts are now visible on every movie, and cards are tidier and less crowded.',
+  releaseVersion: 'v1.60',
+  releaseNoteAr: 'صلّحنا بوسترات أفلام كانت تطلع غلط، وبطاقات الأفلام صارت أنظف.',
+  releaseNoteEn: 'Fixed several films whose posters were drifting, and the calendar cards are tidier.',
 };
 
 // ============================================================
@@ -500,7 +500,9 @@ const KSA_BOX_OFFICE_IMPORTS = [
   { ar: "The Strangers: Chapter 3", en: "The Strangers: Chapter 3", aliases: ["ذا سترينجرز", "الغرباء", "الغرباء 3"], genre: "horror", date: "2026-04-02", language: "en", mood: "thrill", rating: "R15",
     overview: "الفصل الثالث من سلسلة الغرباء، حيث يواجه الناجون تهديدات جديدة من قتلة مقنعين.",
     overviewEn: "The third chapter of The Strangers, with survivors facing new masked threats." },
-  { ar: "The Raiders", en: "The Raiders", aliases: ["ذا ريدرز", "ريدرز"], genre: "action", date: "2026-04-09", language: "en", mood: "thrill", rating: "R15",
+  // Distributed regionally as "The Raiders"; on TMDB it's "A Legend"
+  // (Jackie Chan, 2024). Pinned by TMDB id so title-search doesn't drift.
+  { ar: "The Raiders", en: "The Raiders", tmdbId: 1116465, aliases: ["ذا ريدرز", "ريدرز", "A Legend"], genre: "action", date: "2026-04-09", language: "en", mood: "thrill", rating: "R15",
     overview: "جاكي شان يقود فريق آثار في رحلة أكشن للعثور على حجر غامض يأخذهم عبر الزمن.",
     overviewEn: "Jackie Chan leads archaeologists on an action adventure around a mysterious jade that bends time." },
   { ar: "Kill Code", en: "Kill Code", aliases: ["كيل كود", "كود القتل"], genre: "action", date: "2026-04-16", language: "en", mood: "thrill", rating: "R18",
