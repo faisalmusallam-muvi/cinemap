@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.60',
-  releaseNoteAr: 'صلّحنا بوسترات أفلام كانت تطلع غلط، وبطاقات الأفلام صارت أنظف.',
-  releaseNoteEn: 'Fixed several films whose posters were drifting, and the calendar cards are tidier.',
+  releaseVersion: 'v1.61',
+  releaseNoteAr: 'رجعنا فيلمين كانوا يطلعون فاضين، ومحاذاة عناوين الأفلام صارت موحدة.',
+  releaseNoteEn: 'Brought back two films that were rendering blank, and unified title alignment.',
 };
 
 // ============================================================
