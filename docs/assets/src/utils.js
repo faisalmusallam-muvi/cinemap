@@ -24,7 +24,7 @@ window.CINEMAP_CONFIG = {
 
 const RAW_MOVIES = [
   // JANUARY
-  { month: 0, ar: "28 Years Later: The Bone Temple", en: "28 Years Later: The Bone Temple", genre: "horror", date: "2026-01-15", pick: true,
+  { month: 0, ar: "28 Years Later: The Bone Temple", en: "28 Years Later: The Bone Temple", tmdbId: 1272837, genre: "horror", date: "2026-01-15", pick: true,
     tmdbId: 1272837, exp: ['imax', 'screenx', '4dx'], language: 'en', mood: 'thrill',
     overview: "الجزء الثاني من الثلاثية التي تتبّع عالماً ما بعد تفشي الفيروس بعد 28 عاماً.",
     overviewEn: "The second chapter of the post-outbreak trilogy — 28 years on.",
@@ -135,7 +135,7 @@ const RAW_MOVIES = [
     overview: "كوميديا عربية عن مواقف اجتماعية تتحول إلى فوضى لطيفة وسريعة.",
     overviewEn: "An Arabic comedy where social situations spiral into fast, playful chaos.",
     rating: "R18" },
-  { month: 4, ar: "أسد", en: "Asad", genre: "arabic", date: "2026-05-21", language: 'ar', mood: 'thrill',
+  { month: 4, ar: "أسد", en: "Asad", tmdbId: 1211185, genre: "arabic", date: "2026-05-21", language: 'ar', mood: 'thrill',
     overview: "فيلم عربي من العناوين التي ظهرت في قائمة الإدارة لباقي 2026.",
     overviewEn: "An Arabic title highlighted in the management slate for the rest of 2026.",
     rating: "TBC" },
@@ -214,7 +214,7 @@ const RAW_MOVIES = [
     rating: "TBC" },
 
   // AUGUST
-  { month: 7, ar: "الجواهرجي", en: "El Gawahergy", genre: "arabic", date: "2026-08-06", language: 'ar', mood: 'fun',
+  { month: 7, ar: "الجواهرجي", en: "El Gawahergy", tmdbId: 917242, genre: "arabic", date: "2026-08-06", language: 'ar', mood: 'fun',
     overview: "كوميديا عربية عن علاقات ومواقف اجتماعية بطابع جماهيري.",
     overviewEn: "An Arabic crowd comedy built around relationships and social situations.",
     rating: "TBC" },
@@ -246,7 +246,7 @@ const RAW_MOVIES = [
     runtime: 98, rating: "PG" },
 
   // SEPTEMBER
-  { month: 8, ar: "How to Rob a Bank", en: "How to Rob a Bank", genre: "comedy", date: "2026-09-03", language: 'en', mood: 'fun',
+  { month: 8, ar: "How to Rob a Bank", en: "How to Rob a Bank", tmdbId: 1437511, genre: "comedy", date: "2026-09-03", language: 'en', mood: 'fun',
     overview: "كوميديا سطو خفيفة من Amazon MGM Studios.",
     overviewEn: "A breezy heist comedy from Amazon MGM Studios.",
     runtime: 100, rating: "PG-13" },
@@ -422,13 +422,13 @@ const KSA_BOX_OFFICE_IMPORTS = [
   { ar: "Shelter", en: "Shelter", genre: "action", date: "2026-01-29", language: "en", mood: "thrill", rating: "R15",
     overview: "أكشن وتشويق من أوائل أفلام 2026 التي استمرت طويلًا في صالات السعودية.",
     overviewEn: "An action thriller that held strongly in Saudi cinemas early in 2026." },
-  { ar: "فاميلي بيزنس", en: "Family Business", aliases: ["Family Business (Arabic)"], genre: "arabic", date: "2026-03-19", language: "ar", mood: "fun", rating: "R15",
+  { ar: "فاميلي بيزنس", en: "Family Business", tmdbId: 1567555, aliases: ["Family Business (Arabic)"], genre: "arabic", date: "2026-03-19", language: "ar", mood: "fun", rating: "R15",
     overview: "كوميديا عربية عن عائلة، أسرار، وفوضى لطيفة.",
     overviewEn: "An Arabic comedy built around family chaos and secrets." },
   { ar: "إن غاب القط", en: "En Ghab El Kot", aliases: ["En Ghab El Qot", "ان غاب القط"], genre: "arabic", date: "2026-01-08", language: "ar", mood: "fun", rating: "R18",
     overview: "كوميديا عربية تصدرت اهتمام الجمهور في بداية السنة.",
     overviewEn: "An Arabic comedy that found a strong audience early in the year." },
-  { ar: "The Housemaid", en: "The Housemaid", aliases: ["Housemaid, The"], genre: "thriller", date: "2026-02-05", language: "en", mood: "thrill", rating: "R18",
+  { ar: "The Housemaid", en: "The Housemaid", tmdbId: 1368166, aliases: ["Housemaid, The"], genre: "thriller", date: "2026-02-05", language: "en", mood: "thrill", rating: "R18",
     overview: "تشويق نفسي حقق حضورًا قويًا في صالات السعودية.",
     overviewEn: "A psychological thriller with strong Saudi cinema attendance." },
   { ar: "Greenland 2: Migration", en: "Greenland 2: Migration", genre: "action", date: "2026-01-08", language: "en", mood: "thrill", rating: "R15",
