@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.61',
-  releaseNoteAr: 'رجعنا فيلمين كانوا يطلعون فاضين، ومحاذاة عناوين الأفلام صارت موحدة.',
-  releaseNoteEn: 'Brought back two films that were rendering blank, and unified title alignment.',
+  releaseVersion: 'v1.62',
+  releaseNoteAr: 'بوستر "مسألة حياة أو موت" صار صح.',
+  releaseNoteEn: 'Pinned the right poster for "A Matter of Life and Death".',
 };
 
 // ============================================================
@@ -174,7 +174,7 @@ const RAW_MOVIES = [
     overview: "فيلم عربي خفيف عن الإعجاب، العلاقات، والقرارات التي تكبر فجأة.",
     overviewEn: "A light Arabic film about crushes, relationships, and decisions that suddenly get bigger.",
     rating: "TBC" },
-  { month: 5, ar: "مسألة حياة أو موت", en: "A Matter of Life and Death", genre: "arabic", date: "2026-06-25", language: 'ar', mood: 'deep',
+  { month: 5, ar: "مسألة حياة أو موت", en: "A Matter of Life and Death", tmdbId: 1418982, genre: "arabic", date: "2026-06-25", language: 'ar', mood: 'deep',
     overview: "فيلم عربي سعودي عن قرار مصيري يغيّر حياة الشخصيات.",
     overviewEn: "A Saudi Arabic film about a life-changing decision.",
     rating: "TBC" },
