@@ -195,7 +195,11 @@ function applyLocalMedia(movie, data) {
 
 // ---------- Posters + backdrops ----------
 async function tmdbFetch(movie) {
-  const cacheKey = `tmdb-poster-${movie.en}`;
+  // Prefer the pinned TMDB id in the cache key. Title-only caches can survive
+  // after a catalog entry is corrected and keep serving the old matched film.
+  const cacheKey = movie.tmdbId
+    ? `tmdb-poster-id-${movie.tmdbId}`
+    : `tmdb-poster-${movie.en}`;
   const cached = readCache(cacheKey, TTL_POSTER_DAYS);
   if (cached) return applyLocalMedia(movie, cached);
 
@@ -246,6 +250,21 @@ async function tmdbFetch(movie) {
 window.cinemapFetchMovieMedia = tmdbFetch;
 
 function modalOverview(movie, posterData, lang) {
+  if (movie?.preferLocalOverview) {
+    if (lang === 'en') {
+      return movie.overviewEn
+        || movie.overview
+        || posterData?.overviewEn
+        || posterData?.overviewAr
+        || 'The synopsis isn’t available yet — we’ll add it as soon as the studio shares more.';
+    }
+
+    return movie.overview
+      || posterData?.overviewAr
+      || posterData?.overviewEn
+      || 'قصة الفيلم غير متوفرة حالياً، بنحدثها أول ما تتوفر معلومات أوضح.';
+  }
+
   if (lang === 'en') {
     return posterData?.overviewEn
       || movie.overviewEn
@@ -783,6 +802,12 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
     </div>
   );
 }
+
+// ---------- Legacy calendar components ----------
+// Quarantine candidate: the active calendar row/month/monthbar components live
+// in calendar.js. These older globals remain exported for backward
+// compatibility until a separate cleanup confirms no external page depends on
+// them.
 
 // ---------- Movie Row (click to open modal) ----------
 function MovieRow({ movie, reminded, onRemind, lang, onOpen }) {

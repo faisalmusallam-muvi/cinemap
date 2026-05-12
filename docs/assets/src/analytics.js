@@ -8,6 +8,10 @@ const LS_SESSION_AT = 'cinemap-session-started-at';
 const LS_SESSION_TRACKED = 'cinemap-session-tracked-id';
 
 const SUPABASE_EVENT_TYPES = {
+  // Compatibility contract:
+  // The left side is the app's internal action name. The right side is the
+  // persisted Supabase event_type. Do not rename the right side without also
+  // updating existing Supabase views/dashboards.
   page_view: 'page_view',
   session_start: 'session_start',
   movie_view: 'movie_open',
@@ -23,6 +27,7 @@ const SUPABASE_EVENT_TYPES = {
   movie_unsave: 'unsave_movie',
   notify_on: 'notify_interest',
   watched_on: 'watched_movie',
+  watched_off: 'unwatched_movie',
   rating_submitted: 'rating_submitted',
   movie_share: 'share_movie',
   watchlist_share_image: 'share_movie',

@@ -64,6 +64,43 @@ bumping `CACHE_VERSION` in `docs/assets/src/tmdb-client.js` so existing
 users' stale caches re-fetch immediately instead of waiting for the
 per-key TTL to roll over.
 
+Do not guess TMDB ids. If the correct TMDB page is not confirmed, leave the
+movie unpinned, run `ruby tools/validate-catalog.rb`, and tell Faisal which
+movies need manual verification.
+
+Run catalog validation before shipping catalog/media changes:
+
+```sh
+ruby tools/validate-catalog.rb
+```
+
+Blocking catalog issues:
+- duplicate movie keys (`en|date`)
+- duplicate `tmdbId` across different movies
+- duplicate `tmdbId` properties inside one movie entry
+- invalid or missing release dates
+- missing Arabic title
+- `preferLocalOverview: true` without local `overview` or `overviewEn`
+
+Missing `tmdbId` is a review issue, not always a hard blocker. A movie may
+ship without `tmdbId` only when the TMDB page is not available yet or the match
+needs manual verification. Never invent TMDB ids.
+
+If Cinemap intentionally needs local synopsis copy to win over TMDB, set
+`preferLocalOverview: true` on that movie and provide `overview` and/or
+`overviewEn`. Without that flag, TMDB remains the default synopsis source.
+
+## MVP signal rule
+
+Cinemap's current MVP priority is clean Saudi audience signals, not adding
+features. Prioritize reliability for saves, watched status, ratings,
+"worth cinema" / "wait for streaming" intent, Arabic search aliases, and
+anonymous Supabase analytics.
+
+Analytics changes must preserve compatibility with existing Supabase
+`event_type` values, materialized views, and dashboards. Do not rename live
+Supabase event types or change schema/RLS policies without explicit approval.
+
 ## What's out of scope without explicit ask
 
 Don't touch movie data, search/filters, watchlist, My 2026, ratings,
