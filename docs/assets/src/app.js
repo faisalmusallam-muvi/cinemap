@@ -707,7 +707,7 @@ function App() {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#ff8a00';
     ctx.font = '800 24px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    ctx.fillText(t.my2026_personality, 540, pillY + 26);
+    ctx.fillText(isEn ? t.my2026_personality : 'ستايلك السينمائي', 540, pillY + 26);
 
     const personalityValue = profile.personality || t.my2026_p0;
     ctx.fillStyle = '#fff7ed';
@@ -722,9 +722,9 @@ function App() {
     // Thin stat strip — supporting numbers, no panel chrome
     const stripY = pillY + pillH + 36;
     const stripParts = [
-      `🎬 ${profile.watchedCount ?? 0}`,
-      `⏱ ${profile.hoursText || '0'}`,
-      `⭐ ${profile.averageText || t.my2026_not_yet}`,
+      isEn ? `${profile.watchedCount ?? 0} movies` : `${profile.watchedCount ?? 0} أفلام`,
+      isEn ? `Energy ${profile.hoursText || '0'}` : `حماسك ${profile.hoursText || '0'}`,
+      isEn ? `Rating ${profile.averageText || t.my2026_not_yet}` : `تقييمك ${profile.averageText || t.my2026_not_yet}`,
     ];
     ctx.fillStyle = '#c9d1dc';
     ctx.font = '700 30px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
@@ -793,7 +793,7 @@ function App() {
       // so every card carries the rating affordance, matching the watchlist
       // visual where stars speak for themselves without a "تقييمك" label.
       const goldCount = Math.max(0, Math.min(5, Math.round(rating)));
-      const starSize = 24;
+      const starSize = 26;
       const starGap = 6;
       const totalStarWidth = 5 * starSize + 4 * starGap;
       let cursor = x + cardW / 2 - totalStarWidth / 2;
@@ -801,7 +801,7 @@ function App() {
       ctx.textAlign = 'left';
       ctx.direction = 'ltr';
       for (let s = 0; s < 5; s++) {
-        ctx.fillStyle = s < goldCount ? '#ffc857' : 'rgba(245,242,235,0.18)';
+        ctx.fillStyle = s < goldCount ? '#ffc857' : 'rgba(245,242,235,0.28)';
         ctx.fillText('★', cursor, y + posterH + 124);
         cursor += starSize + starGap;
       }
@@ -820,7 +820,7 @@ function App() {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#fff7ed';
     ctx.font = '800 28px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    ctx.fillText(isEn ? 'Build yours on cinemap.me' : 'ابنِ قائمتك على cinemap.me', W / 2, footerY + 50);
+    ctx.fillText(isEn ? 'Build yours on cinemap.me' : 'قائمتك السينمائية تنتظر في سينماب', W / 2, footerY + 50);
 
     return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 0.95));
   };

@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.62',
-  releaseNoteAr: 'بوستر "مسألة حياة أو موت" صار صح.',
-  releaseNoteEn: 'Pinned the right poster for "A Matter of Life and Death".',
+  releaseVersion: 'v1.63',
+  releaseNoteAr: 'بحث عربي أدق وكرت مشاركة أوضح.',
+  releaseNoteEn: 'Sharper Arabic search and a clearer share card.',
 };
 
 // ============================================================
@@ -115,7 +115,7 @@ const RAW_MOVIES = [
     runtime: 95, rating: "PG" },
 
   // MAY
-  { month: 4, ar: "Mortal Kombat 2", en: "Mortal Kombat 2", tmdbId: 931285, aliases: ["مورتال كومبات", "مورتال كومبات 2", "مورتال كومبات٢", "مورتل كومبات"], genre: "action", date: "2026-05-07",
+  { month: 4, ar: "Mortal Kombat 2", en: "Mortal Kombat 2", tmdbId: 931285, aliases: ["مورتال", "مورتال كومبات", "مورتال كومبات 2", "مورتال كومبات ٢", "مورتال كومبات٢", "مورتل كومبات"], genre: "action", date: "2026-05-07",
     exp: ['screenx', '4dx'], language: 'en', mood: 'thrill',
     overview: "الجزء الثاني من فيلم القتال الأيقوني — عوالم جديدة ومعارك أضخم.",
     overviewEn: "The iconic fighting franchise — new realms, bigger battles.",
@@ -197,7 +197,7 @@ const RAW_MOVIES = [
     overview: "ملحمة كريستوفر نولان — رحلة أوديسيوس من طروادة إلى الوطن.",
     overviewEn: "Christopher Nolan's epic — Odysseus's voyage from Troy to home.",
     runtime: 165, rating: "PG-13" },
-  { month: 6, ar: "Spider-Man: Brand New Day", en: "Spider-Man: Brand New Day", aliases: ["سبايدر مان", "سبايدرمان", "الرجل العنكبوت", "سبايدر مان براند نيو داي"], genre: "action", date: "2026-07-30", pick: true,
+  { month: 6, ar: "Spider-Man: Brand New Day", en: "Spider-Man: Brand New Day", aliases: ["سبايدر", "سبايدر مان", "سبايدرمان", "الرجل العنكبوت", "سبايدر مان براند نيو داي"], genre: "action", date: "2026-07-30", pick: true,
     tmdbId: 969681, exp: ['imax', 'screenx', '4dx', 'dolby'], language: 'en', mood: 'thrill',
     featuredRank: 1, projectedAdmissions: 1000000, badge: "Top Pick", badgeAr: "الأكثر ترقبًا",
     overview: "الرجل العنكبوت في فصل جديد تماماً.",
@@ -342,7 +342,7 @@ const RAW_MOVIES = [
     overview: "بابا نويل العنيف يعود — أكشن كوميدي ملحمي لعيد الميلاد.",
     overviewEn: "Violent Santa is back — an action-comedy holiday romp.",
     runtime: 105, rating: "R" },
-  { month: 11, ar: "Dune 3", en: "Dune 3", aliases: ["دون", "ديون", "دون 3", "ديون 3"], genre: "scifi", date: "2026-12-17", pick: true,
+  { month: 11, ar: "Dune 3", en: "Dune 3", aliases: ["دون", "ديون", "كثيب", "دون 3", "ديون 3", "كثيب 3"], genre: "scifi", date: "2026-12-17", pick: true,
     tmdbId: 1170608, exp: ['imax', 'dolby', 'screenx'], language: 'en', mood: 'deep',
     featuredRank: 8, projectedAdmissions: 350000, badge: "Premium Format Pick", badgeAr: "اختيار للشاشات المميزة",
     overview: "الجزء الثالث من ملحمة ديون — بول أتريديس إمبراطور الكون.",
