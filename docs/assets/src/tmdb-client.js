@@ -44,6 +44,11 @@ const TTL_TRAILER_DAYS = 3;   // trailers drop late, re-check more often
 const TTL_CAST_DAYS    = 30;  // cast is stable once announced
 
 const DAY = 24 * 60 * 60 * 1000;
+const TMDB_MAX_CONCURRENT = 6;
+let tmdbActiveRequests = 0;
+const tmdbRequestQueue = [];
+const tmdbDetailInFlight = new Map();
+const tmdbMediaInFlight = new Map();
 
 function readCache(key, ttlDays) {
   try {
@@ -70,6 +75,24 @@ function writeCache(key, data) {
   } catch {}
 }
 
+function scheduleTmdbRequest(run) {
+  return new Promise((resolve, reject) => {
+    const next = () => {
+      tmdbActiveRequests += 1;
+      Promise.resolve()
+        .then(run)
+        .then(resolve, reject)
+        .finally(() => {
+          tmdbActiveRequests -= 1;
+          const queued = tmdbRequestQueue.shift();
+          if (queued) queued();
+        });
+    };
+    if (tmdbActiveRequests < TMDB_MAX_CONCURRENT) next();
+    else tmdbRequestQueue.push(next);
+  });
+}
+
 // Optional: clean up stale entries from previous CACHE_VERSIONs to free quota.
 (function pruneOldCaches() {
   try {
@@ -90,11 +113,13 @@ function writeCache(key, data) {
 
 async function tmdbApi(path, lang = 'en-US') {
   const sep = path.includes('?') ? '&' : '?';
-  const r = await fetch(`https://api.themoviedb.org/3${path}${sep}language=${lang}`, {
-    headers: { Authorization: `Bearer ${TMDB_TOKEN}`, 'Content-Type': 'application/json;charset=utf-8' }
+  return scheduleTmdbRequest(async () => {
+    const r = await fetch(`https://api.themoviedb.org/3${path}${sep}language=${lang}`, {
+      headers: { Authorization: `Bearer ${TMDB_TOKEN}`, 'Content-Type': 'application/json;charset=utf-8' }
+    });
+    if (!r.ok) throw new Error(`TMDB ${r.status}`);
+    return r.json();
   });
-  if (!r.ok) throw new Error(`TMDB ${r.status}`);
-  return r.json();
 }
 
 async function tmdbFetchMovieDetails(tmdbId) {
@@ -117,6 +142,20 @@ async function tmdbFetchMovieDetails(tmdbId) {
     releaseDate: base.release_date || null,
     // TMDB returns runtime in minutes for released films. Surfaced so the
     // modal can show "96 دقيقة" without us hardcoding it per movie.
+    runtime: Number.isFinite(base.runtime) && base.runtime > 0 ? base.runtime : null,
+  };
+}
+
+async function tmdbFetchMovieMediaDetails(tmdbId) {
+  const base = await tmdbApi(`/movie/${tmdbId}`, 'en-US');
+  if (!base) return null;
+
+  return {
+    poster:   base.poster_path ? `${TMDB_IMG_BASE}${base.poster_path}` : null,
+    backdrop: base.backdrop_path ? `${TMDB_BG_BASE}${base.backdrop_path}` : null,
+    tmdbId,
+    title:    base.title || base.original_title || '',
+    releaseDate: base.release_date || null,
     runtime: Number.isFinite(base.runtime) && base.runtime > 0 ? base.runtime : null,
   };
 }
@@ -208,52 +247,90 @@ async function tmdbFetch(movie) {
     : `tmdb-poster-${movie.en}`;
   const cached = readCache(cacheKey, TTL_POSTER_DAYS);
   if (cached) return applyLocalMedia(movie, cached);
+  if (tmdbDetailInFlight.has(cacheKey)) return tmdbDetailInFlight.get(cacheKey);
 
-  const movieFromYear = new Date(movie.date).getFullYear();
+  const promise = (async () => {
+    const movieFromYear = new Date(movie.date).getFullYear();
 
-  try {
-    // Direct fetch by tmdbId
-    if (movie.tmdbId) {
-      const out = await tmdbFetchMovieDetails(movie.tmdbId);
+    try {
+      // Direct fetch by tmdbId
+      if (movie.tmdbId) {
+        const out = await tmdbFetchMovieDetails(movie.tmdbId);
+        if (out) {
+          const merged = applyLocalMedia(movie, out);
+          writeCache(cacheKey, merged);
+          return merged;
+        }
+      }
+
+      // Search TMDB using English title, Arabic title, and aliases.
+      // This matters for Saudi/Egyptian releases because TMDB often indexes
+      // them under Arabic script or a different transliteration.
+      const hit = await tmdbSearchBest(movie);
+
+      if (!hit) {
+        // Cache the negative result briefly (1 day) so we don't hammer TMDB
+        const missing = applyLocalMedia(movie, { poster: null, backdrop: null, tmdbId: null, missing: true });
+        writeCache(cacheKey, missing);
+        return missing.poster || missing.backdrop ? missing : null;
+      }
+
+      const details = await tmdbFetchMovieDetails(hit.id);
+      const out = details || {
+        poster:   hit.poster_path ? `${TMDB_IMG_BASE}${hit.poster_path}` : null,
+        backdrop: hit.backdrop_path ? `${TMDB_BG_BASE}${hit.backdrop_path}` : null,
+        tmdbId:   hit.id,
+        title:    hit.title || hit.original_title || movie.en,
+        overviewEn: hit.overview || null,
+        overviewAr: null,
+        releaseDate: hit.release_date || null,
+      };
+      const merged = applyLocalMedia(movie, out);
+      writeCache(cacheKey, merged);
+      return merged;
+    } catch {
+      const fallback = applyLocalMedia(movie, { poster: null, backdrop: null, tmdbId: movie.tmdbId || null, missing: true });
+      return fallback.poster || fallback.backdrop ? fallback : null;
+    }
+  })();
+
+  tmdbDetailInFlight.set(cacheKey, promise);
+  try { return await promise; }
+  finally { tmdbDetailInFlight.delete(cacheKey); }
+}
+
+async function tmdbFetchMedia(movie) {
+  const cacheKey = movie.tmdbId
+    ? `tmdb-media-id-${movie.tmdbId}`
+    : `tmdb-media-${movie.en}`;
+  const cached = readCache(cacheKey, TTL_POSTER_DAYS);
+  if (cached) return applyLocalMedia(movie, cached);
+  if (!movie.tmdbId) return tmdbFetch(movie);
+  if (tmdbMediaInFlight.has(cacheKey)) return tmdbMediaInFlight.get(cacheKey);
+
+  const promise = (async () => {
+    try {
+      const out = await tmdbFetchMovieMediaDetails(movie.tmdbId);
       if (out) {
         const merged = applyLocalMedia(movie, out);
         writeCache(cacheKey, merged);
         return merged;
       }
-    }
-
-    // Search TMDB using English title, Arabic title, and aliases.
-    // This matters for Saudi/Egyptian releases because TMDB often indexes
-    // them under Arabic script or a different transliteration.
-    const hit = await tmdbSearchBest(movie);
-
-    if (!hit) {
-      // Cache the negative result briefly (1 day) so we don't hammer TMDB
-      const missing = applyLocalMedia(movie, { poster: null, backdrop: null, tmdbId: null, missing: true });
+      const missing = applyLocalMedia(movie, { poster: null, backdrop: null, tmdbId: movie.tmdbId, missing: true });
       writeCache(cacheKey, missing);
       return missing.poster || missing.backdrop ? missing : null;
+    } catch {
+      const fallback = applyLocalMedia(movie, { poster: null, backdrop: null, tmdbId: movie.tmdbId || null, missing: true });
+      return fallback.poster || fallback.backdrop ? fallback : null;
     }
+  })();
 
-    const details = await tmdbFetchMovieDetails(hit.id);
-    const out = details || {
-      poster:   hit.poster_path ? `${TMDB_IMG_BASE}${hit.poster_path}` : null,
-      backdrop: hit.backdrop_path ? `${TMDB_BG_BASE}${hit.backdrop_path}` : null,
-      tmdbId:   hit.id,
-      title:    hit.title || hit.original_title || movie.en,
-      overviewEn: hit.overview || null,
-      overviewAr: null,
-      releaseDate: hit.release_date || null,
-    };
-    const merged = applyLocalMedia(movie, out);
-    writeCache(cacheKey, merged);
-    return merged;
-  } catch {
-    const fallback = applyLocalMedia(movie, { poster: null, backdrop: null, tmdbId: movie.tmdbId || null, missing: true });
-    return fallback.poster || fallback.backdrop ? fallback : null;
-  }
+  tmdbMediaInFlight.set(cacheKey, promise);
+  try { return await promise; }
+  finally { tmdbMediaInFlight.delete(cacheKey); }
 }
 
-window.cinemapFetchMovieMedia = tmdbFetch;
+window.cinemapFetchMovieMedia = tmdbFetchMedia;
 
 function modalOverview(movie, posterData, lang) {
   if (movie?.preferLocalOverview) {
@@ -375,7 +452,7 @@ async function _runPrefetch() {
     const worker = async () => {
       while (queue.length) {
         const m = queue.shift();
-        try { await tmdbFetch(m); } catch {}
+        try { await tmdbFetchMedia(m); } catch {}
         // For movies with a known tmdbId, also warm the trailer cache
         if (m.tmdbId) { try { await fetchTrailerKey(m); } catch {} }
       }
@@ -440,17 +517,26 @@ function downloadIcal(movie, lang) {
 // ---------- Poster component ----------
 function MoviePoster({ movie, className = '' }) {
   const [src, setSrc] = useState(null);
+  const [fallbackSrc, setFallbackSrc] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    setSrc(null);
+    setFallbackSrc(null);
+    setError(false);
+    setLoading(true);
     if (movie.noPoster) { setError(true); setLoading(false); return; }
     let cancelled = false;
     (async () => {
-      const result = await tmdbFetch(movie);
+      const result = await tmdbFetchMedia(movie);
       if (cancelled) return;
-      if (result?.poster || result?.backdrop) setSrc(result.poster || result.backdrop);
-      else setError(true);
+      if (result?.poster || result?.backdrop) {
+        setSrc(result.poster || result.backdrop);
+        setFallbackSrc(result.poster && result.backdrop && result.poster !== result.backdrop ? result.backdrop : null);
+      } else {
+        setError(true);
+      }
       setLoading(false);
     })();
     return () => { cancelled = true; };
@@ -477,7 +563,21 @@ function MoviePoster({ movie, className = '' }) {
   return (
     <div className={`poster-wrap ${className}`}>
       {(loading || !src) && <div className="poster-skeleton" />}
-      {src && <img src={src} alt={movie.en} className="poster-img" onError={() => setError(true)} />}
+      {src && (
+        <img
+          src={src}
+          alt={movie.en}
+          className="poster-img"
+          onError={() => {
+            if (fallbackSrc && src !== fallbackSrc) {
+              setSrc(fallbackSrc);
+              setFallbackSrc(null);
+            } else {
+              setError(true);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -488,7 +588,7 @@ function MovieRowBackdrop({ movie }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const result = await tmdbFetch(movie);
+      const result = await tmdbFetchMedia(movie);
       if (cancelled) return;
       setSrc(result?.backdrop || result?.poster || null);
     })();
