@@ -449,7 +449,7 @@ function MoviePoster({ movie, className = '' }) {
     (async () => {
       const result = await tmdbFetch(movie);
       if (cancelled) return;
-      if (result?.poster) setSrc(result.poster);
+      if (result?.poster || result?.backdrop) setSrc(result.poster || result.backdrop);
       else setError(true);
       setLoading(false);
     })();
@@ -574,7 +574,7 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
   const subTitle = lang === 'en' ? movie.ar : movie.en;
   const dateStr = window.fmtDate ? window.fmtDate(movie.date, lang) : window.fmtDateAr(movie.date);
   const overview = modalOverview(movie, posterData, lang);
-  const posterSrc = posterData?.poster || null;
+  const posterSrc = posterData?.poster || posterData?.backdrop || null;
   const backdropSrc = posterData?.backdrop || posterSrc;
   const backdropGradient = lang === 'ar'
     ? `linear-gradient(90deg, rgba(6,3,13,0.22) 0%, rgba(6,3,13,0.48) 36%, rgba(6,3,13,0.82) 72%, rgba(6,3,13,0.97) 100%), linear-gradient(180deg, rgba(6,3,13,0.18), rgba(6,3,13,0.94))`

@@ -751,7 +751,7 @@ function App() {
     const shareMovies = savedMovies.slice(0, 6);
     const media = await Promise.all(shareMovies.map(async (m) => {
       const data = await window.cinemapFetchMovieMedia?.(m);
-      const src = data?.poster || m.localPoster || null;
+      const src = data?.poster || data?.backdrop || m.localPoster || null;
       const rating = ratings?.[movieKey(m)]?.rating || 0;
       return { movie: m, img: await loadShareImage(src), rating: Number(rating) || 0 };
     }));

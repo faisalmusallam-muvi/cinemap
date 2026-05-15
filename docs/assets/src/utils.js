@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.65',
-  releaseNoteAr: 'رقم النسخة صار أوضح على الكمبيوتر وأيقونة التب صارت سينماب.',
-  releaseNoteEn: 'Desktop now shows the version, with the Cinemap tab icon.',
+  releaseVersion: 'v1.66',
+  releaseNoteAr: 'الأفلام بدون بوستر تستخدم صورة خلفية بدل قريبًا متى ما توفرت.',
+  releaseNoteEn: 'Movies without posters now use backdrop art when available.',
 };
 
 // ============================================================
