@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.67',
-  releaseNoteAr: 'تحميل بوسترات الكمبيوتر صار أهدأ وأثبت.',
-  releaseNoteEn: 'Desktop poster loading is now steadier and lighter.',
+  releaseVersion: 'v1.68',
+  releaseNoteAr: 'التقييم صار أوضح وتفاصيل الفيلم أنظف.',
+  releaseNoteEn: 'Ratings are clearer and movie details are cleaner.',
 };
 
 // ============================================================
@@ -771,6 +771,7 @@ window.CINEMAP_I18N = {
     rate_v_bigscreen: "يستاهل الشاشة الكبيرة",
     rate_v_stream:    "شوفه على نتفلكس",
     rate_v_friends:   "مع الأصحاب",
+    rate_v_family:    "مع العائلة",
     rate_v_skip:      "ما يستاهل",
     rate_v_date:      "موعد رومانسي",
     rate_v_alone:     "أمسية لحالك",
@@ -1062,6 +1063,7 @@ window.CINEMAP_I18N = {
     rate_v_bigscreen: "Worth the big screen",
     rate_v_stream:    "Stream it",
     rate_v_friends:   "With friends",
+    rate_v_family:    "With family",
     rate_v_skip:      "Skip it",
     rate_v_date:      "Date night",
     rate_v_alone:     "Solo Friday",

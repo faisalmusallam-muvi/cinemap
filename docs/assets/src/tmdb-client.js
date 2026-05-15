@@ -715,7 +715,6 @@ function MovieModal({ movie, lang, onClose, isWatched, onToggleWatched, onCalend
             {/* Badges row */}
             <div className="mmodal-badges">
               <GenrePill genre={movie.genre} lang={lang} />
-              {(movie.exp || []).map(e => <ExpBadge key={e} exp={e} />)}
             </div>
 
             {/* Title + inline info row right beneath it. Hierarchy: title
@@ -950,7 +949,7 @@ function MovieRow({ movie, reminded, onRemind, lang, onOpen }) {
               {sub}
             </span>
           )}
-          {/* Mobile-only second line: date · genre · exp badges */}
+          {/* Mobile-only second line: date · genre */}
           <div className="movie-row-mobile-info">
             <span className="numeric ltr" style={{ fontSize: 11, color: 'var(--ink-3)', fontWeight: 700 }}>
               {dayNum} · {lang === 'en'
@@ -958,12 +957,10 @@ function MovieRow({ movie, reminded, onRemind, lang, onOpen }) {
                 : (window.MUVI_MONTHS_AR?.[movie.month] || '')}
             </span>
             <GenrePill genre={movie.genre} lang={lang} />
-            {(movie.exp || []).slice(0, 2).map(e => <ExpBadge key={e} exp={e} />)}
           </div>
         </div>
 
-        {/* Desktop meta: genre · countdown · bell · arrow
-            (experience badges removed — shown in modal only) */}
+        {/* Desktop meta: genre · countdown · bell · arrow */}
         <div className="movie-row-meta">
           <GenrePill genre={movie.genre} lang={lang} />
           {!past && (

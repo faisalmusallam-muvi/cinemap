@@ -79,6 +79,7 @@ function vibesFor(t) {
     { id: 'bigscreen', icon: '🎬', label: t.rate_v_bigscreen },
     { id: 'stream',    icon: '🛋', label: t.rate_v_stream    },
     { id: 'friends',   icon: '👥', label: t.rate_v_friends   },
+    { id: 'family',    icon: '🏠', label: t.rate_v_family    },
     { id: 'date',      icon: '💛', label: t.rate_v_date      },
     { id: 'alone',     icon: '🌙', label: t.rate_v_alone     },
     { id: 'skip',      icon: '🚫', label: t.rate_v_skip      },
@@ -296,7 +297,7 @@ function RatingSheet({ open, lang, movie, onClose, onSubmitted }) {
             <button
               type="submit"
               className="cm-btn cm-btn-primary"
-              disabled={submitting || !stars}
+              disabled={submitting}
             >{submitting ? t.rate_sending : t.rate_submit}</button>
           </div>
         </form>
