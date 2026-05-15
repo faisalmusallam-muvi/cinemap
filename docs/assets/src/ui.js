@@ -32,7 +32,7 @@ function CinemapMark({ size = 28, color = 'var(--amber)', className = '' }) {
 //                  official PNGs are square, so the header rebuilds the same
 //                  white-mark + amber-wordmark treatment without stretching.
 //   "mark"       — icon-only mark for small moments.
-function CinemapLogo({ height = 32, variant = 'horizontal', label = 'Cinemap', lang = 'en' }) {
+function CinemapLogo({ height = 32, variant = 'horizontal', label = null, lang = 'en' }) {
   const isAr = lang === 'ar';
 
   if (variant === 'mark') {

@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.69',
-  releaseNoteAr: 'ملخصي 2026 صار أدفى والهوية صارت أوضح.',
-  releaseNoteEn: 'My 2026 feels more personal and the brand logo is clearer.',
+  releaseVersion: 'v1.70',
+  releaseNoteAr: 'الشعار صار يتغير حسب اللغة.',
+  releaseNoteEn: 'The logo now switches with the site language.',
 };
 
 // ============================================================
