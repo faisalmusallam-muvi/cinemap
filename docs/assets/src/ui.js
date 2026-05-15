@@ -27,39 +27,53 @@ function CinemapMark({ size = 28, color = 'var(--amber)', className = '' }) {
 
 // ---------- Logo ----------
 // `variant`:
-//   "vertical"   — full brand SVG (mark stacked above "Cinemap" wordmark).
-//                  Best for the hero and footer where there's room.
-//   "horizontal" — amber mark + "Cinemap" wordmark in Outfit, mark always
-//                  on the LEFT regardless of page direction (brand mark
-//                  consistency). Best for nav chrome.
-function CinemapLogo({ height = 32, variant = 'vertical', label = 'Cinemap' }) {
+//   "stacked"    — official stacked PNG. Best for footer / brand moments.
+//   "horizontal" — compact official treatment for nav chrome. The uploaded
+//                  official PNGs are square, so the header rebuilds the same
+//                  white-mark + amber-wordmark treatment without stretching.
+//   "mark"       — icon-only mark for small moments.
+function CinemapLogo({ height = 32, variant = 'horizontal', label = 'Cinemap', lang = 'en' }) {
+  const isAr = lang === 'ar';
+
+  if (variant === 'mark') {
+    return (
+      <span className="cinemap-logo cinemap-logo-mark" style={{ height: `${height}px` }}>
+        <CinemapMark size={height} color="var(--amber)" />
+      </span>
+    );
+  }
+
   if (variant === 'horizontal') {
     const markSize = Math.round(height * 0.95);
+    const word = label || (isAr ? 'سينماب' : 'cinemap');
     return (
       <span className="cinemap-logo cinemap-logo-h">
-        <CinemapMark size={markSize} color="var(--amber)" />
+        <CinemapMark size={markSize} color="var(--cream)" />
         <span
-          className="cinemap-wordmark"
+          className={`cinemap-wordmark ${isAr ? 'is-ar' : 'is-en'}`}
           style={{
             fontFamily: "'Outfit', 'IBM Plex Sans Arabic', system-ui, sans-serif",
             fontWeight: 800,
-            letterSpacing: '-0.02em',
             fontSize: Math.round(height * 0.78),
-            color: 'var(--cream)',
+            color: 'var(--amber)',
             lineHeight: 1,
           }}
         >
-          {label}
+          {word}
         </span>
       </span>
     );
   }
 
+  const logoSrc = isAr
+    ? 'assets/cinemap-logo-ar-amber-text.png'
+    : 'assets/cinemap-logo-en-amber-text.png';
+  const alt = isAr ? 'سينماب' : 'Cinemap';
   return (
-    <span className="cinemap-logo" style={{ display: 'inline-block' }}>
+    <span className="cinemap-logo cinemap-logo-stacked" style={{ display: 'inline-block' }}>
       <img
-        src="assets/cinemap-logo.svg"
-        alt="Cinemap"
+        src={logoSrc}
+        alt={alt}
         height={height}
         style={{ height: `${height}px`, width: 'auto', display: 'block' }}
       />
@@ -251,7 +265,7 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpMy2026, onO
     <nav className="cm-nav">
       <div className="cm-nav-inner">
         <a href="#top" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-          <CinemapLogo height={28} variant="horizontal" label={lang === 'en' ? 'Cinemap' : 'سينماب'} />
+          <CinemapLogo height={28} variant="horizontal" lang={lang} />
         </a>
 
         <div className="cm-nav-links">
