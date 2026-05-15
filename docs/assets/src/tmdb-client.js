@@ -38,7 +38,7 @@ const TMDB_BG_BASE  = 'https://image.tmdb.org/t/p/w1280';
 // (e.g. when posters change across the board, or when TMDB structure shifts).
 // Each entry also has its own TTL so caches roll over automatically without
 // requiring a deploy.
-const CACHE_VERSION = 12; // bumped: pinned tmdbId for مسألة حياة أو موت → 1418982
+const CACHE_VERSION = 13; // bumped: refresh stale no-poster TMDB caches
 const TTL_POSTER_DAYS  = 7;   // posters change ~weekly as marketing rolls out
 const TTL_TRAILER_DAYS = 3;   // trailers drop late, re-check more often
 const TTL_CAST_DAYS    = 30;  // cast is stable once announced
@@ -53,7 +53,13 @@ function readCache(key, ttlDays) {
     // Old (unversioned) entries: ignore so they re-fetch with the new schema.
     if (!entry || typeof entry !== 'object' || entry.v !== CACHE_VERSION) return null;
     const age = Date.now() - (entry.ts || 0);
-    if (age > ttlDays * DAY) return null;
+    const data = entry.data || {};
+    const hasMedia = !!(data.poster || data.backdrop);
+    // Poster-less TMDB responses change often for upcoming films. Keep those
+    // short-lived so users do not get stuck on the "قريبًا" placeholder after
+    // key art appears.
+    const effectiveTtlDays = (!hasMedia || data.missing) ? Math.min(ttlDays, 1) : ttlDays;
+    if (age > effectiveTtlDays * DAY) return null;
     return entry.data;
   } catch { return null; }
 }
