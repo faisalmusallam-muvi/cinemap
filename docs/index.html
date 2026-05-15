@@ -8,6 +8,8 @@
   <meta name="theme-color" content="#0A1320">
 
   <!-- PWA -->
+  <link rel="icon" type="image/svg+xml" href="assets/cinemap-favicon.svg">
+  <link rel="shortcut icon" type="image/svg+xml" href="assets/cinemap-favicon.svg">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/cinemap-logo.svg">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -312,6 +314,24 @@
     .cm-nav-links a:hover { color: var(--cream); }
 
     .cm-nav-right { display: flex; align-items: center; gap: 10px; }
+    .cm-nav-version {
+      direction: ltr;
+      unicode-bidi: isolate;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(255,138,0,0.12);
+      border: 1px solid rgba(255,138,0,0.38);
+      color: var(--amber);
+      font-family: var(--font-en);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+      opacity: 0.86;
+    }
     .cm-nav-search-btn {
       display: none;
       width: 40px;
@@ -506,6 +526,7 @@
     @media (max-width: 880px) {
       .cm-nav-links { display: none; }
       .cm-nav-cta { display: none; }
+      .cm-nav-version { display: none; }
       .cm-burger { display: flex; }
       .cm-mobile-menu { display: flex; }
     }

@@ -12,9 +12,9 @@ window.CINEMAP_CONFIG = {
   // WhatsApp, names, or other direct contact details here.
   supabaseEventsEndpoint: 'https://kljlgxqqvgpvsyeoitqx.supabase.co/rest/v1/cinemap_events',
   supabasePublishableKey: 'sb_publishable_bABwg8Yjsni-8EvhUsWr0A_HTxNmTXV',
-  releaseVersion: 'v1.64',
-  releaseNoteAr: 'البوسترات تتحدث من جديد بدل ما تعلق على قريبًا.',
-  releaseNoteEn: 'Posters now refresh instead of getting stuck on Coming Soon.',
+  releaseVersion: 'v1.65',
+  releaseNoteAr: 'رقم النسخة صار أوضح على الكمبيوتر وأيقونة التب صارت سينماب.',
+  releaseNoteEn: 'Desktop now shows the version, with the Cinemap tab icon.',
 };
 
 // ============================================================

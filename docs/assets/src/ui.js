@@ -263,6 +263,12 @@ function Nav({ lang, setLang, onJumpCalendar, onJumpWatchlist, onJumpMy2026, onO
         <SearchBar lang={lang} onOpenMovie={onOpenMovie} />
 
         <div className="cm-nav-right">
+          <span
+            className="cm-nav-version"
+            title={window.CINEMAP_CONFIG?.releaseNoteAr || window.CINEMAP_CONFIG?.releaseNoteEn || ''}
+          >
+            {window.CINEMAP_CONFIG?.releaseVersion || 'v1'}
+          </span>
           <button
             className={`cm-nav-search-btn ${searchOpen ? 'is-open' : ''}`}
             onClick={() => { setSearchOpen(v => !v); setOpen(false); }}
