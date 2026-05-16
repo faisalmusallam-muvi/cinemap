@@ -627,7 +627,7 @@ function App() {
     return /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/.test(first);
   };
 
-  const shareFont = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  const shareFont = '"IBM Plex Sans Arabic", "Tajawal", "Outfit", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 
   const drawFittedText = (ctx, text, x, y, maxWidth, maxSize, minSize, weight = 900) => {
     let size = maxSize;
@@ -736,17 +736,6 @@ function App() {
       ctx.arc(x, y, i % 3 === 0 ? 1.4 : 0.8, 0, Math.PI * 2);
       ctx.stroke();
     }
-    ctx.globalAlpha = 0.07;
-    ctx.lineWidth = 26;
-    ctx.beginPath();
-    ctx.arc(150, 190, 145, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.lineWidth = 16;
-    [80, 150, 220].forEach((cx) => {
-      ctx.beginPath();
-      ctx.arc(cx, 190, 34, 0, Math.PI * 2);
-      ctx.stroke();
-    });
     ctx.restore();
 
     ctx.save();
@@ -786,18 +775,14 @@ function App() {
     ctx.textAlign = 'left';
     ctx.direction = isEn ? 'ltr' : 'rtl';
     ctx.fillText(logoText, logoStart + markW + 20, isEn ? 88 : 84);
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#ffb331';
-    ctx.font = `900 30px ${shareFont}`;
-    ctx.fillText(isEn ? 'Movies worth talking about' : 'أفلام عليها كلام', W / 2, 162);
 
     ctx.font = `900 ${isEn ? 68 : 74}px ${shareFont}`;
     ctx.fillStyle = '#fff7ed';
-    const titleY = 236;
+    const titleY = 248;
     if (isEn) {
       const left = 'My ';
       const mid = '2026';
-      const right = ' Movie List';
+      const right = ' Movie Summary';
       const total = ctx.measureText(left + mid + right).width;
       let x = W / 2 - total / 2;
       ctx.textAlign = 'left';
@@ -809,7 +794,7 @@ function App() {
       ctx.fillStyle = '#fff7ed';
       ctx.fillText(right, x, titleY);
     } else {
-      const text = 'قائمتي السينمائية في';
+      const text = 'ملخصي السينمائي في';
       const year = '2026';
       const total = ctx.measureText(text).width + 34 + ctx.measureText(year).width;
       let x = W / 2 + total / 2;
@@ -820,7 +805,7 @@ function App() {
       ctx.fillText(year, x, titleY);
     }
 
-    const pillX = 178, pillY = 385, pillW = 724, pillH = 170;
+    const pillX = 178, pillY = 398, pillW = 724, pillH = 170;
     ctx.save();
     ctx.shadowColor = 'rgba(255,138,0,0.32)';
     ctx.shadowBlur = 28;
@@ -839,7 +824,7 @@ function App() {
     ctx.direction = isEn ? 'ltr' : 'rtl';
     ctx.fillStyle = '#ffb331';
     ctx.font = `900 30px ${shareFont}`;
-    ctx.fillText(isEn ? '✦ Your Movie Style ✦' : '✦ ستايلك السينمائي ✦', W / 2, pillY + 26);
+    ctx.fillText(isEn ? '✦ My Movie Taste ✦' : '✦ ذوقي السينمائي ✦', W / 2, pillY + 26);
 
     ctx.save();
     ctx.shadowColor = 'rgba(255,179,49,0.5)';
@@ -909,13 +894,13 @@ function App() {
       (item) => item.saved && item.rating === 0,
       (item) => item.rating > 0,
     ].forEach((filterFn) => {
-      if (supportMovies.length >= 3) return;
+      if (supportMovies.length >= 6) return;
       candidates
         .filter(item => item.key !== heroMovie?.key && !supportMovies.some(existing => existing.key === item.key))
         .filter(filterFn)
         .sort(sortStrongest)
         .forEach((item) => {
-          if (supportMovies.length < 3) supportMovies.push(item);
+          if (supportMovies.length < 6) supportMovies.push(item);
         });
     });
 
@@ -924,6 +909,15 @@ function App() {
       ctx.shadowColor = hero ? 'rgba(255,138,0,0.55)' : 'rgba(255,138,0,0.24)';
       ctx.shadowBlur = hero ? 26 : 14;
       drawCoverImage(ctx, item?.img, x, y, w, h, r);
+      if (!item?.img) {
+        ctx.textAlign = 'center';
+        ctx.direction = isArabicLeading(window.movieTitle(item?.movie, lang)) ? 'rtl' : 'ltr';
+        drawMark(x + w / 2 - (hero ? 22 : 15), y + h * 0.27, hero ? 60 : 42, '#ff8a00');
+        ctx.fillStyle = '#fff7ed';
+        ctx.font = `900 ${hero ? 28 : 18}px ${shareFont}`;
+        drawWrappedText(ctx, window.movieTitle(item?.movie, lang), x + w / 2, y + h * 0.55, w - (hero ? 54 : 22), hero ? 34 : 22, hero ? 3 : 2);
+        ctx.direction = isEn ? 'ltr' : 'rtl';
+      }
       roundRect(ctx, x, y, w, h, r);
       ctx.strokeStyle = hero ? 'rgba(255,179,49,0.95)' : 'rgba(255,179,49,0.62)';
       ctx.lineWidth = hero ? 3 : 2;
@@ -944,7 +938,18 @@ function App() {
       ctx.fillText(isEn ? '★ Top Pick' : 'أفضل فيلم ★', 175, posterY + 13);
 
       supportMovies.forEach((item, i) => {
-        drawPosterFrame(item, 468 + i * 172, posterY + 158, 148, 285, 18);
+        const row = Math.floor(i / 3);
+        const col = i % 3;
+        const rowItems = supportMovies.slice(row * 3, row * 3 + 3).length;
+        const supportW = 142;
+        const supportGapY = 38;
+        const supportH = (520 - supportGapY) / 2;
+        const supportGapX = 22;
+        const rowWidth = rowItems * supportW + Math.max(0, rowItems - 1) * supportGapX;
+        const startX = 482 + (470 - rowWidth) / 2;
+        const x = startX + col * (supportW + supportGapX);
+        const y = posterY + row * (supportH + supportGapY);
+        drawPosterFrame(item, x, y, supportW, supportH, 18);
       });
     } else {
       const emptyX = 118, emptyY = posterY + 34, emptyW = 844, emptyH = 410;
@@ -979,17 +984,17 @@ function App() {
     const hoursRaw = String(profile.hoursText || '0').replace(/[^\d.]/g, '') || '0';
     const stats = isEn
       ? [
-          { icon: '★', label: 'Rating', value: avgRating, sub: ratedValues.length ? '/5' : '' },
-          { icon: '🎬', label: 'Movies', value: String(movieCount), sub: movieCount === 1 ? 'movie' : 'movies' },
-          { icon: '🍿', label: 'Watch Time', value: hoursRaw, sub: Number(hoursRaw) === 1 ? 'hour' : 'hours' },
+          { icon: '★', label: 'My Rating', value: avgRating, sub: ratedValues.length ? '/5' : '' },
+          { icon: '🎬', label: 'My Movies', value: String(movieCount), sub: movieCount === 1 ? 'movie' : 'movies' },
+          { icon: '🍿', label: 'My Time', value: hoursRaw, sub: Number(hoursRaw) === 1 ? 'hour' : 'hours' },
         ]
       : [
           { icon: '★', label: 'تقييمي', value: avgRating, sub: ratedValues.length ? '/5' : '' },
-          { icon: '🎬', label: 'أفلام', value: String(movieCount), sub: 'فيلم' },
-          { icon: '🍿', label: 'حماسك', value: hoursRaw, sub: 'ساعة' },
+          { icon: '🎬', label: 'أفلامي', value: String(movieCount), sub: 'فيلم' },
+          { icon: '🍿', label: 'وقتي', value: hoursRaw, sub: 'ساعة' },
         ];
 
-    const statsX = 92, statsY = 1312, statsW = 896, statsH = 270;
+    const statsX = 92, statsY = 1304, statsW = 896, statsH = 292;
     ctx.save();
     ctx.shadowColor = 'rgba(255,138,0,0.22)';
     ctx.shadowBlur = 22;
@@ -1015,18 +1020,29 @@ function App() {
       ctx.direction = isEn ? 'ltr' : 'rtl';
       ctx.fillStyle = '#ffb331';
       ctx.font = `900 34px ${shareFont}`;
-      ctx.fillText(stat.icon, cx, statsY + 40);
+      ctx.fillText(stat.icon, cx, statsY + 36);
       ctx.fillStyle = '#fff7ed';
       ctx.font = `900 31px ${shareFont}`;
-      ctx.fillText(stat.label, cx, statsY + 84);
+      ctx.fillText(stat.label, cx, statsY + 82);
       ctx.font = `950 74px ${shareFont}`;
       ctx.fillText(stat.value, cx, statsY + 132);
-      ctx.font = `900 27px ${shareFont}`;
-      ctx.fillText(stat.sub, cx, statsY + 215);
-      if (i === 0 && ratedValues.length) drawShareStars(ctx, cx - 106, statsY + 214, Number(avgRating), 30, 5);
+      if (i === 0) {
+        if (stat.sub) {
+          ctx.fillStyle = '#c9d1dc';
+          ctx.font = `900 26px ${shareFont}`;
+          ctx.direction = 'ltr';
+          ctx.fillText(stat.sub, cx + 82, statsY + 156);
+        }
+        if (ratedValues.length) drawShareStars(ctx, cx - 73, statsY + 228, Number(avgRating), 26, 4);
+      } else {
+        ctx.fillStyle = '#fff7ed';
+        ctx.font = `900 27px ${shareFont}`;
+        ctx.direction = isEn ? 'ltr' : 'rtl';
+        ctx.fillText(stat.sub, cx, statsY + 222);
+      }
     });
 
-    const footerY = 1648;
+    const footerY = 1628;
     ctx.fillStyle = 'rgba(255,179,49,0.48)';
     ctx.fillRect(210, footerY + 44, 250, 2);
     ctx.fillRect(620, footerY + 44, 250, 2);
@@ -1036,7 +1052,7 @@ function App() {
     ctx.fillStyle = '#fff7ed';
     drawFittedText(
       ctx,
-      isEn ? 'Your movie list is waiting on Cinemap' : 'قائمتك السينمائية تنتظر في سينماب',
+      isEn ? 'This is my movie summary on Cinemap' : 'وهذا ملخصي السينمائي في سينماب',
       W / 2,
       footerY + 95,
       860,
@@ -1044,7 +1060,7 @@ function App() {
       28,
       950
     );
-    roundRect(ctx, 368, footerY + 182, 344, 62, 31);
+    roundRect(ctx, 368, footerY + 188, 344, 62, 31);
     ctx.fillStyle = 'rgba(7,17,31,0.74)';
     ctx.fill();
     ctx.strokeStyle = 'rgba(255,179,49,0.68)';
@@ -1052,7 +1068,7 @@ function App() {
     ctx.stroke();
     ctx.fillStyle = '#ffb331';
     ctx.font = `900 34px ${shareFont}`;
-    ctx.fillText('◎  cinemap.me', W / 2, footerY + 195);
+    ctx.fillText('◎  cinemap.me', W / 2, footerY + 201);
 
     return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 0.95));
   };

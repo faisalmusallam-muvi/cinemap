@@ -94,6 +94,13 @@
     img { max-width: 100%; display: block; }
     .ltr { direction: ltr; unicode-bidi: isolate; }
 
+    /* Arabic shaping safety: tracking breaks connected Arabic letterforms.
+       Keep decorative letter-spacing available in English/LTR mode only. */
+    html[dir="rtl"] body,
+    html[dir="rtl"] body * {
+      letter-spacing: 0 !important;
+    }
+
     ::selection { background: var(--amber); color: var(--midnight); }
 
     /* =========================================================
