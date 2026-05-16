@@ -627,10 +627,75 @@ function App() {
     return /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/.test(first);
   };
 
+  const shareFont = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+  const drawFittedText = (ctx, text, x, y, maxWidth, maxSize, minSize, weight = 900) => {
+    let size = maxSize;
+    ctx.font = `${weight} ${size}px ${shareFont}`;
+    while (ctx.measureText(String(text || '')).width > maxWidth && size > minSize) {
+      size -= 2;
+      ctx.font = `${weight} ${size}px ${shareFont}`;
+    }
+    ctx.fillText(text, x, y);
+    return size;
+  };
+
+  const shareRatingValue = (entry) => {
+    const value = typeof entry?.rating === 'number' ? entry.rating : Number(entry?.rating || 0);
+    return Number.isFinite(value) ? value : 0;
+  };
+
+  const shareRatingTs = (entry) => {
+    const ts = Date.parse(entry?.ts || entry?.updatedAt || entry?.date || '');
+    return Number.isFinite(ts) ? ts : 0;
+  };
+
+  const movieReleaseTime = (movie) => {
+    const ts = Date.parse(movie?.date || movie?.releaseDate || '');
+    return Number.isFinite(ts) ? ts : 0;
+  };
+
+  const shareVibeScore = (movie, ratingEntry) => {
+    const values = [
+      ...(Array.isArray(ratingEntry?.vibes) ? ratingEntry.vibes : []),
+      ratingEntry?.vibe,
+      movie?.mood,
+      movie?.genre,
+    ].filter(Boolean).map(v => String(v).toLowerCase());
+    const scores = {
+      bigscreen: 8,
+      cinema: 8,
+      worthcinema: 8,
+      thrill: 6,
+      thriller: 6,
+      action: 6,
+      fun: 5,
+      comedy: 5,
+      horror: 4,
+      family: 3,
+      animation: 3,
+    };
+    return values.reduce((best, value) => Math.max(best, scores[value] || 0), 0);
+  };
+
+  const drawShareStars = (ctx, x, y, rating, size = 34, gap = 8) => {
+    const full = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+    ctx.save();
+    ctx.direction = 'ltr';
+    ctx.textAlign = 'left';
+    ctx.font = `900 ${size}px ${shareFont}`;
+    for (let i = 0; i < 5; i += 1) {
+      ctx.fillStyle = i < full ? '#ffb331' : 'rgba(245,242,235,0.26)';
+      ctx.fillText('★', x + i * (size + gap), y);
+    }
+    ctx.restore();
+  };
+
   const makeWatchlistShareImage = async () => {
     try {
       if (document.fonts?.ready) await document.fonts.ready;
     } catch {}
+
     const profile = window.cinemapBuildMy2026Profile?.({ lang, movies, watched, ratings, watchlist }) || {};
     const isEn = lang === 'en';
     const W = 1080, H = 1920;
@@ -642,16 +707,56 @@ function App() {
     ctx.direction = isEn ? 'ltr' : 'rtl';
 
     const bg = ctx.createLinearGradient(0, 0, W, H);
-    bg.addColorStop(0, '#07111f');
-    bg.addColorStop(0.48, '#111a26');
-    bg.addColorStop(1, '#221713');
+    bg.addColorStop(0, '#050d18');
+    bg.addColorStop(0.5, '#081320');
+    bg.addColorStop(1, '#16100e');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
-    const glow = ctx.createRadialGradient(220, 200, 40, 220, 200, 760);
-    glow.addColorStop(0, 'rgba(255,138,0,0.42)');
-    glow.addColorStop(1, 'rgba(255,138,0,0)');
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, W, H);
+
+    [
+      [1010, 70, 520, 'rgba(255,159,45,0.68)'],
+      [90, 1840, 560, 'rgba(255,138,0,0.48)'],
+      [520, 1200, 650, 'rgba(255,179,49,0.14)'],
+    ].forEach(([x, y, r, color]) => {
+      const glow = ctx.createRadialGradient(x, y, 8, x, y, r);
+      glow.addColorStop(0, color);
+      glow.addColorStop(1, 'rgba(255,138,0,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, W, H);
+    });
+
+    ctx.save();
+    ctx.globalAlpha = 0.1;
+    ctx.strokeStyle = '#fff7ed';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 120; i += 1) {
+      const x = (i * 97) % W;
+      const y = (i * 193) % H;
+      ctx.beginPath();
+      ctx.arc(x, y, i % 3 === 0 ? 1.4 : 0.8, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 0.07;
+    ctx.lineWidth = 26;
+    ctx.beginPath();
+    ctx.arc(150, 190, 145, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.lineWidth = 16;
+    [80, 150, 220].forEach((cx) => {
+      ctx.beginPath();
+      ctx.arc(cx, 190, 34, 0, Math.PI * 2);
+      ctx.stroke();
+    });
+    ctx.restore();
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,138,0,0.55)';
+    ctx.shadowBlur = 26;
+    roundRect(ctx, 24, 24, W - 48, H - 48, 48);
+    ctx.strokeStyle = 'rgba(255,138,0,0.78)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
 
     const markImg = await loadShareImage('assets/cinemap-mark.svg');
     const drawMark = (x, y, h, color) => {
@@ -670,157 +775,284 @@ function App() {
       return w;
     };
 
-    const wordmark = isEn ? 'Cinemap' : 'سينماب';
-    const alignX = isEn ? 80 : 1000;
-    ctx.textAlign = isEn ? 'left' : 'right';
+    const logoText = isEn ? 'cinemap' : 'سينماب';
+    ctx.font = `900 ${isEn ? 62 : 58}px ${shareFont}`;
+    const logoW = ctx.measureText(logoText).width;
+    const markH = 76;
+    const markW = Math.round(markH * (markImg ? markImg.width / markImg.height : 0.61));
+    const logoStart = W / 2 - (markW + 20 + logoW) / 2;
+    drawMark(logoStart, 86, markH, '#ff8a00');
     ctx.fillStyle = '#fff7ed';
-    ctx.font = '800 38px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    const wordmarkW = ctx.measureText(wordmark).width;
-    ctx.fillText(wordmark, alignX, 68);
-    const markH = 56;
-    const markGap = 14;
-    if (isEn) {
-      drawMark(alignX + wordmarkW + markGap, 58, markH, '#ff8a00');
-    } else {
-      const markW = Math.round(markH * (markImg ? markImg.width / markImg.height : 0.61));
-      drawMark(alignX - wordmarkW - markGap - markW, 58, markH, '#ff8a00');
-    }
-    ctx.fillStyle = '#fff7ed';
-    ctx.font = '900 64px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    ctx.fillText(isEn ? 'My 2026 movie list' : 'قائمتي السينمائية في 2026', alignX, 150);
-    ctx.fillStyle = '#c9d1dc';
-    ctx.font = '600 30px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    ctx.fillText(isEn ? 'Movies worth talking about' : 'أفلام عليها كلام', alignX, 235);
+    ctx.textAlign = 'left';
+    ctx.direction = isEn ? 'ltr' : 'rtl';
+    ctx.fillText(logoText, logoStart + markW + 20, isEn ? 88 : 84);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffb331';
+    ctx.font = `900 30px ${shareFont}`;
+    ctx.fillText(isEn ? 'Movies worth talking about' : 'أفلام عليها كلام', W / 2, 162);
 
-    // Personality hero pill — the share-worthy headline
-    const pillX = 80, pillY = 305, pillW = 920, pillH = 160;
+    ctx.font = `900 ${isEn ? 68 : 74}px ${shareFont}`;
+    ctx.fillStyle = '#fff7ed';
+    const titleY = 236;
+    if (isEn) {
+      const left = 'My ';
+      const mid = '2026';
+      const right = ' Movie List';
+      const total = ctx.measureText(left + mid + right).width;
+      let x = W / 2 - total / 2;
+      ctx.textAlign = 'left';
+      ctx.fillText(left, x, titleY);
+      x += ctx.measureText(left).width;
+      ctx.fillStyle = '#ffb331';
+      ctx.fillText(mid, x, titleY);
+      x += ctx.measureText(mid).width;
+      ctx.fillStyle = '#fff7ed';
+      ctx.fillText(right, x, titleY);
+    } else {
+      const text = 'قائمتي السينمائية في';
+      const year = '2026';
+      const total = ctx.measureText(text).width + 34 + ctx.measureText(year).width;
+      let x = W / 2 + total / 2;
+      ctx.textAlign = 'right';
+      ctx.fillText(text, x, titleY);
+      x -= ctx.measureText(text).width + 34;
+      ctx.fillStyle = '#ffb331';
+      ctx.fillText(year, x, titleY);
+    }
+
+    const pillX = 178, pillY = 385, pillW = 724, pillH = 170;
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,138,0,0.32)';
+    ctx.shadowBlur = 28;
     roundRect(ctx, pillX, pillY, pillW, pillH, 32);
     const pillBg = ctx.createLinearGradient(pillX, pillY, pillX, pillY + pillH);
-    pillBg.addColorStop(0, 'rgba(255,138,0,0.22)');
-    pillBg.addColorStop(1, 'rgba(255,138,0,0.10)');
+    pillBg.addColorStop(0, 'rgba(9,20,34,0.95)');
+    pillBg.addColorStop(1, 'rgba(12,24,38,0.82)');
     ctx.fillStyle = pillBg;
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,138,0,0.55)';
+    ctx.strokeStyle = 'rgba(255,179,49,0.82)';
     ctx.lineWidth = 2;
     ctx.stroke();
+    ctx.restore();
 
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#ff8a00';
-    ctx.font = '800 24px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    ctx.fillText(isEn ? t.my2026_personality : 'ستايلك السينمائي', 540, pillY + 26);
+    ctx.direction = isEn ? 'ltr' : 'rtl';
+    ctx.fillStyle = '#ffb331';
+    ctx.font = `900 30px ${shareFont}`;
+    ctx.fillText(isEn ? '✦ Your Movie Style ✦' : '✦ ستايلك السينمائي ✦', W / 2, pillY + 26);
 
-    const personalityValue = profile.personality || t.my2026_p0;
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,179,49,0.5)';
+    ctx.shadowBlur = 18;
     ctx.fillStyle = '#fff7ed';
-    let personalityFontSize = 60;
-    ctx.font = `900 ${personalityFontSize}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-    while (ctx.measureText(personalityValue).width > pillW - 80 && personalityFontSize > 38) {
-      personalityFontSize -= 4;
-      ctx.font = `900 ${personalityFontSize}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
-    }
-    ctx.fillText(personalityValue, 540, pillY + 70);
+    drawFittedText(ctx, profile.personality || t.my2026_p0, W / 2, pillY + 76, pillW - 90, isEn ? 54 : 60, 34, 950);
+    ctx.restore();
 
-    // Thin stat strip — supporting numbers, no panel chrome
-    const stripY = pillY + pillH + 36;
-    const stripParts = [
-      isEn ? `${profile.watchedCount ?? 0} movies` : `${profile.watchedCount ?? 0} أفلام`,
-      isEn ? `Energy ${profile.hoursText || '0'}` : `حماسك ${profile.hoursText || '0'}`,
-      isEn ? `Rating ${profile.averageText || t.my2026_not_yet}` : `تقييمك ${profile.averageText || t.my2026_not_yet}`,
-    ];
-    ctx.fillStyle = '#c9d1dc';
-    ctx.font = '700 30px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    ctx.textAlign = 'center';
-    const partWidths = stripParts.map(p => ctx.measureText(p).width);
-    const dotGap = 36;
-    const totalW = partWidths.reduce((a, b) => a + b, 0) + dotGap * (stripParts.length - 1);
-    let cursor = 540 - totalW / 2;
-    stripParts.forEach((part, i) => {
-      const w = partWidths[i];
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#fff7ed';
-      ctx.fillText(part, cursor, stripY);
-      cursor += w;
-      if (i < stripParts.length - 1) {
-        ctx.fillStyle = '#ff8a00';
-        ctx.beginPath();
-        ctx.arc(cursor + dotGap / 2, stripY + 18, 4, 0, Math.PI * 2);
-        ctx.fill();
-        cursor += dotGap;
-      }
-    });
+    ctx.save();
+    ctx.fillStyle = '#ffb331';
+    ctx.shadowColor = 'rgba(255,138,0,0.46)';
+    ctx.shadowBlur = 16;
+    ctx.beginPath();
+    ctx.arc(W / 2, pillY + pillH + 8, 34, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#081320';
+    ctx.font = `900 34px ${shareFont}`;
+    ctx.fillText('♥', W / 2, pillY + pillH - 11);
+    ctx.restore();
 
-    const shareMovies = savedMovies.slice(0, 6);
-    const media = await Promise.all(shareMovies.map(async (m) => {
-      const data = await window.cinemapFetchMovieMedia?.(m);
-      const src = data?.poster || data?.backdrop || m.localPoster || null;
-      const rating = ratings?.[movieKey(m)]?.rating || 0;
-      return { movie: m, img: await loadShareImage(src), rating: Number(rating) || 0 };
+    const makeCandidates = () => movies
+      .map((movie, index) => {
+        const key = movieKey(movie);
+        const ratingEntry = ratings?.[key];
+        const rating = shareRatingValue(ratingEntry);
+        const isWatched = watched.has(key);
+        const isSaved = watchlist.has(key);
+        if (!rating && !isWatched && !isSaved) return null;
+        return {
+          key,
+          movie,
+          index,
+          rating,
+          ratingTs: shareRatingTs(ratingEntry),
+          watched: isWatched,
+          saved: isSaved,
+          vibeScore: shareVibeScore(movie, ratingEntry),
+          releaseTs: movieReleaseTime(movie),
+        };
+      })
+      .filter(Boolean);
+
+    const sortStrongest = (a, b) => (
+      (b.rating - a.rating) ||
+      (b.ratingTs - a.ratingTs) ||
+      (Number(b.watched) - Number(a.watched)) ||
+      (b.vibeScore - a.vibeScore) ||
+      (b.releaseTs - a.releaseTs) ||
+      (Number(b.hasPoster) - Number(a.hasPoster)) ||
+      (a.index - b.index)
+    );
+
+    const allShareCandidates = makeCandidates().sort(sortStrongest);
+    const candidates = await Promise.all(allShareCandidates.slice(0, 24).map(async (item) => {
+      const data = await window.cinemapFetchMovieMedia?.(item.movie);
+      const src = data?.poster || data?.backdrop || item.movie.localPoster || null;
+      return { ...item, img: await loadShareImage(src), hasPoster: Boolean(src) };
     }));
-
-    const startY = 580;
-    const cardW = 280, posterH = 420, gap = 40;
-    const startX = 80;
-    const rowSpacing = 580;
-    media.forEach(({ movie, img, rating }, i) => {
-      const row = Math.floor(i / 3);
-      const col = i % 3;
-      const x = startX + col * (cardW + gap);
-      const y = startY + row * rowSpacing;
-      drawCoverImage(ctx, img, x, y, cardW, posterH, 24);
-      ctx.strokeStyle = 'rgba(255,255,255,0.16)';
-      ctx.lineWidth = 2;
-      roundRect(ctx, x, y, cardW, posterH, 24);
-      ctx.stroke();
-      // Center titles under each poster — uniform layout that handles both
-      // Arabic and mixed-script titles cleanly. Per-title direction switch
-      // ensures Latin/digit-leading titles render LTR even though the
-      // surrounding canvas direction is RTL.
-      const title = window.movieTitle(movie, lang);
-      ctx.direction = isArabicLeading(title) ? 'rtl' : 'ltr';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#fff7ed';
-      ctx.font = '900 26px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-      drawWrappedText(ctx, title, x + cardW / 2, y + posterH + 18, cardW, 32, 2);
-
-      // Date under the title — same compact info pattern as the watchlist
-      // cards in the app (title → date → stars).
-      ctx.direction = isEn ? 'ltr' : 'rtl';
-      ctx.fillStyle = '#aab4c2';
-      ctx.font = '700 22px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-      const dateText = window.fmtDate(movie.date, lang);
-      ctx.fillText(dateText, x + cardW / 2, y + posterH + 88);
-
-      // Rating row — always render 5 stars (gold for rated, dim for empty)
-      // so every card carries the rating affordance, matching the watchlist
-      // visual where stars speak for themselves without a "تقييمك" label.
-      const goldCount = Math.max(0, Math.min(5, Math.round(rating)));
-      const starSize = 26;
-      const starGap = 6;
-      const totalStarWidth = 5 * starSize + 4 * starGap;
-      let cursor = x + cardW / 2 - totalStarWidth / 2;
-      ctx.font = '800 ' + starSize + 'px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-      ctx.textAlign = 'left';
-      ctx.direction = 'ltr';
-      for (let s = 0; s < 5; s++) {
-        ctx.fillStyle = s < goldCount ? '#ffc857' : 'rgba(245,242,235,0.28)';
-        ctx.fillText('★', cursor, y + posterH + 124);
-        cursor += starSize + starGap;
-      }
-
-      // Reset direction back to the canvas default so other elements
-      // (footer, etc.) continue to use the Arabic-context direction.
-      ctx.textAlign = 'center';
-      ctx.direction = isEn ? 'ltr' : 'rtl';
+    const hasUserMovies = candidates.length > 0;
+    const heroPool = candidates.filter(item => item.rating >= 3);
+    const heroMovie = (heroPool.length ? heroPool : candidates).slice().sort(sortStrongest)[0];
+    const supportMovies = [];
+    [
+      (item) => item.rating >= 4,
+      (item) => item.rating === 3,
+      (item) => item.watched && item.rating === 0,
+      (item) => item.saved && item.rating === 0,
+      (item) => item.rating > 0,
+    ].forEach((filterFn) => {
+      if (supportMovies.length >= 3) return;
+      candidates
+        .filter(item => item.key !== heroMovie?.key && !supportMovies.some(existing => existing.key === item.key))
+        .filter(filterFn)
+        .sort(sortStrongest)
+        .forEach((item) => {
+          if (supportMovies.length < 3) supportMovies.push(item);
+        });
     });
 
-    const footerY = 1780;
-    ctx.fillStyle = 'rgba(7,17,31,0.78)';
-    ctx.fillRect(0, footerY, W, H - footerY);
-    ctx.fillStyle = 'rgba(255,138,0,0.4)';
-    ctx.fillRect(0, footerY, W, 2);
+    const drawPosterFrame = (item, x, y, w, h, r, hero = false) => {
+      ctx.save();
+      ctx.shadowColor = hero ? 'rgba(255,138,0,0.55)' : 'rgba(255,138,0,0.24)';
+      ctx.shadowBlur = hero ? 26 : 14;
+      drawCoverImage(ctx, item?.img, x, y, w, h, r);
+      roundRect(ctx, x, y, w, h, r);
+      ctx.strokeStyle = hero ? 'rgba(255,179,49,0.95)' : 'rgba(255,179,49,0.62)';
+      ctx.lineWidth = hero ? 3 : 2;
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    const posterY = 690;
+    if (hasUserMovies) {
+      drawPosterFrame(heroMovie, 88, posterY, 340, 520, 24, true);
+      roundRect(ctx, 88, posterY, 174, 54, 16);
+      ctx.fillStyle = '#ffb331';
+      ctx.fill();
+      ctx.textAlign = 'center';
+      ctx.direction = isEn ? 'ltr' : 'rtl';
+      ctx.fillStyle = '#111827';
+      ctx.font = `900 24px ${shareFont}`;
+      ctx.fillText(isEn ? '★ Top Pick' : 'أفضل فيلم ★', 175, posterY + 13);
+
+      supportMovies.forEach((item, i) => {
+        drawPosterFrame(item, 468 + i * 172, posterY + 158, 148, 285, 18);
+      });
+    } else {
+      const emptyX = 118, emptyY = posterY + 34, emptyW = 844, emptyH = 410;
+      roundRect(ctx, emptyX, emptyY, emptyW, emptyH, 30);
+      ctx.fillStyle = 'rgba(9,20,34,0.78)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,179,49,0.52)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#fff7ed';
+      ctx.font = `950 70px ${shareFont}`;
+      ctx.fillText(isEn ? 'Start your list' : 'ابدأ قائمتك', W / 2, emptyY + 105);
+      ctx.fillStyle = '#c9d1dc';
+      ctx.font = `800 34px ${shareFont}`;
+      drawWrappedText(
+        ctx,
+        isEn ? 'Rate your first movie and discover your movie style.' : 'قيّم أول فيلم وشوف ستايلك السينمائي.',
+        W / 2,
+        emptyY + 205,
+        emptyW - 130,
+        46,
+        2
+      );
+    }
+
+    const ratedValues = Object.values(ratings || {}).map(shareRatingValue).filter(Boolean);
+    const avgRating = ratedValues.length
+      ? (ratedValues.reduce((sum, value) => sum + value, 0) / ratedValues.length).toFixed(1)
+      : '—';
+    const movieCount = Math.max(profile.watchedCount || 0, allShareCandidates.filter(item => item.watched).length, allShareCandidates.length);
+    const hoursRaw = String(profile.hoursText || '0').replace(/[^\d.]/g, '') || '0';
+    const stats = isEn
+      ? [
+          { icon: '★', label: 'Rating', value: avgRating, sub: ratedValues.length ? '/5' : '' },
+          { icon: '🎬', label: 'Movies', value: String(movieCount), sub: movieCount === 1 ? 'movie' : 'movies' },
+          { icon: '🍿', label: 'Watch Time', value: hoursRaw, sub: Number(hoursRaw) === 1 ? 'hour' : 'hours' },
+        ]
+      : [
+          { icon: '★', label: 'تقييمي', value: avgRating, sub: ratedValues.length ? '/5' : '' },
+          { icon: '🎬', label: 'أفلام', value: String(movieCount), sub: 'فيلم' },
+          { icon: '🍿', label: 'حماسك', value: hoursRaw, sub: 'ساعة' },
+        ];
+
+    const statsX = 92, statsY = 1312, statsW = 896, statsH = 270;
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,138,0,0.22)';
+    ctx.shadowBlur = 22;
+    roundRect(ctx, statsX, statsY, statsW, statsH, 30);
+    const statsBg = ctx.createLinearGradient(statsX, statsY, statsX, statsY + statsH);
+    statsBg.addColorStop(0, 'rgba(11,25,40,0.92)');
+    statsBg.addColorStop(1, 'rgba(7,17,31,0.86)');
+    ctx.fillStyle = statsBg;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,179,49,0.58)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+
+    const cellW = statsW / 3;
+    stats.forEach((stat, i) => {
+      const cx = statsX + cellW * i + cellW / 2;
+      if (i > 0) {
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        ctx.fillRect(statsX + cellW * i, statsY + 54, 1.5, statsH - 108);
+      }
+      ctx.textAlign = 'center';
+      ctx.direction = isEn ? 'ltr' : 'rtl';
+      ctx.fillStyle = '#ffb331';
+      ctx.font = `900 34px ${shareFont}`;
+      ctx.fillText(stat.icon, cx, statsY + 40);
+      ctx.fillStyle = '#fff7ed';
+      ctx.font = `900 31px ${shareFont}`;
+      ctx.fillText(stat.label, cx, statsY + 84);
+      ctx.font = `950 74px ${shareFont}`;
+      ctx.fillText(stat.value, cx, statsY + 132);
+      ctx.font = `900 27px ${shareFont}`;
+      ctx.fillText(stat.sub, cx, statsY + 215);
+      if (i === 0 && ratedValues.length) drawShareStars(ctx, cx - 106, statsY + 214, Number(avgRating), 30, 5);
+    });
+
+    const footerY = 1648;
+    ctx.fillStyle = 'rgba(255,179,49,0.48)';
+    ctx.fillRect(210, footerY + 44, 250, 2);
+    ctx.fillRect(620, footerY + 44, 250, 2);
+    drawMark(W / 2 - 16, footerY + 22, 42, '#ff8a00');
     ctx.textAlign = 'center';
+    ctx.direction = isEn ? 'ltr' : 'rtl';
     ctx.fillStyle = '#fff7ed';
-    ctx.font = '800 28px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    ctx.fillText(isEn ? 'Build yours on cinemap.me' : 'قائمتك السينمائية تنتظر في سينماب', W / 2, footerY + 50);
+    drawFittedText(
+      ctx,
+      isEn ? 'Your movie list is waiting on Cinemap' : 'قائمتك السينمائية تنتظر في سينماب',
+      W / 2,
+      footerY + 95,
+      860,
+      isEn ? 38 : 42,
+      28,
+      950
+    );
+    roundRect(ctx, 368, footerY + 182, 344, 62, 31);
+    ctx.fillStyle = 'rgba(7,17,31,0.74)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,179,49,0.68)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#ffb331';
+    ctx.font = `900 34px ${shareFont}`;
+    ctx.fillText('◎  cinemap.me', W / 2, footerY + 195);
 
     return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 0.95));
   };
@@ -834,10 +1066,9 @@ function App() {
   };
 
   const handleShareList = async () => {
-    if (savedMovies.length === 0) {
+    const hasShareActivity = savedMovies.length > 0 || watched.size > 0 || Object.values(ratings || {}).some(shareRatingValue);
+    if (!hasShareActivity) {
       window.cinemapTrack?.('watchlist_share_empty');
-      pushToast(t.toast_wl_empty, 'info', '🎬');
-      return;
     }
     const shareProfile = window.cinemapBuildMy2026Profile?.({ lang, movies, watched, ratings, watchlist }) || {};
     const shareUrl = buildShareUrl(shareProfile);
