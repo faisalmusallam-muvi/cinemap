@@ -778,7 +778,7 @@ function App() {
 
     ctx.font = `900 ${isEn ? 68 : 74}px ${shareFont}`;
     ctx.fillStyle = '#fff7ed';
-    const titleY = 248;
+    const titleY = 232;
     if (isEn) {
       const left = 'My ';
       const mid = '2026';
@@ -824,25 +824,26 @@ function App() {
     ctx.direction = isEn ? 'ltr' : 'rtl';
     ctx.fillStyle = '#ffb331';
     ctx.font = `900 30px ${shareFont}`;
-    ctx.fillText(isEn ? '✦ My Movie Taste ✦' : '✦ ذوقي السينمائي ✦', W / 2, pillY + 26);
+    ctx.fillText(isEn ? '✦ My Movie Taste ✦' : '✦ ذوقي السينمائي ✦', W / 2, pillY + 34);
 
     ctx.save();
     ctx.shadowColor = 'rgba(255,179,49,0.5)';
     ctx.shadowBlur = 18;
     ctx.fillStyle = '#fff7ed';
-    drawFittedText(ctx, profile.personality || t.my2026_p0, W / 2, pillY + 76, pillW - 90, isEn ? 54 : 60, 34, 950);
+    drawFittedText(ctx, profile.personality || t.my2026_p0, W / 2, pillY + 92, pillW - 96, isEn ? 52 : 56, 34, 950);
     ctx.restore();
 
     ctx.save();
     ctx.fillStyle = '#ffb331';
     ctx.shadowColor = 'rgba(255,138,0,0.46)';
     ctx.shadowBlur = 16;
+    const heartY = pillY + pillH + 30;
     ctx.beginPath();
-    ctx.arc(W / 2, pillY + pillH + 8, 34, 0, Math.PI * 2);
+    ctx.arc(W / 2, heartY, 34, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = '#081320';
     ctx.font = `900 34px ${shareFont}`;
-    ctx.fillText('♥', W / 2, pillY + pillH - 11);
+    ctx.fillText('♥', W / 2, heartY - 19);
     ctx.restore();
 
     const makeCandidates = () => movies
